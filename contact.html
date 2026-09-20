@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Contact Us – ShopNaija | We're Here to Help</title>
+    <meta name="description" content="Get in touch with ShopNaija. Call, email, WhatsApp or visit us — our support team responds within 24 hours." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== Contact page styles (scoped with .cnt-) ===== */
+        .cnt-breadcrumb {
+            background: #fff;
+            border-bottom: 1px solid #e8edf2;
+            padding: 0.7rem 2rem;
+            font-size: 0.82rem;
+            color: #6b7c8a;
+        }
+        .cnt-breadcrumb .cnt-inner {
+            max-width: 1300px; margin: 0 auto;
+        }
+        .cnt-breadcrumb a { color: #6b7c8a; transition: color .2s; }
+        .cnt-breadcrumb a:hover { color: #f9c74f; }
+        .cnt-breadcrumb i { font-size: 0.65rem; margin: 0 0.5rem; }
+
+        .cnt-hero {
+            background: linear-gradient(135deg, #0d1b2a 0%, #14263a 55%, #1d3a52 100%);
+            color: #fff;
+            text-align: center;
+            padding: 3.2rem 1.5rem 3.6rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .cnt-hero::before {
+            content: '';
+            position: absolute; top: -60px; right: -60px;
+            width: 260px; height: 260px; border-radius: 50%;
+            background: rgba(249, 199, 79, 0.08);
+        }
+        .cnt-hero::after {
+            content: '';
+            position: absolute; bottom: -90px; left: -40px;
+            width: 220px; height: 220px; border-radius: 50%;
+            background: rgba(249, 199, 79, 0.06);
+        }
+        .cnt-hero h1 {
+            font-size: 2.3rem; font-weight: 800; letter-spacing: -0.5px;
+        }
+        .cnt-hero h1 span { color: #f9c74f; }
+        .cnt-hero p {
+            max-width: 560px; margin: 0.8rem auto 0;
+            color: #b8c5d1; font-size: 1.02rem;
+        }
+        .cnt-hero-badges {
+            display: flex; justify-content: center; gap: 1.6rem;
+            margin-top: 1.6rem; flex-wrap: wrap; position: relative; z-index: 1;
+        }
+        .cnt-hero-badges span {
+            font-size: 0.82rem; color: #d8e1e8;
+            display: flex; align-items: center; gap: 0.45rem;
+        }
+        .cnt-hero-badges i { color: #f9c74f; }
+
+        .cnt-cards {
+            max-width: 1300px; margin: -2rem auto 0; padding: 0 2rem;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem;
+            position: relative; z-index: 2;
+        }
+        .cnt-card {
+            background: #fff; border-radius: 12px; padding: 1.5rem 1.3rem;
+            text-align: center; box-shadow: 0 6px 24px rgba(13, 27, 42, 0.10);
+            transition: transform .25s, box-shadow .25s;
+        }
+        .cnt-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(13, 27, 42, 0.16);
+        }
+        .cnt-card .cnt-icon {
+            width: 52px; height: 52px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 0.9rem; font-size: 1.25rem; color: #fff;
+            background: linear-gradient(135deg, #0d1b2a, #1d3a52);
+        }
+        .cnt-card.accent .cnt-icon { background: linear-gradient(135deg, #e6a800, #f9c74f); }
+        .cnt-card.green .cnt-icon { background: linear-gradient(135deg, #128c4a, #1fb56b); }
+        .cnt-card.blue .cnt-icon { background: linear-gradient(135deg, #155d97, #2d8fd5); }
+        .cnt-card h3 { font-size: 1rem; font-weight: 700; color: #0d1b2a; margin-bottom: 0.3rem; }
+        .cnt-card p { font-size: 0.86rem; color: #6b7c8a; margin-bottom: 0.2rem; word-break: break-word; }
+        .cnt-card a { font-size: 0.86rem; font-weight: 600; color: #0d1b2a; }
+        .cnt-card a:hover { color: #e6a800; }
+
+        .cnt-main {
+            max-width: 1300px; margin: 2.6rem auto; padding: 0 2rem;
+            display: grid; grid-template-columns: 1.7fr 1fr; gap: 1.6rem;
+            align-items: start;
+        }
+        .cnt-panel {
+            background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(13, 27, 42, 0.07);
+        }
+        .cnt-form-panel { padding: 2.2rem; }
+        .cnt-form-panel h2 {
+            font-size: 1.35rem; font-weight: 800; color: #0d1b2a;
+        }
+        .cnt-form-panel > p { color: #6b7c8a; font-size: 0.92rem; margin: 0.4rem 0 1.6rem; }
+        .cnt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .cnt-field { margin-bottom: 1.1rem; }
+        .cnt-field label {
+            display: block; font-size: 0.84rem; font-weight: 600;
+            color: #0d1b2a; margin-bottom: 0.4rem;
+        }
+        .cnt-field label b { color: #d64545; font-weight: 700; }
+        .cnt-field input, .cnt-field select, .cnt-field textarea {
+            width: 100%; padding: 0.75rem 0.9rem;
+            border: 1.5px solid #dde5ec; border-radius: 8px;
+            font-family: inherit; font-size: 0.92rem; color: #1a2a3a;
+            background: #fbfcfe; transition: border-color .2s, box-shadow .2s;
+        }
+        .cnt-field input:focus, .cnt-field select:focus, .cnt-field textarea:focus {
+            outline: none; border-color: #f9c74f;
+            box-shadow: 0 0 0 3px rgba(249, 199, 79, 0.22); background: #fff;
+        }
+        .cnt-field textarea { resize: vertical; min-height: 130px; }
+        .cnt-btn {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            background: linear-gradient(135deg, #0d1b2a, #1d3a52);
+            color: #fff; border: none; border-radius: 30px;
+            padding: 0.9rem 2.4rem; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; font-family: inherit;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .cnt-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13, 27, 42, 0.3);
+        }
+        .cnt-note { font-size: 0.78rem; color: #93a3b1; margin-top: 0.9rem; }
+        .cnt-note i { color: #1fb56b; }
+
+        .cnt-side { display: grid; gap: 1.2rem; }
+        .cnt-side-panel { padding: 1.6rem; }
+        .cnt-side-panel h3 {
+            font-size: 1.02rem; font-weight: 800; color: #0d1b2a;
+            margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .cnt-side-panel h3 i { color: #e6a800; font-size: 0.95rem; }
+        .cnt-hours { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+        .cnt-hours td { padding: 0.5rem 0; color: #4a5b6a; border-bottom: 1px dashed #e4eaef; }
+        .cnt-hours td:last-child { text-align: right; font-weight: 600; color: #0d1b2a; }
+        .cnt-hours tr:last-child td { border-bottom: none; }
+        .cnt-open-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: #e8f8ef; color: #128c4a; font-size: 0.76rem;
+            font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 20px;
+            margin-bottom: 0.9rem;
+        }
+        .cnt-open-badge .dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #1fb56b;
+            animation: cntPulse 1.6s infinite;
+        }
+        @keyframes cntPulse {
+            0% { box-shadow: 0 0 0 0 rgba(31, 181, 107, 0.5); }
+            70% { box-shadow: 0 0 0 7px rgba(31, 181, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(31, 181, 107, 0); }
+        }
+        .cnt-help-links a {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 0.9rem; border: 1.5px solid #eef2f6;
+            border-radius: 8px; margin-bottom: 0.6rem;
+            font-size: 0.88rem; font-weight: 600; color: #0d1b2a;
+            transition: border-color .2s, background .2s;
+        }
+        .cnt-help-links a i { color: #93a3b1; font-size: 0.8rem; transition: color .2s; }
+        .cnt-help-links a:hover { border-color: #f9c74f; background: #fffdf4; }
+        .cnt-help-links a:hover i { color: #e6a800; }
+        .cnt-social { display: flex; gap: 0.7rem; }
+        .cnt-social a {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: #f0f4f8; color: #0d1b2a; font-size: 1rem;
+            transition: background .2s, color .2s, transform .2s;
+        }
+        .cnt-social a:hover { background: #0d1b2a; color: #f9c74f; transform: translateY(-3px); }
+
+        .cnt-map {
+            max-width: 1300px; margin: 0 auto 3rem; padding: 0 2rem;
+        }
+        .cnt-map .cnt-panel { overflow: hidden; }
+        .cnt-map iframe {
+            width: 100%; height: 340px; border: 0; display: block;
+        }
+
+        #formFeedback > div { border-radius: 8px !important; font-weight: 500; }
+
+        @media (max-width: 1024px) {
+            .cnt-cards { grid-template-columns: repeat(2, 1fr); }
+            .cnt-main { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .cnt-cards { grid-template-columns: 1fr; padding: 0 1rem; }
+            .cnt-main, .cnt-map { padding: 0 1rem; }
+            .cnt-row { grid-template-columns: 1fr; }
+            .cnt-hero h1 { font-size: 1.7rem; }
+            .cnt-form-panel { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="tel:+2348114808088" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
+                <span class="divider">|</span>
+                <a href="mailto:worldinfopulse@gmail.com" class="top-link"><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</a>
+            </div>
+            <div class="top-bar-right">
+                <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="login.html" class="top-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="wishlist.html" class="top-link"><i class="fas fa-heart"></i> Wishlist</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html">
+                    <span class="logo-icon">🛍️</span>
+                    Shop<span>Naija</span>
+                </a>
+            </div>
+            <div class="search-bar">
+                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
+                    <span id="selectedCategory">All Categories</span>
+                    <i class="fas fa-chevron-down" id="searchArrow"></i>
+                </div>
+                <div class="search-dropdown-menu" id="searchDropdown">
+                    <a href="#" onclick="selectCategory('All Categories')">All Categories</a>
+                    <a href="#" onclick="selectCategory('Electronics')">📱 Electronics</a>
+                    <a href="#" onclick="selectCategory('Fashion')">👗 Fashion</a>
+                    <a href="#" onclick="selectCategory('Beauty')">💄 Beauty</a>
+                    <a href="#" onclick="selectCategory('Digital')">💻 Digital</a>
+                </div>
+                <input type="text" id="mainSearch" placeholder="Search for products, brands and more..." />
+                <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="nav-icons">
+                <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                <a href="contact.html" class="nav-link active"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="nav-icon-item">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <span class="icon-label">Cart</span>
+                </div>
+                <div class="nav-icon-item">
+                    <a href="login.html" class="auth-icon" id="authIcon">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <span class="icon-label">Account</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MEGA MENU -->
+    <nav class="mega-menu">
+        <div class="mega-menu-content">
+            <ul class="menu-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+                <li class="dropdown-hover">
+                    <a href="shop.html?filter=electronics"><i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="shop.html?filter=electronics">Smartphones</a>
+                        <a href="shop.html?filter=electronics">Laptops</a>
+                        <a href="shop.html?filter=electronics">Audio</a>
+                        <a href="shop.html?filter=electronics">Tablets</a>
+                        <a href="shop.html?filter=electronics">Smartwatches</a>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="shop.html?filter=fashion"><i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="shop.html?filter=fashion">Clothing</a>
+                        <a href="shop.html?filter=fashion">Shoes</a>
+                        <a href="shop.html?filter=fashion">Bags</a>
+                        <a href="shop.html?filter=fashion">Accessories</a>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="shop.html?filter=beauty"><i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="shop.html?filter=beauty">Skincare</a>
+                        <a href="shop.html?filter=beauty">Makeup</a>
+                        <a href="shop.html?filter=beauty">Fragrances</a>
+                        <a href="shop.html?filter=beauty">Hair Care</a>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="digital-products.html"><i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="digital-products.html">Software</a>
+                        <a href="digital-products.html">E-books</a>
+                        <a href="digital-products.html">Courses</a>
+                        <a href="digital-products.html">Templates</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="menu-right">
+                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
+                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- BREADCRUMB -->
+    <div class="cnt-breadcrumb">
+        <div class="cnt-inner">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Contact Us</span>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="cnt-hero">
+        <h1>We're Here to <span>Help You</span></h1>
+        <p>Questions about an order, a product, or your account? Our Nigerian-based support team is ready to assist — we typically respond within 24 hours.</p>
+        <div class="cnt-hero-badges">
+            <span><i class="fas fa-shield-alt"></i> Secure &amp; Trusted</span>
+            <span><i class="fas fa-headset"></i> Dedicated Support</span>
+            <span><i class="fas fa-truck"></i> Nationwide Delivery</span>
+        </div>
+    </section>
+
+    <!-- CONTACT CHANNEL CARDS -->
+    <section class="cnt-cards">
+        <div class="cnt-card">
+            <div class="cnt-icon"><i class="fas fa-phone-alt"></i></div>
+            <h3>Call Us</h3>
+            <p>Mon–Sat, 9AM – 7PM</p>
+            <a href="tel:+2348114808088">+234 811 480 8088</a>
+        </div>
+        <div class="cnt-card green">
+            <div class="cnt-icon"><i class="fab fa-whatsapp"></i></div>
+            <h3>WhatsApp</h3>
+            <p>Fastest way to reach us</p>
+            <a href="https://wa.me/2348114808088" target="_blank" rel="noopener">Chat with Support</a>
+        </div>
+        <div class="cnt-card blue">
+            <div class="cnt-icon"><i class="fas fa-envelope"></i></div>
+            <h3>Email Us</h3>
+            <p>Replies within 24 hours</p>
+            <a href="mailto:worldinfopulse@gmail.com">worldinfopulse@gmail.com</a>
+        </div>
+        <div class="cnt-card accent">
+            <div class="cnt-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <h3>Visit Us</h3>
+            <p>123 ShopNaija Street</p>
+            <p><strong>Lagos, Nigeria</strong></p>
+        </div>
+    </section>
+
+    <!-- FORM + SIDEBAR -->
+    <section class="cnt-main">
+        <div class="cnt-panel cnt-form-panel">
+            <h2>Send Us a Message</h2>
+            <p>Fill out the form below and our support team will get back to you as soon as possible.</p>
+            <form id="contactForm">
+                <div class="cnt-row">
+                    <div class="cnt-field">
+                        <label for="name">Full Name <b>*</b></label>
+                        <input type="text" id="name" placeholder="e.g. Adaeze Okafor" required />
+                    </div>
+                    <div class="cnt-field">
+                        <label for="email">Email Address <b>*</b></label>
+                        <input type="email" id="email" placeholder="you@example.com" required />
+                    </div>
+                </div>
+                <div class="cnt-row">
+                    <div class="cnt-field">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+234 800 000 0000" />
+                    </div>
+                    <div class="cnt-field">
+                        <label for="subject">Subject</label>
+                        <select id="subject">
+                            <option value="">— Choose a topic —</option>
+                            <option>Order Inquiry</option>
+                            <option>Delivery &amp; Tracking</option>
+                            <option>Returns &amp; Refunds</option>
+                            <option>Payment Issue</option>
+                            <option>Product Question</option>
+                            <option>Partnership / Sell on ShopNaija</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="cnt-field">
+                    <label for="message">Message <b>*</b></label>
+                    <textarea id="message" placeholder="Tell us how we can help — include your order number if applicable." required></textarea>
+                </div>
+                <button type="submit" class="cnt-btn"><i class="fas fa-paper-plane"></i> Send Message</button>
+                <p class="cnt-note"><i class="fas fa-lock"></i> Your information is safe with us. We never share your details with third parties.</p>
+            </form>
+            <div id="formFeedback"></div>
+        </div>
+
+        <aside class="cnt-side">
+            <div class="cnt-panel cnt-side-panel">
+                <h3><i class="fas fa-clock"></i> Support Hours</h3>
+                <span class="cnt-open-badge"><span class="dot"></span> Online Now</span>
+                <table class="cnt-hours">
+                    <tr><td>Monday – Friday</td><td>9:00 AM – 7:00 PM</td></tr>
+                    <tr><td>Saturday</td><td>10:00 AM – 6:00 PM</td></tr>
+                    <tr><td>Sunday &amp; Holidays</td><td>Closed</td></tr>
+                </table>
+            </div>
+
+            <div class="cnt-panel cnt-side-panel">
+                <h3><i class="fas fa-bolt"></i> Quick Help</h3>
+                <div class="cnt-help-links">
+                    <a href="track-order.html">Track My Order <i class="fas fa-chevron-right"></i></a>
+                    <a href="shop.html">Browse Products <i class="fas fa-chevron-right"></i></a>
+                    <a href="cart.html">View My Cart <i class="fas fa-chevron-right"></i></a>
+                    <a href="about.html">About ShopNaija <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            <div class="cnt-panel cnt-side-panel">
+                <h3><i class="fas fa-share-alt"></i> Follow Us</h3>
+                <div class="cnt-social">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter / X"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/2348114808088" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <!-- MAP -->
+    <section class="cnt-map">
+        <div class="cnt-panel">
+            <iframe
+                src="https://maps.google.com/maps?q=Ikeja,%20Lagos,%20Nigeria&t=&z=12&ie=UTF8&iwloc=&output=embed"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="ShopNaija location on map">
+            </iframe>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>🛍️ ShopNaija</h4>
+                <p>Your trusted online store in Nigeria.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-column">
+                <h4>Categories</h4>
+                <a href="shop.html?filter=electronics">Electronics</a>
+                <a href="shop.html?filter=fashion">Fashion</a>
+                <a href="shop.html?filter=beauty">Beauty</a>
+                <a href="digital-products.html">Digital</a>
+            </div>
+            <div class="footer-column">
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
+                <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
+                <p><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopNaija. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <!-- WhatsApp Floating Button -->
+<a href="https://wa.me/2348114808088?text=Hello%20ShopNaija%2C%20I%20need%20help%20with%20an%20order" 
+   target="_blank" 
+   class="whatsapp-float">
+    <i class="fab fa-whatsapp"></i>
+</a>
+</body>
+</html>

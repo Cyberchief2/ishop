@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ShopNaija – Electronics</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
+                <span class="divider">|</span>
+                <a href="#" class="top-link"><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</a>
+            </div>
+            <div class="top-bar-right">
+                <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="login.html" class="top-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="wishlist.html" class="top-link"><i class="fas fa-heart"></i> Wishlist</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html">
+                    <span class="logo-icon">🛍️</span>
+                    Shop<span>Naija</span>
+                </a>
+            </div>
+            <div class="search-bar">
+                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
+                    <span id="selectedCategory">All Categories</span>
+                    <i class="fas fa-chevron-down" id="searchArrow"></i>
+                </div>
+                <div class="search-dropdown-menu" id="searchDropdown">
+                    <a href="#" onclick="selectCategory('All Categories')">All Categories</a>
+                    <a href="#" onclick="selectCategory('Electronics')">📱 Electronics</a>
+                    <a href="#" onclick="selectCategory('Fashion')">👗 Fashion</a>
+                    <a href="#" onclick="selectCategory('Beauty')">💄 Beauty</a>
+                    <a href="#" onclick="selectCategory('Digital')">💻 Digital</a>
+                </div>
+                <input type="text" id="mainSearch" placeholder="Search for products, brands and more..." />
+                <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="nav-icons">
+                <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="nav-icon-item">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <span class="icon-label">Cart</span>
+                </div>
+                <div class="nav-icon-item">
+                    <a href="login.html" class="auth-icon" id="authIcon">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <span class="icon-label">Account</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MEGA MENU -->
+    <nav class="mega-menu">
+        <div class="mega-menu-content">
+            <ul class="menu-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+
+                <!-- ELECTRONICS (active) -->
+                <li class="dropdown-hover">
+                    <a href="electronics.html" class="active">
+                        <i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>📱 Phones & Tablets</h4>
+                                <a href="electronics.html?subtype=smartphones">Smartphones</a>
+                                <a href="electronics.html?subtype=smartphones">Android Phones</a>
+                                <a href="electronics.html?subtype=smartphones">iPhones</a>
+                                <a href="electronics.html?subtype=tablets">Tablets</a>
+                                <a href="electronics.html?subtype=accessories">Phone Accessories</a>
+                                <a href="electronics.html?subtype=accessories">Phone Cases</a>
+                                <a href="electronics.html?subtype=accessories">Chargers & Cables</a>
+                                <a href="electronics.html?subtype=accessories">Power Banks</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💻 Computing</h4>
+                                <a href="electronics.html?subtype=laptops">Laptops</a>
+                                <a href="electronics.html?subtype=laptops">MacBooks</a>
+                                <a href="electronics.html?subtype=laptops">Gaming Laptops</a>
+                                <a href="electronics.html?subtype=laptops">Monitors</a>
+                                <a href="electronics.html?subtype=accessories">Keyboards & Mice</a>
+                                <a href="electronics.html?subtype=accessories">Printers</a>
+                                <a href="electronics.html?subtype=accessories">Networking</a>
+                                <a href="electronics.html?subtype=accessories">Storage Devices</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎧 Audio & Entertainment</h4>
+                                <a href="electronics.html?subtype=audio">Headphones</a>
+                                <a href="electronics.html?subtype=audio">Earbuds</a>
+                                <a href="electronics.html?subtype=audio">Bluetooth Speakers</a>
+                                <a href="electronics.html?subtype=audio">Home Theatre</a>
+                                <a href="electronics.html?subtype=audio">Sound Bars</a>
+                                <a href="electronics.html?subtype=audio">Subwoofers</a>
+                                <a href="electronics.html?subtype=audio">Amplifiers</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📺 TV & Video</h4>
+                                <a href="electronics.html?subtype=tv">Smart TVs</a>
+                                <a href="electronics.html?subtype=tv">LED & LCD TVs</a>
+                                <a href="electronics.html?subtype=tv">QLED & OLED TVs</a>
+                                <a href="electronics.html?subtype=tv">Projectors</a>
+                                <a href="electronics.html?subtype=tv">TV Accessories</a>
+                                <a href="electronics.html?subtype=tv">DVD Players</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>⌚ Wearables</h4>
+                                <a href="electronics.html?subtype=wearables">Smartwatches</a>
+                                <a href="electronics.html?subtype=wearables">Apple Watch</a>
+                                <a href="electronics.html?subtype=wearables">Samsung Watch</a>
+                                <a href="electronics.html?subtype=wearables">Fitness Trackers</a>
+                                <a href="electronics.html?subtype=accessories">Watch Straps</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- FASHION -->
+                <li class="dropdown-hover">
+                    <a href="fashion.html">
+                        <i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i>
+                    </a>
+                </li>
+
+                <!-- BEAUTY -->
+                <li class="dropdown-hover">
+                    <a href="beauty.html">
+                        <i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i>
+                    </a>
+                </li>
+
+                <!-- DIGITAL -->
+                <li class="dropdown-hover">
+                    <a href="digital-products.html">
+                        <i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="menu-right">
+                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
+                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTENT — Electronics Page (Digital-style) -->
+    <!-- ============================================ -->
+    <main class="page-main">
+        <!-- Page header -->
+        <section class="page-header">
+            <h1>📱 Electronics</h1>
+            <p>Phones, laptops, audio & more — browse our complete collection</p>
+        </section>
+
+        <!-- Filter tabs -->
+        <section class="digital-categories">
+            <div class="digital-tabs">
+                <button class="tab-btn active" data-type="all">All Electronics</button>
+                <button class="tab-btn" data-type="smartphones">Phones & Tablets</button>
+                <button class="tab-btn" data-type="laptops">Computing</button>
+                <button class="tab-btn" data-type="audio">Audio</button>
+                <button class="tab-btn" data-type="tv">TV & Video</button>
+                <button class="tab-btn" data-type="wearables">Wearables</button>
+                <button class="tab-btn" data-type="accessories">Accessories</button>
+            </div>
+        </section>
+
+        <!-- Product grid -->
+        <section class="featured-products">
+            <div class="product-grid" id="electronicsGrid"></div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>🛍️ ShopNaija</h4>
+                <p>Your trusted online store in Nigeria.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-column">
+                <h4>Categories</h4>
+                <a href="electronics.html">Electronics</a>
+                <a href="fashion.html">Fashion</a>
+                <a href="beauty.html">Beauty</a>
+                <a href="digital-products.html">Digital</a>
+            </div>
+            <div class="footer-column">
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
+                <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
+                <p><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopNaija. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/2348114808088?text=Hello%20ShopNaija%2C%20I%20need%20help%20with%20an%20order"
+       target="_blank"
+       class="whatsapp-float"
+       aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- ============================================ -->
+    <!-- PRODUCT FILTERING + CART (Digital-style logic) -->
+    <!-- ============================================ -->
+    <script>
+        (function() {
+            // Sample electronics data — replace with your real products
+            const electronicsProducts = [
+                { id: 1,  name: 'Samsung Galaxy S24 Ultra',   type: 'smartphones', price: '₦1,250,000', icon: '📱' },
+                { id: 2,  name: 'iPhone 15 Pro Max',          type: 'smartphones', price: '₦1,450,000', icon: '📱' },
+                { id: 3,  name: 'Samsung Galaxy Tab S9',      type: 'smartphones', price: '₦820,000',   icon: '📱' },
+                { id: 4,  name: 'HP Spectre x360 Laptop',     type: 'laptops',     price: '₦980,000',   icon: '💻' },
+                { id: 5,  name: 'MacBook Air M3',             type: 'laptops',     price: '₦1,600,000', icon: '💻' },
+                { id: 6,  name: 'Dell XPS 13',                type: 'laptops',     price: '₦1,150,000', icon: '💻' },
+                { id: 7,  name: 'Sony WH-1000XM5 Headphones', type: 'audio',       price: '₦320,000',   icon: '🎧' },
+                { id: 8,  name: 'JBL Flip 6 Speaker',         type: 'audio',       price: '₦85,000',    icon: '🔊' },
+                { id: 9,  name: 'AirPods Pro (2nd Gen)',      type: 'audio',       price: '₦280,000',   icon: '🎧' },
+                { id: 10, name: 'Samsung 55" QLED Smart TV',  type: 'tv',          price: '₦780,000',   icon: '📺' },
+                { id: 11, name: 'LG 43" LED TV',              type: 'tv',          price: '₦320,000',   icon: '📺' },
+                { id: 12, name: 'Apple Watch Series 9',       type: 'wearables',   price: '₦420,000',   icon: '⌚' },
+                { id: 13, name: 'Fitbit Charge 6',            type: 'wearables',   price: '₦95,000',    icon: '⌚' },
+                { id: 14, name: 'Anker 20,000mAh Power Bank', type: 'accessories', price: '₦35,000',    icon: '🔋' },
+                { id: 15, name: 'USB-C Fast Charger',         type: 'accessories', price: '₦12,000',    icon: '🔌' },
+                { id: 16, name: 'Wireless Mouse',             type: 'accessories', price: '₦18,000',    icon: '🖱️' }
+            ];
+
+            const grid = document.getElementById('electronicsGrid');
+            const tabButtons = document.querySelectorAll('.tab-btn');
+
+            // Read URL params (e.g. ?subtype=laptops) on load
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialFilter = urlParams.get('subtype') || 'all';
+
+            function renderProducts(filterType = 'all') {
+                if (!grid) return;
+                const filtered = filterType === 'all'
+                    ? electronicsProducts
+                    : electronicsProducts.filter(p => p.type === filterType);
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = '<p class="empty-message">No products in this category yet.</p>';
+                    return;
+                }
+
+                grid.innerHTML = filtered.map(product => `
+                    <div class="product-card" data-type="${product.type}">
+                        <div class="product-icon">${product.icon}</div>
+                        <h3>${product.name}</h3>
+                        <p class="product-type">${product.type.charAt(0).toUpperCase() + product.type.slice(1)}</p>
+                        <p class="product-price">${product.price}</p>
+                        <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
+                    </div>
+                `).join('');
+            }
+
+            // Apply initial filter from URL if present
+            renderProducts(initialFilter);
+
+            // Highlight the matching tab if a URL filter was applied
+            if (initialFilter !== 'all') {
+                tabButtons.forEach(btn => {
+                    if (btn.getAttribute('data-type') === initialFilter) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+
+            // Tab click handling
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    renderProducts(this.getAttribute('data-type'));
+                });
+            });
+
+            // Cart counter demo
+            let cartItemCount = 0;
+            const cartCountSpan = document.getElementById('cartCount');
+            grid.addEventListener('click', function(e) {
+                if (e.target.classList.contains('add-to-cart')) {
+                    cartItemCount++;
+                    if (cartCountSpan) cartCountSpan.textContent = cartItemCount;
+                    e.target.textContent = 'Added ✓';
+                    setTimeout(() => { e.target.textContent = 'Add to Cart'; }, 800);
+                }
+            });
+
+            // Search bar handlers (kept from index page pattern)
+            window.toggleSearchDropdown = function() {
+                const dropdown = document.getElementById('searchDropdown');
+                const arrow = document.getElementById('searchArrow');
+                if (dropdown) dropdown.classList.toggle('show');
+                if (arrow) arrow.classList.toggle('rotate');
+            };
+            window.selectCategory = function(cat) {
+                const el = document.getElementById('selectedCategory');
+                if (el) el.textContent = cat;
+                const dropdown = document.getElementById('searchDropdown');
+                if (dropdown) dropdown.classList.remove('show');
+            };
+            window.performSearch = function() {
+                const query = document.getElementById('mainSearch')?.value || '';
+                if (query.trim()) {
+                    window.location.href = 'shop.html?q=' + encodeURIComponent(query);
+                }
+            };
+        })();
+    </script>
+
+    <!-- Fallback styles — only used where style.css doesn't already define them -->
+    <style>
+        /* Page main wrapper */
+        .page-main {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 3rem;
+            width: 100%;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-size: 2.4rem;
+            color: #0a5c36;
+            margin-bottom: 0.4rem;
+        }
+        .page-header p {
+            font-size: 1.05rem;
+            color: #4b5563;
+        }
+
+        /* Filter tabs */
+        .digital-categories { margin-bottom: 2.5rem; }
+        .digital-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            padding: 0.65rem 1.6rem;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #374151;
+        }
+        .tab-btn:hover { background: #f3f4f6; border-color: #9ca3af; }
+        .tab-btn.active {
+            background: #0a5c36;
+            border-color: #0a5c36;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Product grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1.8rem;
+        }
+        .product-card {
+            background: #ffffff;
+            border-radius: 1.1rem;
+            padding: 1.6rem 1.1rem 1.4rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            transition: transform 0.15s, box-shadow 0.2s;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+        .product-icon { font-size: 2.6rem; margin-bottom: 0.7rem; }
+        .product-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 0.35rem;
+            color: #111827;
+            line-height: 1.35;
+        }
+        .product-type {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            background: #f3f4f6;
+            display: inline-block;
+            padding: 0.2rem 0.85rem;
+            border-radius: 20px;
+            margin: 0.4rem auto;
+        }
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0a5c36;
+            margin: 0.5rem 0 1rem;
+        }
+        .add-to-cart {
+            background: #0a5c36;
+            color: #ffffff;
+            border: none;
+            padding: 0.65rem 1rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: auto;
+            width: 100%;
+        }
+        .add-to-cart:hover { background: #084d2c; }
+        .empty-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+            font-style: italic;
+            background: #f9fafb;
+            border-radius: 1rem;
+        }
+
+        /* WhatsApp floating button */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25D366;
+            color: #ffffff;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+            z-index: 100;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .whatsapp-float:hover {
+            background-color: #20b859;
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+        }
+
+        /* Search dropdown helpers */
+        #searchDropdown.show { display: block; }
+        #searchArrow.rotate { transform: rotate(180deg); }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .page-main { padding: 1.5rem 1rem 2.5rem; }
+            .page-header h1 { font-size: 1.8rem; }
+            .tab-btn { padding: 0.5rem 1.1rem; font-size: 0.82rem; }
+            .product-grid { gap: 1.1rem; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+            .product-card { padding: 1.2rem 0.8rem 1rem; }
+            .product-icon { font-size: 2.1rem; }
+            .product-card h3 { font-size: 0.92rem; }
+            .product-price { font-size: 1.05rem; }
+            .whatsapp-float { width: 50px; height: 50px; font-size: 1.6rem; bottom: 18px; right: 18px; }
+        }
+    </style>
+</body>
+</html>

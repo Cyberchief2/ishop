@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ShopNaija – Track Order</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
+                <span class="divider">|</span>
+                <a href="#" class="top-link"><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</a>
+            </div>
+            <div class="top-bar-right">
+                <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="login.html" class="top-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="wishlist.html" class="top-link"><i class="fas fa-heart"></i> Wishlist</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html">
+                    <span class="logo-icon">🛍️</span>
+                    Shop<span>Naija</span>
+                </a>
+            </div>
+            <div class="search-bar">
+                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
+                    <span id="selectedCategory">All Categories</span>
+                    <i class="fas fa-chevron-down" id="searchArrow"></i>
+                </div>
+                <div class="search-dropdown-menu" id="searchDropdown">
+                    <a href="#" onclick="selectCategory('All Categories')">All Categories</a>
+                    <a href="#" onclick="selectCategory('Electronics')">📱 Electronics</a>
+                    <a href="#" onclick="selectCategory('Fashion')">👗 Fashion</a>
+                    <a href="#" onclick="selectCategory('Beauty')">💄 Beauty</a>
+                    <a href="#" onclick="selectCategory('Digital')">💻 Digital</a>
+                </div>
+                <input type="text" id="mainSearch" placeholder="Search for products, brands and more..." />
+                <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="nav-icons">
+                <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="nav-icon-item">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <span class="icon-label">Cart</span>
+                </div>
+                <div class="nav-icon-item">
+                    <a href="login.html" class="auth-icon" id="authIcon">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <span class="icon-label">Account</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MEGA MENU -->
+    <nav class="mega-menu">
+        <div class="mega-menu-content">
+            <ul class="menu-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+                <li class="dropdown-hover">
+                    <a href="shop.html?filter=electronics"><i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="shop.html?filter=electronics">Smartphones</a>
+                        <a href="shop.html?filter=electronics">Laptops</a>
+                        <a href="shop.html?filter=electronics">Audio</a>
+                        <a href="shop.html?filter=electronics">Tablets</a>
+                        <a href="shop.html?filter=electronics">Smartwatches</a>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="shop.html?filter=fashion"><i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="shop.html?filter=fashion">Clothing</a>
+                        <a href="shop.html?filter=fashion">Shoes</a>
+                        <a href="shop.html?filter=fashion">Bags</a>
+                        <a href="shop.html?filter=fashion">Accessories</a>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="shop.html?filter=beauty"><i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="shop.html?filter=beauty">Skincare</a>
+                        <a href="shop.html?filter=beauty">Makeup</a>
+                        <a href="shop.html?filter=beauty">Fragrances</a>
+                        <a href="shop.html?filter=beauty">Hair Care</a>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="digital-products.html"><i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="digital-products.html">Software</a>
+                        <a href="digital-products.html">E-books</a>
+                        <a href="digital-products.html">Courses</a>
+                        <a href="digital-products.html">Templates</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="menu-right">
+                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
+                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TRACK ORDER SECTION -->
+    <section class="page-header">
+        <h1>📦 Track Your Order</h1>
+        <p>Enter your order number to track delivery status</p>
+    </section>
+
+    <section class="track-order-section">
+        <div class="track-order-container">
+            <div class="track-order-form">
+                <div class="form-group">
+                    <label for="orderNumber">Order Number</label>
+                    <input type="text" id="orderNumber" placeholder="Enter your order number (e.g. ORD-2026-001)" />
+                </div>
+                <button onclick="trackOrder()" class="btn-primary">Track Order</button>
+            </div>
+            <div id="trackResult" class="track-result" style="display:none;">
+                <div class="track-status">
+                    <div class="track-timeline">
+                        <div class="track-step completed">
+                            <span class="step-icon"><i class="fas fa-check"></i></span>
+                            <span class="step-label">Order Placed</span>
+                        </div>
+                        <div class="track-step active">
+                            <span class="step-icon"><i class="fas fa-spinner fa-spin"></i></span>
+                            <span class="step-label">Processing</span>
+                        </div>
+                        <div class="track-step">
+                            <span class="step-icon"><i class="fas fa-clock"></i></span>
+                            <span class="step-label">Shipped</span>
+                        </div>
+                        <div class="track-step">
+                            <span class="step-icon"><i class="fas fa-clock"></i></span>
+                            <span class="step-label">Delivered</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>🛍️ ShopNaija</h4>
+                <p>Your trusted online store in Nigeria.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-column">
+                <h4>Categories</h4>
+                <a href="shop.html?filter=electronics">Electronics</a>
+                <a href="shop.html?filter=fashion">Fashion</a>
+                <a href="shop.html?filter=beauty">Beauty</a>
+                <a href="digital-products.html">Digital</a>
+            </div>
+            <div class="footer-column">
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
+                <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
+                <p><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopNaija. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

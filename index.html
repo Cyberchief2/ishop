@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ShopNaija – Nigeria's #1 Online Store</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
+                <span class="divider">|</span>
+                <a href="#" class="top-link"><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</a>
+            </div>
+            <div class="top-bar-right">
+                <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="login.html" class="top-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="wishlist.html" class="top-link"><i class="fas fa-heart"></i> Wishlist</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html">
+                    <span class="logo-icon">🛍️</span>
+                    Shop<span>Naija</span>
+                </a>
+            </div>
+            <div class="search-bar">
+                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
+                    <span id="selectedCategory">All Categories</span>
+                    <i class="fas fa-chevron-down" id="searchArrow"></i>
+                </div>
+                <div class="search-dropdown-menu" id="searchDropdown">
+                    <a href="#" onclick="selectCategory('All Categories')">All Categories</a>
+                    <a href="#" onclick="selectCategory('Electronics')">📱 Electronics</a>
+                    <a href="#" onclick="selectCategory('Fashion')">👗 Fashion</a>
+                    <a href="#" onclick="selectCategory('Beauty')">💄 Beauty</a>
+                    <a href="#" onclick="selectCategory('Digital')">💻 Digital</a>
+                </div>
+                <input type="text" id="mainSearch" placeholder="Search for products, brands and more..." />
+                <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="nav-icons">
+                <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="nav-icon-item">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <span class="icon-label">Cart</span>
+                </div>
+                <div class="nav-icon-item">
+                    <a href="login.html" class="auth-icon" id="authIcon">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <span class="icon-label">Account</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================ -->
+    <!-- MEGA MENU - DETAILED JUMLA STYLE -->
+    <!-- ============================================ -->
+    <nav class="mega-menu">
+        <div class="mega-menu-content">
+            <ul class="menu-links">
+                <!-- HOME -->
+                <li><a href="index.html" class="active"><i class="fas fa-home"></i> Home</a></li>
+
+                <!-- ALL PRODUCTS -->
+                <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+
+                <!-- ELECTRONICS DROPDOWN -->
+                <li class="dropdown-hover">
+                    <a href="electronics.html">
+                        <i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>📱 Phones & Tablets</h4>
+                                <a href="electronics.html?subtype=smartphones">Smartphones</a>
+                                <a href="electronics.html?subtype=smartphones">Android Phones</a>
+                                <a href="electronics.html?subtype=smartphones">iPhones</a>
+                                <a href="electronics.html?subtype=smartphones">Tablets</a>
+                                <a href="electronics.html?subtype=accessories">Phone Accessories</a>
+                                <a href="electronics.html?subtype=accessories">Phone Cases</a>
+                                <a href="electronics.html?subtype=accessories">Chargers & Cables</a>
+                                <a href="electronics.html?subtype=accessories">Power Banks</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💻 Computing</h4>
+                                <a href="electronics.html?subtype=laptops">Laptops</a>
+                                <a href="electronics.html?subtype=laptops">MacBooks</a>
+                                <a href="electronics.html?subtype=laptops">Gaming Laptops</a>
+                                <a href="electronics.html?subtype=laptops">Monitors</a>
+                                <a href="electronics.html?subtype=accessories">Keyboards & Mice</a>
+                                <a href="electronics.html?subtype=accessories">Printers</a>
+                                <a href="electronics.html?subtype=accessories">Networking</a>
+                                <a href="electronics.html?subtype=accessories">Storage Devices</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎧 Audio & Entertainment</h4>
+                                <a href="electronics.html?subtype=audio">Headphones</a>
+                                <a href="electronics.html?subtype=audio">Earbuds</a>
+                                <a href="electronics.html?subtype=audio">Bluetooth Speakers</a>
+                                <a href="electronics.html?subtype=audio">Home Theatre</a>
+                                <a href="electronics.html?subtype=audio">Sound Bars</a>
+                                <a href="electronics.html?subtype=audio">Subwoofers</a>
+                                <a href="electronics.html?subtype=audio">Amplifiers</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📺 TV & Video</h4>
+                                <a href="electronics.html?subtype=tv">Smart TVs</a>
+                                <a href="electronics.html?subtype=tv">LED & LCD TVs</a>
+                                <a href="electronics.html?subtype=tv">QLED & OLED TVs</a>
+                                <a href="electronics.html?subtype=tv">Projectors</a>
+                                <a href="electronics.html?subtype=tv">TV Accessories</a>
+                                <a href="electronics.html?subtype=tv">DVD Players</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>⌚ Wearables</h4>
+                                <a href="electronics.html?subtype=wearables">Smartwatches</a>
+                                <a href="electronics.html?subtype=wearables">Apple Watch</a>
+                                <a href="electronics.html?subtype=wearables">Samsung Watch</a>
+                                <a href="electronics.html?subtype=wearables">Fitness Trackers</a>
+                                <a href="electronics.html?subtype=accessories">Watch Straps</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- FASHION DROPDOWN -->
+                <li class="dropdown-hover">
+                    <a href="fashion.html">
+                        <i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>👩 Women's Fashion</h4>
+                                <a href="fashion.html?subtype=clothing">Dresses</a>
+                                <a href="fashion.html?subtype=clothing">Tops & Blouses</a>
+                                <a href="fashion.html?subtype=clothing">Skirts</a>
+                                <a href="fashion.html?subtype=clothing">Trousers</a>
+                                <a href="fashion.html?subtype=clothing">Jeans</a>
+                                <a href="fashion.html?subtype=traditional">Ankara Styles</a>
+                                <a href="fashion.html?subtype=shoes">Women's Shoes</a>
+                                <a href="fashion.html?subtype=bags">Handbags</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👨 Men's Fashion</h4>
+                                <a href="fashion.html?subtype=clothing">Shirts</a>
+                                <a href="fashion.html?subtype=clothing">T-Shirts</a>
+                                <a href="fashion.html?subtype=clothing">Trousers</a>
+                                <a href="fashion.html?subtype=clothing">Jeans</a>
+                                <a href="fashion.html?subtype=traditional">Agbada</a>
+                                <a href="fashion.html?subtype=traditional">Kaftans</a>
+                                <a href="fashion.html?subtype=shoes">Men's Shoes</a>
+                                <a href="fashion.html?subtype=accessories">Watches</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👟 Shoes & Footwear</h4>
+                                <a href="fashion.html?subtype=shoes">Sneakers</a>
+                                <a href="fashion.html?subtype=shoes">Sandals</a>
+                                <a href="fashion.html?subtype=shoes">Heels</a>
+                                <a href="fashion.html?subtype=shoes">Boots</a>
+                                <a href="fashion.html?subtype=shoes">Loafers</a>
+                                <a href="fashion.html?subtype=shoes">Slippers</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👜 Bags & Accessories</h4>
+                                <a href="fashion.html?subtype=bags">Handbags</a>
+                                <a href="fashion.html?subtype=bags">Backpacks</a>
+                                <a href="fashion.html?subtype=bags">Wallets</a>
+                                <a href="fashion.html?subtype=jewelry">Jewelry</a>
+                                <a href="fashion.html?subtype=accessories">Sunglasses</a>
+                                <a href="fashion.html?subtype=accessories">Belts</a>
+                                <a href="fashion.html?subtype=accessories">Hats & Caps</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- BEAUTY DROPDOWN -->
+                <li class="dropdown-hover">
+                    <a href="beauty.html">
+                        <i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>🧴 Skincare</h4>
+                                <a href="beauty.html?subtype=skincare">Face Wash</a>
+                                <a href="beauty.html?subtype=skincare">Moisturizers</a>
+                                <a href="beauty.html?subtype=skincare">Serums</a>
+                                <a href="beauty.html?subtype=skincare">Sunscreen</a>
+                                <a href="beauty.html?subtype=skincare">Face Masks</a>
+                                <a href="beauty.html?subtype=skincare">Body Lotion</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💄 Makeup</h4>
+                                <a href="beauty.html?subtype=makeup">Foundation</a>
+                                <a href="beauty.html?subtype=makeup">Lipstick</a>
+                                <a href="beauty.html?subtype=makeup">Eyeshadow</a>
+                                <a href="beauty.html?subtype=makeup">Mascara</a>
+                                <a href="beauty.html?subtype=makeup">Nail Polish</a>
+                                <a href="beauty.html?subtype=makeup">Makeup Kits</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🌸 Fragrances</h4>
+                                <a href="beauty.html?subtype=fragrances">Perfumes</a>
+                                <a href="beauty.html?subtype=fragrances">Body Sprays</a>
+                                <a href="beauty.html?subtype=fragrances">Deodorants</a>
+                                <a href="beauty.html?subtype=fragrances">Essential Oils</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💇 Hair Care</h4>
+                                <a href="beauty.html?subtype=haircare">Shampoo</a>
+                                <a href="beauty.html?subtype=haircare">Conditioner</a>
+                                <a href="beauty.html?subtype=haircare">Hair Oil</a>
+                                <a href="beauty.html?subtype=haircare">Hair Cream</a>
+                                <a href="beauty.html?subtype=haircare">Wigs & Weaves</a>
+                                <a href="beauty.html?subtype=haircare">Hair Tools</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- DIGITAL DROPDOWN -->
+                <li class="dropdown-hover">
+                    <a href="digital-products.html">
+                        <i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>💻 Software</h4>
+                                <a href="digital-products.html?type=software">Accounting Software</a>
+                                <a href="digital-products.html?type=software">Antivirus</a>
+                                <a href="digital-products.html?type=software">Office Suites</a>
+                                <a href="digital-products.html?type=software">Design Tools</a>
+                                <a href="digital-products.html?type=software">Development Tools</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📚 E-books</h4>
+                                <a href="digital-products.html?type=ebook">Business Books</a>
+                                <a href="digital-products.html?type=ebook">Cookbooks</a>
+                                <a href="digital-products.html?type=ebook">Fiction</a>
+                                <a href="digital-products.html?type=ebook">Self-Help</a>
+                                <a href="digital-products.html?type=ebook">Educational</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎓 Courses</h4>
+                                <a href="digital-products.html?type=course">Web Development</a>
+                                <a href="digital-products.html?type=course">Graphic Design</a>
+                                <a href="digital-products.html?type=course">Digital Marketing</a>
+                                <a href="digital-products.html?type=course">Data Science</a>
+                                <a href="digital-products.html?type=course">Business Skills</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📄 Templates</h4>
+                                <a href="digital-products.html?type=template">Website Templates</a>
+                                <a href="digital-products.html?type=template">Business Plans</a>
+                                <a href="digital-products.html?type=template">Resume Templates</a>
+                                <a href="digital-products.html?type=template">Social Media Kits</a>
+                                <a href="digital-products.html?type=template">Presentation Decks</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="menu-right">
+                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
+                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+        <div class="hero-slider">
+            <div class="hero-slide">
+                <div class="hero-content">
+                    <div class="hero-badge"><i class="fas fa-bolt"></i> FLASH SALE - UP TO 70% OFF</div>
+                    <h1>Biggest Sale <span>of the Year</span></h1>
+                    <p>Shop the latest electronics, fashion & digital products at unbeatable prices</p>
+                    <div class="countdown">
+                        <div class="countdown-item"><span id="hours">12</span>Hours</div>
+                        <div class="countdown-item"><span id="minutes">30</span>Minutes</div>
+                        <div class="countdown-item"><span id="seconds">45</span>Seconds</div>
+                    </div>
+                    <a href="shop.html" class="btn-hero">Shop Now <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500" alt="Sale" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="featured-categories">
+        <div class="section-header">
+            <h2>Shop by <span>Category</span></h2>
+            <a href="shop.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="category-grid">
+            <a href="electronics.html" class="category-card">
+                <div class="category-icon">📱</div>
+                <h3>Electronics</h3>
+                <p>Phones, Laptops & Accessories</p>
+                <span class="category-count">150+ Products</span>
+            </a>
+            <a href="fashion.html" class="category-card">
+                <div class="category-icon">👗</div>
+                <h3>Fashion</h3>
+                <p>Clothing, Shoes & Accessories</p>
+                <span class="category-count">200+ Products</span>
+            </a>
+            <a href="beauty.html" class="category-card">
+                <div class="category-icon">💄</div>
+                <h3>Beauty</h3>
+                <p>Skincare, Makeup & Fragrances</p>
+                <span class="category-count">100+ Products</span>
+            </a>
+            <a href="digital-products.html" class="category-card digital-category">
+                <div class="category-icon">💻</div>
+                <h3>Digital Products</h3>
+                <p>Software, E-books & Courses</p>
+                <span class="category-count">50+ Products</span>
+                <span class="badge-digital">⚡ Instant</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- FEATURED PRODUCTS -->
+    <section class="featured-products">
+        <div class="section-header">
+            <h2><i class="fas fa-fire" style="color:#e74c3c;"></i> Featured Products</h2>
+            <a href="shop.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="product-grid" id="featuredProducts"></div>
+    </section>
+
+    <!-- DIGITAL PRODUCTS -->
+    <section class="featured-products digital-section">
+        <div class="section-header">
+            <h2><i class="fas fa-download" style="color:#f9c74f;"></i> Top Digital Downloads</h2>
+            <a href="digital-products.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="product-grid" id="featuredDigitalProducts"></div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="services">
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-truck"></i></div>
+                <h4>Free Delivery</h4>
+                <p>On orders over ₦50,000</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-undo-alt"></i></div>
+                <h4>Easy Returns</h4>
+                <p>7-day return policy</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-lock"></i></div>
+                <h4>Secure Payment</h4>
+                <p>100% safe checkout</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-headset"></i></div>
+                <h4>24/7 Support</h4>
+                <p>We're here to help</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section class="newsletter">
+        <div class="newsletter-content">
+            <div class="newsletter-text">
+                <h2>Subscribe to Our Newsletter</h2>
+                <p>Get the latest updates on new products and exclusive offers</p>
+            </div>
+            <div class="newsletter-form">
+                <input type="email" placeholder="Enter your email address" />
+                <button><i class="fas fa-paper-plane"></i> Subscribe</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>🛍️ ShopNaija</h4>
+                <p>Your trusted online store in Nigeria.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-column">
+                <h4>Categories</h4>
+                <a href="electronics.html">Electronics</a>
+                <a href="fashion.html">Fashion</a>
+                <a href="beauty.html">Beauty</a>
+                <a href="digital-products.html">Digital</a>
+            </div>
+            <div class="footer-column">
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
+                <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
+                <p><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopNaija. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/2348114808088?text=Hello%20ShopNaija%2C%20I%20need%20help%20with%20an%20order"
+       target="_blank"
+       class="whatsapp-float"
+       aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script src="script.js"></script>
+</body>
+</html>

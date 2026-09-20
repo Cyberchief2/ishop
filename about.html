@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>About Us – ShopNaija</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/2348114808088?text=Hello%20ShopNaija%2C%20I%20need%20help%20with%20an%20order" 
+   target="_blank" 
+   class="whatsapp-float">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+<body>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
+                <span class="divider">|</span>
+                <a href="#" class="top-link"><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</a>
+            </div>
+            <div class="top-bar-right">
+                <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="login.html" class="top-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="wishlist.html" class="top-link"><i class="fas fa-heart"></i> Wishlist</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html">
+                    <span class="logo-icon">🛍️</span>
+                    Shop<span>Naija</span>
+                </a>
+            </div>
+            <div class="search-bar">
+                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
+                    <span id="selectedCategory">All Categories</span>
+                    <i class="fas fa-chevron-down" id="searchArrow"></i>
+                </div>
+                <div class="search-dropdown-menu" id="searchDropdown">
+                    <a href="#" onclick="selectCategory('All Categories')">All Categories</a>
+                    <a href="#" onclick="selectCategory('Electronics')">📱 Electronics</a>
+                    <a href="#" onclick="selectCategory('Fashion')">👗 Fashion</a>
+                    <a href="#" onclick="selectCategory('Beauty')">💄 Beauty</a>
+                    <a href="#" onclick="selectCategory('Digital')">💻 Digital</a>
+                </div>
+                <input type="text" id="mainSearch" placeholder="Search for products, brands and more..." />
+                <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="nav-icons">
+                <a href="about.html" class="nav-link active"><i class="fas fa-info-circle"></i> About</a>
+                <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="nav-icon-item">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <span class="icon-label">Cart</span>
+                </div>
+                <div class="nav-icon-item">
+                    <a href="login.html" class="auth-icon" id="authIcon">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <span class="icon-label">Account</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MEGA MENU -->
+    <nav class="mega-menu">
+        <div class="mega-menu-content">
+            <ul class="menu-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+                <li class="dropdown-hover">
+                    <a href="shop.html?filter=electronics"><i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>📱 Phones & Tablets</h4>
+                                <a href="shop.html?filter=electronics&subtype=smartphones">Smartphones</a>
+                                <a href="shop.html?filter=electronics&subtype=smartphones">Android Phones</a>
+                                <a href="shop.html?filter=electronics&subtype=smartphones">iPhones</a>
+                                <a href="shop.html?filter=electronics&subtype=tablets">Tablets</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💻 Computing</h4>
+                                <a href="shop.html?filter=electronics&subtype=laptops">Laptops</a>
+                                <a href="shop.html?filter=electronics&subtype=laptops">MacBooks</a>
+                                <a href="shop.html?filter=electronics&subtype=accessories">Accessories</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎧 Audio</h4>
+                                <a href="shop.html?filter=electronics&subtype=audio">Headphones</a>
+                                <a href="shop.html?filter=electronics&subtype=audio">Earbuds</a>
+                                <a href="shop.html?filter=electronics&subtype=audio">Speakers</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="shop.html?filter=fashion"><i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>👩 Women's Fashion</h4>
+                                <a href="shop.html?filter=fashion&subtype=clothing">Dresses</a>
+                                <a href="shop.html?filter=fashion&subtype=clothing">Tops</a>
+                                <a href="shop.html?filter=fashion&subtype=shoes">Shoes</a>
+                                <a href="shop.html?filter=fashion&subtype=bags">Handbags</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👨 Men's Fashion</h4>
+                                <a href="shop.html?filter=fashion&subtype=clothing">Shirts</a>
+                                <a href="shop.html?filter=fashion&subtype=traditional">Agbada</a>
+                                <a href="shop.html?filter=fashion&subtype=shoes">Shoes</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="shop.html?filter=beauty"><i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>🧴 Skincare</h4>
+                                <a href="shop.html?filter=beauty&subtype=skincare">Face Wash</a>
+                                <a href="shop.html?filter=beauty&subtype=skincare">Moisturizers</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💄 Makeup</h4>
+                                <a href="shop.html?filter=beauty&subtype=makeup">Foundation</a>
+                                <a href="shop.html?filter=beauty&subtype=makeup">Lipstick</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="digital-products.html"><i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>💻 Software</h4>
+                                <a href="digital-products.html?type=software">Accounting Software</a>
+                                <a href="digital-products.html?type=software">Antivirus</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📚 E-books</h4>
+                                <a href="digital-products.html?type=ebook">Business Books</a>
+                                <a href="digital-products.html?type=ebook">Cookbooks</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎓 Courses</h4>
+                                <a href="digital-products.html?type=course">Web Development</a>
+                                <a href="digital-products.html?type=course">Graphic Design</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="menu-right">
+                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
+                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================ -->
+    <!-- PROFESSIONAL ABOUT PAGE -->
+    <!-- ============================================ -->
+
+    <!-- 1. HERO SECTION -->
+    <section class="about-hero">
+        <div class="about-hero-content">
+            <div class="about-hero-badge">
+                <i class="fas fa-star"></i> Trusted by 500,000+ Nigerians
+            </div>
+            <h1>About <span>ShopNaija</span></h1>
+            <p>Your trusted online marketplace delivering quality products and exceptional service across Nigeria since 2024</p>
+            <div class="about-hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">500K+</span>
+                    <span class="stat-label">Happy Customers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100K+</span>
+                    <span class="stat-label">Products Available</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">36</span>
+                    <span class="stat-label">States Covered</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4.8★</span>
+                    <span class="stat-label">Customer Rating</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. OUR STORY SECTION -->
+    <section class="about-story">
+        <div class="about-container">
+            <div class="about-story-grid">
+                <div class="about-story-image">
+                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600" alt="ShopNaija Story" />
+                    <div class="about-image-badge">
+                        <i class="fas fa-calendar"></i>
+                        <div>
+                            <strong>Since 2024</strong>
+                            <span>Serving Nigeria</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-story-text">
+                    <span class="section-tag">Our Story</span>
+                    <h2>Making Quality Products Accessible to Every Nigerian</h2>
+                    <p>ShopNaija was founded in 2024 with a simple mission: to make quality products accessible to every Nigerian, regardless of their location. We connect local and international brands with customers across all 36 states of the country.</p>
+                    <p>What started as a small team of passionate entrepreneurs has grown into one of Nigeria's most trusted online marketplaces. We're proud to serve over 500,000 customers who rely on us for authentic products, fast delivery, and exceptional customer service.</p>
+                    <div class="about-story-features">
+                        <div class="story-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>100% Authentic Products</span>
+                        </div>
+                        <div class="story-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Fast Nationwide Delivery</span>
+                        </div>
+                        <div class="story-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Secure Payment Options</span>
+                        </div>
+                        <div class="story-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>24/7 Customer Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. WHY CHOOSE US SECTION -->
+    <section class="about-why">
+        <div class="about-container">
+            <div class="about-section-header">
+                <span class="section-tag">Why Shop With Us</span>
+                <h2>Why Millions Choose <span>ShopNaija</span></h2>
+                <p>We go above and beyond to ensure your shopping experience is seamless, secure, and satisfying</p>
+            </div>
+            <div class="why-grid">
+                <div class="why-card">
+                    <div class="why-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Authentic Products</h3>
+                    <p>Every product is verified for authenticity. We work directly with brands and authorized distributors.</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3>Fast Delivery</h3>
+                    <p>Nationwide delivery within 1-7 business days. Free shipping on orders above ₦50,000.</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Secure Payments</h3>
+                    <p>Your transactions are protected with 256-bit encryption and multiple payment options.</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">
+                        <i class="fas fa-undo-alt"></i>
+                    </div>
+                    <h3>Easy Returns</h3>
+                    <p>Not satisfied? Return within 7 days for a full refund. No questions asked.</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Our customer care team is available round-the-clock via phone, email, or chat.</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>Best Prices</h3>
+                    <p>We guarantee competitive prices on all products with regular discounts and flash sales.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. MISSION, VISION, VALUES -->
+    <section class="about-mvv">
+        <div class="about-container">
+            <div class="mvv-grid">
+                <div class="mvv-card mission">
+                    <div class="mvv-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>To make quality products accessible to every Nigerian by providing a trusted, convenient, and affordable online shopping platform.</p>
+                </div>
+                <div class="mvv-card vision">
+                    <div class="mvv-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>To become Africa's most trusted e-commerce platform, empowering millions of customers and thousands of sellers.</p>
+                </div>
+                <div class="mvv-card values">
+                    <div class="mvv-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Our Values</h3>
+                    <p>Integrity, customer-first mindset, innovation, and a commitment to excellence in everything we do.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. COMMITMENT SECTION -->
+    <section class="about-commitment">
+        <div class="about-container">
+            <div class="commitment-content">
+                <div class="commitment-text">
+                    <span class="section-tag">Our Commitment</span>
+                    <h2>Committed to Your Satisfaction</h2>
+                    <p>At ShopNaija, we're not just selling products — we're building relationships. Our commitment goes beyond the transaction. We're dedicated to:</p>
+                    <ul class="commitment-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Quality Assurance</strong>
+                                <span>Every product meets our rigorous quality standards</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Customer Satisfaction</strong>
+                                <span>Your happiness is our top priority, always</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Continuous Improvement</strong>
+                                <span>We're always improving to serve you better</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Community Support</strong>
+                                <span>We support local businesses and communities</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="commitment-image">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600" alt="Our Commitment" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. TEAM SECTION -->
+    <section class="about-team">
+        <div class="about-container">
+            <div class="about-section-header">
+                <span class="section-tag">Our Team</span>
+                <h2>Meet the People Behind ShopNaija</h2>
+                <p>Passionate individuals dedicated to transforming online shopping in Nigeria</p>
+            </div>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h4>Agwu Mecha Kalu</h4>
+                    <span class="team-role">CEO & Founder</span>
+                    <p>Visionary leader, Cyber Security Spectialist with 10+ years in e-commerce</p>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h4>Kalu Mecha Kalu</h4>
+                    <span class="team-role">Head of Operations</span>
+                    <p>Ensuring smooth delivery across Nigeria</p>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h4>Okwara Mecha Kalu</h4>
+                    <span class="team-role">Tech Lead</span>
+                    <p>Building the technology that powers our platform</p>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h4>Chinonyerem Kalu Uduma</h4>
+                    <span class="team-role">Customer Success</span>
+                    <p>Leading our 24/7 customer support team</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. CTA SECTION -->
+    <section class="about-cta">
+        <div class="about-container">
+            <div class="cta-content">
+                <h2>Ready to Experience ShopNaija?</h2>
+                <p>Join over 500,000 satisfied customers and start shopping today</p>
+                <div class="cta-buttons">
+                    <a href="shop.html" class="btn-cta-primary">
+                        <i class="fas fa-shopping-bag"></i> Start Shopping
+                    </a>
+                    <a href="contact.html" class="btn-cta-secondary">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>🛍️ ShopNaija</h4>
+                <p>Your trusted online store in Nigeria.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-column">
+                <h4>Categories</h4>
+                <a href="shop.html?filter=electronics">Electronics</a>
+                <a href="shop.html?filter=fashion">Fashion</a>
+                <a href="shop.html?filter=beauty">Beauty</a>
+                <a href="digital-products.html">Digital</a>
+            </div>
+            <div class="footer-column">
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
+                <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
+                <p><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopNaija. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <!-- WhatsApp Floating Button -->
+<a href="https://wa.me/2348114808088?text=Hello%20ShopNaija%2C%20I%20need%20help%20with%20an%20order" 
+   target="_blank" 
+   class="whatsapp-float">
+    <i class="fab fa-whatsapp"></i>
+</a>
+</body>
+</html>

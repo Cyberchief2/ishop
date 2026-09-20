@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopNaija – Digital Products</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">🛍️ ShopNaija</div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="digital-products.html" class="active">Digital</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="nav-icons">
+                <a href="cart.html" class="cart-icon" aria-label="Shopping cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount">0</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Page header -->
+        <section class="page-header">
+            <h1>💻 Digital Products</h1>
+            <p>Instant downloads — no shipping required!</p>
+        </section>
+
+        <!-- Category tabs (filter buttons) -->
+        <section class="digital-categories">
+            <div class="digital-tabs">
+                <button class="tab-btn active" data-type="all">All Digital</button>
+                <button class="tab-btn" data-type="software">Software</button>
+                <button class="tab-btn" data-type="ebook">E-Books</button>
+                <button class="tab-btn" data-type="course">Courses</button>
+                <button class="tab-btn" data-type="template">Templates</button>
+            </div>
+        </section>
+
+        <!-- Product grid — populated by JavaScript -->
+        <section class="featured-products">
+            <div class="product-grid" id="digitalProductsGrid"></div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div>
+                <h4>🛍️ ShopNaija</h4>
+                <p>Physical + Digital products</p>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div>
+                <h4>Categories</h4>
+                <a href="categories/electronics.html">Electronics</a>
+                <a href="categories/fashion.html">Fashion</a>
+                <a href="categories/beauty.html">Beauty</a>
+                <a href="categories/digital.html">Digital</a>
+            </div>
+            <div>
+                <h4>Contact</h4>
+                <p>📞 (234) 811-480-8088</p>
+                <p>📧 worldinfopulse@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ShopNaija. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/2348114808088?text=Hello%20ShopNaija%2C%20I%20need%20help%20with%20an%20order" 
+       target="_blank" 
+       class="whatsapp-float"
+       aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Simple script to demonstrate tab filtering (optional but functional) -->
+    <script>
+        (function() {
+            // Sample digital products data (in a real project, this would come from an API or backend)
+            const digitalProducts = [
+                { id: 1, name: 'Pro Photo Editor', type: 'software', price: '₦12,500', icon: '🖥️' },
+                { id: 2, name: 'Naija Business E-Book', type: 'ebook', price: '₦3,200', icon: '📘' },
+                { id: 3, name: 'Digital Marketing Course', type: 'course', price: '₦18,000', icon: '🎓' },
+                { id: 4, name: 'Resume/CV Template Pack', type: 'template', price: '₦2,500', icon: '📄' },
+                { id: 5, name: 'Antivirus Pro (1yr)', type: 'software', price: '₦9,800', icon: '🛡️' },
+                { id: 6, name: 'Financial Freedom E-Book', type: 'ebook', price: '₦2,800', icon: '📚' },
+                { id: 7, name: 'Web Dev Bootcamp', type: 'course', price: '₦25,000', icon: '💻' },
+                { id: 8, name: 'Social Media Templates', type: 'template', price: '₦4,200', icon: '📱' }
+            ];
+
+            const grid = document.getElementById('digitalProductsGrid');
+            const tabButtons = document.querySelectorAll('.tab-btn');
+
+            // Function to render products based on filter
+            function renderProducts(filterType = 'all') {
+                if (!grid) return;
+                const filtered = filterType === 'all' 
+                    ? digitalProducts 
+                    : digitalProducts.filter(p => p.type === filterType);
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = '<p class="empty-message">No products in this category yet.</p>';
+                    return;
+                }
+
+                grid.innerHTML = filtered.map(product => `
+                    <div class="product-card" data-type="${product.type}">
+                        <div class="product-icon">${product.icon}</div>
+                        <h3>${product.name}</h3>
+                        <p class="product-type">${product.type.charAt(0).toUpperCase() + product.type.slice(1)}</p>
+                        <p class="product-price">${product.price}</p>
+                        <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
+                    </div>
+                `).join('');
+            }
+
+            // Initial render
+            renderProducts();
+
+            // Tab click handling
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update active class
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Get data-type and render
+                    const type = this.getAttribute('data-type');
+                    renderProducts(type);
+                });
+            });
+
+            // Optional: simple cart counter simulation (for demonstration)
+            let cartItemCount = 0;
+            const cartCountSpan = document.getElementById('cartCount');
+            
+            // Use event delegation for Add to Cart buttons
+            grid.addEventListener('click', function(e) {
+                if (e.target.classList.contains('add-to-cart')) {
+                    cartItemCount++;
+                    if (cartCountSpan) cartCountSpan.textContent = cartItemCount;
+                    // Optional: small visual feedback
+                    e.target.textContent = 'Added ✓';
+                    setTimeout(() => {
+                        e.target.textContent = 'Add to Cart';
+                    }, 800);
+                }
+            });
+        })();
+    </script>
+
+    <!-- Basic inline styles for demo purposes (in a real project these would be in style.css) -->
+    <style>
+        /* Minimal reset and layout to make the page look decent without style.css */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f9fafb;
+            color: #1f2937;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header & navigation */
+        header {
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 0.8rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: #0a5c36;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav ul a {
+            text-decoration: none;
+            color: #1f2937;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav ul a:hover,
+        nav ul a.active {
+            color: #0a5c36;
+            font-weight: 600;
+        }
+
+        .nav-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .cart-icon {
+            position: relative;
+            color: #1f2937;
+            font-size: 1.4rem;
+            text-decoration: none;
+        }
+
+        .cart-icon span {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background-color: #0a5c36;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 0.15rem 0.4rem;
+            border-radius: 999px;
+        }
+
+        /* Main content */
+        main {
+            flex: 1;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem 2rem 3rem;
+            width: 100%;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: #0a5c36;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            color: #4b5563;
+        }
+
+        /* Tabs */
+        .digital-categories {
+            margin-bottom: 2.5rem;
+        }
+
+        .digital-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: white;
+            border: 1px solid #d1d5db;
+            padding: 0.7rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #374151;
+        }
+
+        .tab-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .tab-btn.active {
+            background: #0a5c36;
+            border-color: #0a5c36;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Product grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 1.2rem;
+            padding: 1.8rem 1.2rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            transition: transform 0.1s, box-shadow 0.2s;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+
+        .product-icon {
+            font-size: 2.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .product-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.4rem;
+            color: #111827;
+        }
+
+        .product-type {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            background: #f3f4f6;
+            display: inline-block;
+            padding: 0.2rem 0.9rem;
+            border-radius: 20px;
+            margin: 0.5rem auto;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0a5c36;
+            margin: 0.5rem 0 1rem;
+        }
+
+        .add-to-cart {
+            background: #0a5c36;
+            color: white;
+            border: none;
+            padding: 0.7rem 1rem;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .add-to-cart:hover {
+            background: #084d2c;
+        }
+
+        .empty-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+            font-style: italic;
+            background: #f9fafb;
+            border-radius: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 2.5rem 2rem 1rem;
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-content h4 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-content a {
+            display: block;
+            color: #9ca3af;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .footer-content a:hover {
+            color: white;
+        }
+
+        .footer-content p {
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid #374151;
+            margin-top: 2rem;
+            padding-top: 1.2rem;
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        /* WhatsApp Floating Button */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25D366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+            z-index: 100;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .whatsapp-float:hover {
+            background-color: #20b859;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+        }
+
+        .whatsapp-float i {
+            color: white;
+        }
+
+        @media (max-width: 640px) {
+            header {
+                padding: 0.6rem 1rem;
+            }
+            nav {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            nav ul {
+                gap: 1rem;
+                font-size: 0.9rem;
+                flex-wrap: wrap;
+                justify-content: center;
+                order: 3;
+                width: 100%;
+                padding-top: 0.5rem;
+            }
+            .logo {
+                font-size: 1.3rem;
+            }
+            main {
+                padding: 1.5rem 1rem;
+            }
+            .page-header h1 {
+                font-size: 1.9rem;
+            }
+            .tab-btn {
+                padding: 0.5rem 1.2rem;
+                font-size: 0.85rem;
+            }
+            .product-grid {
+                gap: 1.2rem;
+            }
+            .whatsapp-float {
+                width: 52px;
+                height: 52px;
+                font-size: 1.7rem;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</body>
+</html>

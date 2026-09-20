@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ShopNaija – All Products</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
+                <span class="divider">|</span>
+                <a href="#" class="top-link"><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</a>
+            </div>
+            <div class="top-bar-right">
+                <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="login.html" class="top-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="wishlist.html" class="top-link"><i class="fas fa-heart"></i> Wishlist</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html">
+                    <span class="logo-icon">🛍️</span>
+                    Shop<span>Naija</span>
+                </a>
+            </div>
+            <div class="search-bar">
+                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
+                    <span id="selectedCategory">All Categories</span>
+                    <i class="fas fa-chevron-down" id="searchArrow"></i>
+                </div>
+                <div class="search-dropdown-menu" id="searchDropdown">
+                    <a href="#" onclick="selectCategory('All Categories')">All Categories</a>
+                    <a href="#" onclick="selectCategory('Electronics')">📱 Electronics</a>
+                    <a href="#" onclick="selectCategory('Fashion')">👗 Fashion</a>
+                    <a href="#" onclick="selectCategory('Beauty')">💄 Beauty</a>
+                    <a href="#" onclick="selectCategory('Digital')">💻 Digital</a>
+                </div>
+                <input type="text" id="mainSearch" placeholder="Search for products, brands and more..." />
+                <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="nav-icons">
+                <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="nav-icon-item">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <span class="icon-label">Cart</span>
+                </div>
+                <div class="nav-icon-item">
+                    <a href="login.html" class="auth-icon" id="authIcon">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <span class="icon-label">Account</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MEGA MENU -->
+    <nav class="mega-menu">
+        <div class="mega-menu-content">
+            <ul class="menu-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="shop.html" class="active"><i class="fas fa-store"></i> All Products</a></li>
+
+                <!-- ELECTRONICS -->
+                <li class="dropdown-hover">
+                    <a href="electronics.html">
+                        <i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>📱 Phones & Tablets</h4>
+                                <a href="electronics.html?subtype=smartphones">Smartphones</a>
+                                <a href="electronics.html?subtype=smartphones">Android Phones</a>
+                                <a href="electronics.html?subtype=smartphones">iPhones</a>
+                                <a href="electronics.html?subtype=smartphones">Tablets</a>
+                                <a href="electronics.html?subtype=accessories">Phone Accessories</a>
+                                <a href="electronics.html?subtype=accessories">Phone Cases</a>
+                                <a href="electronics.html?subtype=accessories">Chargers & Cables</a>
+                                <a href="electronics.html?subtype=accessories">Power Banks</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💻 Computing</h4>
+                                <a href="electronics.html?subtype=laptops">Laptops</a>
+                                <a href="electronics.html?subtype=laptops">MacBooks</a>
+                                <a href="electronics.html?subtype=laptops">Gaming Laptops</a>
+                                <a href="electronics.html?subtype=laptops">Monitors</a>
+                                <a href="electronics.html?subtype=accessories">Keyboards & Mice</a>
+                                <a href="electronics.html?subtype=accessories">Printers</a>
+                                <a href="electronics.html?subtype=accessories">Networking</a>
+                                <a href="electronics.html?subtype=accessories">Storage Devices</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎧 Audio & Entertainment</h4>
+                                <a href="electronics.html?subtype=audio">Headphones</a>
+                                <a href="electronics.html?subtype=audio">Earbuds</a>
+                                <a href="electronics.html?subtype=audio">Bluetooth Speakers</a>
+                                <a href="electronics.html?subtype=audio">Home Theatre</a>
+                                <a href="electronics.html?subtype=audio">Sound Bars</a>
+                                <a href="electronics.html?subtype=audio">Subwoofers</a>
+                                <a href="electronics.html?subtype=audio">Amplifiers</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📺 TV & Video</h4>
+                                <a href="electronics.html?subtype=tv">Smart TVs</a>
+                                <a href="electronics.html?subtype=tv">LED & LCD TVs</a>
+                                <a href="electronics.html?subtype=tv">QLED & OLED TVs</a>
+                                <a href="electronics.html?subtype=tv">Projectors</a>
+                                <a href="electronics.html?subtype=tv">TV Accessories</a>
+                                <a href="electronics.html?subtype=tv">DVD Players</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>⌚ Wearables</h4>
+                                <a href="electronics.html?subtype=wearables">Smartwatches</a>
+                                <a href="electronics.html?subtype=wearables">Apple Watch</a>
+                                <a href="electronics.html?subtype=wearables">Samsung Watch</a>
+                                <a href="electronics.html?subtype=wearables">Fitness Trackers</a>
+                                <a href="electronics.html?subtype=accessories">Watch Straps</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- FASHION -->
+                <li class="dropdown-hover">
+                    <a href="fashion.html">
+                        <i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>👩 Women's Fashion</h4>
+                                <a href="fashion.html?subtype=clothing">Dresses</a>
+                                <a href="fashion.html?subtype=clothing">Tops & Blouses</a>
+                                <a href="fashion.html?subtype=clothing">Skirts</a>
+                                <a href="fashion.html?subtype=clothing">Trousers</a>
+                                <a href="fashion.html?subtype=clothing">Jeans</a>
+                                <a href="fashion.html?subtype=traditional">Ankara Styles</a>
+                                <a href="fashion.html?subtype=shoes">Women's Shoes</a>
+                                <a href="fashion.html?subtype=bags">Handbags</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👨 Men's Fashion</h4>
+                                <a href="fashion.html?subtype=clothing">Shirts</a>
+                                <a href="fashion.html?subtype=clothing">T-Shirts</a>
+                                <a href="fashion.html?subtype=clothing">Trousers</a>
+                                <a href="fashion.html?subtype=clothing">Jeans</a>
+                                <a href="fashion.html?subtype=traditional">Agbada</a>
+                                <a href="fashion.html?subtype=traditional">Kaftans</a>
+                                <a href="fashion.html?subtype=shoes">Men's Shoes</a>
+                                <a href="fashion.html?subtype=accessories">Watches</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👟 Shoes & Footwear</h4>
+                                <a href="fashion.html?subtype=shoes">Sneakers</a>
+                                <a href="fashion.html?subtype=shoes">Sandals</a>
+                                <a href="fashion.html?subtype=shoes">Heels</a>
+                                <a href="fashion.html?subtype=shoes">Boots</a>
+                                <a href="fashion.html?subtype=shoes">Loafers</a>
+                                <a href="fashion.html?subtype=shoes">Slippers</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👜 Bags & Accessories</h4>
+                                <a href="fashion.html?subtype=bags">Handbags</a>
+                                <a href="fashion.html?subtype=bags">Backpacks</a>
+                                <a href="fashion.html?subtype=bags">Wallets</a>
+                                <a href="fashion.html?subtype=jewelry">Jewelry</a>
+                                <a href="fashion.html?subtype=accessories">Sunglasses</a>
+                                <a href="fashion.html?subtype=accessories">Belts</a>
+                                <a href="fashion.html?subtype=accessories">Hats & Caps</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- BEAUTY -->
+                <li class="dropdown-hover">
+                    <a href="beauty.html">
+                        <i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>🧴 Skincare</h4>
+                                <a href="beauty.html?subtype=skincare">Face Wash</a>
+                                <a href="beauty.html?subtype=skincare">Moisturizers</a>
+                                <a href="beauty.html?subtype=skincare">Serums</a>
+                                <a href="beauty.html?subtype=skincare">Sunscreen</a>
+                                <a href="beauty.html?subtype=skincare">Face Masks</a>
+                                <a href="beauty.html?subtype=skincare">Body Lotion</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💄 Makeup</h4>
+                                <a href="beauty.html?subtype=makeup">Foundation</a>
+                                <a href="beauty.html?subtype=makeup">Lipstick</a>
+                                <a href="beauty.html?subtype=makeup">Eyeshadow</a>
+                                <a href="beauty.html?subtype=makeup">Mascara</a>
+                                <a href="beauty.html?subtype=makeup">Nail Polish</a>
+                                <a href="beauty.html?subtype=makeup">Makeup Kits</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🌸 Fragrances</h4>
+                                <a href="beauty.html?subtype=fragrances">Perfumes</a>
+                                <a href="beauty.html?subtype=fragrances">Body Sprays</a>
+                                <a href="beauty.html?subtype=fragrances">Deodorants</a>
+                                <a href="beauty.html?subtype=fragrances">Essential Oils</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💇 Hair Care</h4>
+                                <a href="beauty.html?subtype=haircare">Shampoo</a>
+                                <a href="beauty.html?subtype=haircare">Conditioner</a>
+                                <a href="beauty.html?subtype=haircare">Hair Oil</a>
+                                <a href="beauty.html?subtype=haircare">Hair Cream</a>
+                                <a href="beauty.html?subtype=haircare">Wigs & Weaves</a>
+                                <a href="beauty.html?subtype=haircare">Hair Tools</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- DIGITAL -->
+                <li class="dropdown-hover">
+                    <a href="digital-products.html">
+                        <i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>💻 Software</h4>
+                                <a href="digital-products.html?type=software">Accounting Software</a>
+                                <a href="digital-products.html?type=software">Antivirus</a>
+                                <a href="digital-products.html?type=software">Office Suites</a>
+                                <a href="digital-products.html?type=software">Design Tools</a>
+                                <a href="digital-products.html?type=software">Development Tools</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📚 E-books</h4>
+                                <a href="digital-products.html?type=ebook">Business Books</a>
+                                <a href="digital-products.html?type=ebook">Cookbooks</a>
+                                <a href="digital-products.html?type=ebook">Fiction</a>
+                                <a href="digital-products.html?type=ebook">Self-Help</a>
+                                <a href="digital-products.html?type=ebook">Educational</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎓 Courses</h4>
+                                <a href="digital-products.html?type=course">Web Development</a>
+                                <a href="digital-products.html?type=course">Graphic Design</a>
+                                <a href="digital-products.html?type=course">Digital Marketing</a>
+                                <a href="digital-products.html?type=course">Data Science</a>
+                                <a href="digital-products.html?type=course">Business Skills</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📄 Templates</h4>
+                                <a href="digital-products.html?type=template">Website Templates</a>
+                                <a href="digital-products.html?type=template">Business Plans</a>
+                                <a href="digital-products.html?type=template">Resume Templates</a>
+                                <a href="digital-products.html?type=template">Social Media Kits</a>
+                                <a href="digital-products.html?type=template">Presentation Decks</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="menu-right">
+                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
+                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTENT — All Products -->
+    <!-- ============================================ -->
+    <main class="page-main">
+        <!-- Page header -->
+        <section class="page-header">
+            <h1>🛒 All Products</h1>
+            <p>Browse our complete collection across every category</p>
+        </section>
+
+        <!-- Category tabs -->
+        <section class="digital-categories">
+            <div class="digital-tabs">
+                <button class="tab-btn active" data-type="all">All</button>
+                <button class="tab-btn" data-type="electronics">📱 Electronics</button>
+                <button class="tab-btn" data-type="fashion">👗 Fashion</button>
+                <button class="tab-btn" data-type="beauty">💄 Beauty</button>
+                <button class="tab-btn" data-type="digital">💻 Digital</button>
+            </div>
+        </section>
+
+        <!-- Results bar (search + count) -->
+        <div class="results-bar">
+            <div class="inline-search">
+                <input type="text" id="shopSearch" placeholder="Search products..." />
+                <button onclick="filterBySearch()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="results-count">
+                Showing <strong id="resultsCount">0</strong> products
+            </div>
+        </div>
+
+        <!-- Product grid -->
+        <section class="featured-products">
+            <div class="product-grid" id="allProductsGrid"></div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>🛍️ ShopNaija</h4>
+                <p>Your trusted online store in Nigeria.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-column">
+                <h4>Categories</h4>
+                <a href="electronics.html">Electronics</a>
+                <a href="fashion.html">Fashion</a>
+                <a href="beauty.html">Beauty</a>
+                <a href="digital-products.html">Digital</a>
+            </div>
+            <div class="footer-column">
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
+                <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
+                <p><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopNaija. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/2348114808088?text=Hello%20ShopNaija%2C%20I%20need%20help%20with%20an%20order"
+       target="_blank"
+       class="whatsapp-float"
+       aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Product filtering + cart simulation -->
+    <script>
+        (function() {
+            // Combined product catalogue — pull from all categories
+            const allProducts = [
+                // ─── ELECTRONICS ───
+                { id: 1,  name: 'Samsung Galaxy S24 Ultra',   type: 'electronics', price: '₦1,250,000', icon: '📱' },
+                { id: 2,  name: 'iPhone 15 Pro Max',          type: 'electronics', price: '₦1,450,000', icon: '📱' },
+                { id: 3,  name: 'HP Spectre x360 Laptop',     type: 'electronics', price: '₦980,000',   icon: '💻' },
+                { id: 4,  name: 'Sony WH-1000XM5 Headphones', type: 'electronics', price: '₦320,000',   icon: '🎧' },
+                { id: 5,  name: 'Samsung 55" QLED Smart TV',  type: 'electronics', price: '₦780,000',   icon: '📺' },
+                { id: 6,  name: 'Apple Watch Series 9',       type: 'electronics', price: '₦420,000',   icon: '⌚' },
+
+                // ─── FASHION ───
+                { id: 7,  name: 'Floral Summer Dress',        type: 'fashion',     price: '₦18,500',    icon: '👗' },
+                { id: 8,  name: 'Classic Oxford Shirt',       type: 'fashion',     price: '₦13,500',    icon: '👔' },
+                { id: 9,  name: 'Ankara Print Gown',          type: 'fashion',     price: '₦28,000',    icon: '👗' },
+                { id: 10, name: 'White Sneakers',             type: 'fashion',     price: '₦25,000',    icon: '👟' },
+                { id: 11, name: 'Leather Handbag',            type: 'fashion',     price: '₦38,000',    icon: '👜' },
+                { id: 12, name: 'Gold Necklace',              type: 'fashion',     price: '₦55,000',    icon: '📿' },
+
+                // ─── BEAUTY ───
+                { id: 13, name: 'Vitamin C Face Serum',       type: 'beauty',      price: '₦15,500',    icon: '🧴' },
+                { id: 14, name: 'Matte Lipstick Set',         type: 'beauty',      price: '₦12,000',    icon: '💄' },
+                { id: 15, name: 'Luxury Perfume 100ml',       type: 'beauty',      price: '₦45,000',    icon: '🌸' },
+                { id: 16, name: 'Hair Growth Oil',            type: 'beauty',      price: '₦8,500',     icon: '💇' },
+                { id: 17, name: 'Sunscreen SPF 50',           type: 'beauty',      price: '₦9,800',     icon: '☀️' },
+
+                // ─── DIGITAL ───
+                { id: 18, name: 'Pro Photo Editor',           type: 'digital',     price: '₦12,500',    icon: '🖥️' },
+                { id: 19, name: 'Naija Business E-Book',      type: 'digital',     price: '₦3,200',     icon: '📘' },
+                { id: 20, name: 'Digital Marketing Course',   type: 'digital',     price: '₦18,000',    icon: '🎓' },
+                { id: 21, name: 'Resume Template Pack',       type: 'digital',     price: '₦2,500',     icon: '📄' },
+                { id: 22, name: 'Antivirus Pro (1yr)',        type: 'digital',     price: '₦9,800',     icon: '🛡️' }
+            ];
+
+            const grid = document.getElementById('allProductsGrid');
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const resultsCountEl = document.getElementById('resultsCount');
+
+            let currentFilter = 'all';
+            let currentSearch = '';
+
+            function renderProducts() {
+                if (!grid) return;
+
+                let filtered = currentFilter === 'all'
+                    ? allProducts
+                    : allProducts.filter(p => p.type === currentFilter);
+
+                if (currentSearch.trim()) {
+                    const q = currentSearch.toLowerCase();
+                    filtered = filtered.filter(p => p.name.toLowerCase().includes(q));
+                }
+
+                if (resultsCountEl) resultsCountEl.textContent = filtered.length;
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = '<p class="empty-message">No products match your search.</p>';
+                    return;
+                }
+
+                grid.innerHTML = filtered.map(product => `
+                    <div class="product-card" data-type="${product.type}">
+                        <div class="product-icon">${product.icon}</div>
+                        <h3>${product.name}</h3>
+                        <p class="product-type">${product.type.charAt(0).toUpperCase() + product.type.slice(1)}</p>
+                        <p class="product-price">${product.price}</p>
+                        <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
+                    </div>
+                `).join('');
+            }
+
+            // Read URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlFilter = urlParams.get('filter');
+            const urlQuery = urlParams.get('q');
+
+            if (urlFilter) {
+                currentFilter = urlFilter;
+                tabButtons.forEach(btn => {
+                    if (btn.getAttribute('data-type') === urlFilter) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            if (urlQuery) {
+                currentSearch = urlQuery;
+                const searchInput = document.getElementById('shopSearch');
+                if (searchInput) searchInput.value = urlQuery;
+            }
+
+            renderProducts();
+
+            // Tab click
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute('data-type');
+                    renderProducts();
+                });
+            });
+
+            // Inline search
+            window.filterBySearch = function() {
+                const input = document.getElementById('shopSearch');
+                currentSearch = input ? input.value : '';
+                renderProducts();
+            };
+
+            // Live search as you type (with small debounce)
+            const shopSearchInput = document.getElementById('shopSearch');
+            if (shopSearchInput) {
+                let debounce;
+                shopSearchInput.addEventListener('input', function() {
+                    clearTimeout(debounce);
+                    debounce = setTimeout(() => {
+                        currentSearch = this.value;
+                        renderProducts();
+                    }, 250);
+                });
+                shopSearchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        currentSearch = this.value;
+                        renderProducts();
+                    }
+                });
+            }
+
+            // Cart counter demo
+            let cartItemCount = 0;
+            const cartCountSpan = document.getElementById('cartCount');
+            grid.addEventListener('click', function(e) {
+                if (e.target.classList.contains('add-to-cart')) {
+                    cartItemCount++;
+                    if (cartCountSpan) cartCountSpan.textContent = cartItemCount;
+                    e.target.textContent = 'Added ✓';
+                    setTimeout(() => { e.target.textContent = 'Add to Cart'; }, 800);
+                }
+            });
+
+            // Header search bar handlers
+            window.toggleSearchDropdown = function() {
+                const dropdown = document.getElementById('searchDropdown');
+                const arrow = document.getElementById('searchArrow');
+                if (dropdown) dropdown.classList.toggle('show');
+                if (arrow) arrow.classList.toggle('rotate');
+            };
+            window.selectCategory = function(cat) {
+                const el = document.getElementById('selectedCategory');
+                if (el) el.textContent = cat;
+                const dropdown = document.getElementById('searchDropdown');
+                if (dropdown) dropdown.classList.remove('show');
+            };
+            window.performSearch = function() {
+                const query = document.getElementById('mainSearch')?.value || '';
+                if (query.trim()) {
+                    window.location.href = 'shop.html?q=' + encodeURIComponent(query);
+                }
+            };
+        })();
+    </script>
+
+    <!-- Fallback styles -->
+    <style>
+        .page-main {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 3rem;
+            width: 100%;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-size: 2.4rem;
+            color: #0a5c36;
+            margin-bottom: 0.4rem;
+        }
+        .page-header p {
+            font-size: 1.05rem;
+            color: #4b5563;
+        }
+
+        .digital-categories { margin-bottom: 1.5rem; }
+        .digital-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            padding: 0.65rem 1.6rem;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: #374151;
+        }
+        .tab-btn:hover { background: #f3f4f6; border-color: #9ca3af; }
+        .tab-btn.active {
+            background: #0a5c36;
+            border-color: #0a5c36;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Results bar with inline search */
+        .results-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            padding: 1rem 1.2rem;
+            background: #ffffff;
+            border-radius: 0.9rem;
+            border: 1px solid #e5e7eb;
+        }
+        .inline-search {
+            display: flex;
+            flex: 1;
+            max-width: 480px;
+            background: #f9fafb;
+            border-radius: 40px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .inline-search input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 0.65rem 1.2rem;
+            background: transparent;
+            font-size: 0.95rem;
+            color: #111827;
+        }
+        .inline-search button {
+            border: none;
+            background: #0a5c36;
+            color: white;
+            padding: 0 1.2rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .inline-search button:hover { background: #084d2c; }
+        .results-count {
+            font-size: 0.95rem;
+            color: #4b5563;
+        }
+        .results-count strong { color: #0a5c36; font-weight: 700; }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1.8rem;
+        }
+        .product-card {
+            background: #ffffff;
+            border-radius: 1.1rem;
+            padding: 1.6rem 1.1rem 1.4rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            transition: transform 0.15s, box-shadow 0.2s;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+        .product-icon { font-size: 2.6rem; margin-bottom: 0.7rem; }
+        .product-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 0.35rem;
+            color: #111827;
+            line-height: 1.35;
+        }
+        .product-type {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            background: #f3f4f6;
+            display: inline-block;
+            padding: 0.2rem 0.85rem;
+            border-radius: 20px;
+            margin: 0.4rem auto;
+        }
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0a5c36;
+            margin: 0.5rem 0 1rem;
+        }
+        .add-to-cart {
+            background: #0a5c36;
+            color: #ffffff;
+            border: none;
+            padding: 0.65rem 1rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: auto;
+            width: 100%;
+        }
+        .add-to-cart:hover { background: #084d2c; }
+        .empty-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2.5rem;
+            color: #6b7280;
+            font-style: italic;
+            background: #f9fafb;
+            border-radius: 1rem;
+        }
+
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25D366;
+            color: #ffffff;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+            z-index: 100;
+            transition: all 0.2s
