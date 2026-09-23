@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="category-page">
+<html lang="en" class="category-page beauty-page">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>iShop – Fashion</title>
+    <title>iShop – Beauty</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -100,44 +100,41 @@
                     </div>
                 </li>
                 <li class="dropdown-hover">
-                    <a href="fashion.html" class="active"><i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i></a>
+                    <a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i></a>
                     <div class="mega-dropdown">
                         <div class="mega-dropdown-content">
                             <div class="mega-column">
                                 <h4>👩 Women's</h4>
                                 <a href="fashion.html?subtype=clothing">Dresses</a>
                                 <a href="fashion.html?subtype=clothing">Tops</a>
-                                <a href="fashion.html?subtype=traditional">Ankara</a>
                             </div>
                             <div class="mega-column">
                                 <h4>👨 Men's</h4>
                                 <a href="fashion.html?subtype=clothing">Shirts</a>
                                 <a href="fashion.html?subtype=traditional">Agbada</a>
-                                <a href="fashion.html?subtype=traditional">Kaftans</a>
                             </div>
                             <div class="mega-column">
                                 <h4>👟 Shoes</h4>
                                 <a href="fashion.html?subtype=shoes">Sneakers</a>
                                 <a href="fashion.html?subtype=shoes">Heels</a>
-                                <a href="fashion.html?subtype=shoes">Sandals</a>
                             </div>
                             <div class="mega-column">
                                 <h4>👜 Bags</h4>
                                 <a href="fashion.html?subtype=bags">Handbags</a>
-                                <a href="fashion.html?subtype=bags">Wallets</a>
                                 <a href="fashion.html?subtype=jewelry">Jewelry</a>
                             </div>
                         </div>
                     </div>
                 </li>
                 <li class="dropdown-hover">
-                    <a href="beauty.html"><i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i></a>
+                    <a href="beauty.html" class="active"><i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i></a>
                     <div class="mega-dropdown">
                         <div class="mega-dropdown-content">
                             <div class="mega-column">
                                 <h4>🧴 Skincare</h4>
                                 <a href="beauty.html?subtype=skincare">Face Wash</a>
                                 <a href="beauty.html?subtype=skincare">Serums</a>
+                                <a href="beauty.html?subtype=skincare">Sunscreen</a>
                             </div>
                             <div class="mega-column">
                                 <h4>💄 Makeup</h4>
@@ -151,6 +148,7 @@
                             <div class="mega-column">
                                 <h4>💇 Hair Care</h4>
                                 <a href="beauty.html?subtype=haircare">Shampoo</a>
+                                <a href="beauty.html?subtype=haircare">Wigs & Weaves</a>
                             </div>
                         </div>
                     </div>
@@ -189,50 +187,40 @@
     <section class="page-header">
         <div class="page-header-icon">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" fill="#f9c74f"/>
-                <path d="M3 6h18" stroke="#0d1b2a" stroke-width="2" stroke-linecap="round"/>
-                <path d="M16 10a4 4 0 01-8 0" stroke="#0d1b2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 2l2.09 6.26L20 9l-4.9 4.09L17.18 22 12 18.27 6.82 22l2.08-8.91L4 9l5.91-.74L12 2z" fill="#f9c74f"/>
             </svg>
         </div>
-        <h1>Fashion</h1>
-        <p>Clothing, shoes, bags & accessories</p>
+        <h1>Beauty</h1>
+        <p>Skincare, makeup, fragrances & hair care</p>
     </section>
 
     <section class="subcat-section">
         <div class="subcat-row">
             <button class="subcat-item active" data-subtype="all">
-                <div class="subcat-icon"><img src="images/categories/all-fashion.jpg" alt="All" /></div>
+                <div class="subcat-icon"><img src="images/categories/all-beauty.jpg" alt="All" /></div>
                 <span class="subcat-label">All</span>
             </button>
-            <button class="subcat-item" data-subtype="clothing">
-                <div class="subcat-icon"><img src="images/categories/clothing.jpg" alt="Clothing" /></div>
-                <span class="subcat-label">Clothing</span>
+            <button class="subcat-item" data-subtype="skincare">
+                <div class="subcat-icon"><img src="images/categories/skincare.jpg" alt="Skincare" /></div>
+                <span class="subcat-label">Skincare</span>
             </button>
-            <button class="subcat-item" data-subtype="traditional">
-                <div class="subcat-icon"><img src="images/categories/traditional.jpg" alt="Traditional" /></div>
-                <span class="subcat-label">Traditional</span>
+            <button class="subcat-item" data-subtype="makeup">
+                <div class="subcat-icon"><img src="images/categories/makeup.jpg" alt="Makeup" /></div>
+                <span class="subcat-label">Makeup</span>
             </button>
-            <button class="subcat-item" data-subtype="shoes">
-                <div class="subcat-icon"><img src="images/categories/shoes.jpg" alt="Shoes" /></div>
-                <span class="subcat-label">Shoes</span>
+            <button class="subcat-item" data-subtype="fragrances">
+                <div class="subcat-icon"><img src="images/categories/fragrances.jpg" alt="Fragrances" /></div>
+                <span class="subcat-label">Fragrances</span>
             </button>
-            <button class="subcat-item" data-subtype="bags">
-                <div class="subcat-icon"><img src="images/categories/bags.jpg" alt="Bags" /></div>
-                <span class="subcat-label">Bags</span>
-            </button>
-            <button class="subcat-item" data-subtype="jewelry">
-                <div class="subcat-icon"><img src="images/categories/jewelry.jpg" alt="Jewelry" /></div>
-                <span class="subcat-label">Jewelry</span>
-            </button>
-            <button class="subcat-item" data-subtype="accessories">
-                <div class="subcat-icon"><img src="images/categories/fashion-accessories.jpg" alt="Accessories" /></div>
-                <span class="subcat-label">Accessories</span>
+            <button class="subcat-item" data-subtype="haircare">
+                <div class="subcat-icon"><img src="images/categories/haircare.jpg" alt="Hair Care" /></div>
+                <span class="subcat-label">Hair Care</span>
             </button>
         </div>
     </section>
 
     <section class="featured-products">
-        <div class="product-grid" id="fashionProducts"></div>
+        <div class="product-grid" id="beautyProducts"></div>
     </section>
 
     <footer>

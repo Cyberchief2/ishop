@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>ShopNaija – Checkout</title>
+    <title>iShop – Checkout</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://js.paystack.co/v2/inline.js"></script>
 </head>
 <body>
     <!-- TOP BAR -->
@@ -15,7 +16,7 @@
             <div class="top-bar-left">
                 <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
                 <span class="divider">|</span>
-                <a href="#" class="top-link"><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</a>
+                <a href="#" class="top-link"><i class="fas fa-envelope"></i> info@ishop.com.ng</a>
             </div>
             <div class="top-bar-right">
                 <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
@@ -30,8 +31,7 @@
         <div class="header-content">
             <div class="logo">
                 <a href="index.html">
-                    <span class="logo-icon">🛍️</span>
-                    Shop<span>Naija</span>
+                    <span class="logo-icon">🛍️</span> <span class="logo-text">i<span class="logo-accent">Shop</span></span>
                 </a>
             </div>
             <div class="search-bar">
@@ -120,46 +120,95 @@
         </div>
     </nav>
 
-    <!-- CHECKOUT SECTION -->
-    <section class="page-header">
-        <h1>📝 Checkout</h1>
-        <p>Complete your order</p>
+    <!-- CHECKOUT HEADER -->
+    <section class="checkout-header">
+        <h1>Checkout</h1>
+        <p>Complete your order — safe and secure</p>
     </section>
 
+    <!-- CHECKOUT FORM + SUMMARY -->
     <section class="checkout-wrapper">
+        <!-- LEFT: FORM -->
         <div class="checkout-form">
-            <h3>Shipping Information</h3>
+            <h3><i class="fas fa-truck" style="color:#f9c74f;margin-right:0.5rem;"></i> Shipping Information</h3>
             <form id="checkoutForm">
                 <div class="form-group">
                     <label for="fullName">Full Name *</label>
                     <input type="text" id="fullName" placeholder="John Doe" required />
                 </div>
-                <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" placeholder="john@example.com" required />
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" placeholder="john@example.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone *</label>
+                        <input type="tel" id="phone" placeholder="08012345678" required />
+                    </div>
                 </div>
+
+                <!-- Toggle: ship to different address -->
                 <div class="form-group">
-                    <label for="phone">Phone *</label>
-                    <input type="tel" id="phone" placeholder="08012345678" required />
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="differentShipping" onchange="toggleDifferentShipping()" />
+                        <span><i class="fas fa-truck" style="color:#f9c74f;"></i> Ship to a different address</span>
+                    </label>
                 </div>
-                <div class="form-group">
-                    <label for="address">Delivery Address *</label>
-                    <textarea id="address" rows="3" placeholder="Your full address" required></textarea>
+
+                <!-- Default shipping (from profile) -->
+                <div id="defaultShippingFields">
+                    <div class="form-group">
+                        <label for="address">Delivery Address *</label>
+                        <textarea id="address" rows="3" placeholder="House number, street, city, state" required></textarea>
+                    </div>
                 </div>
+
+                <!-- Different shipping (hidden by default) -->
+                <div id="differentShippingFields" style="display: none;">
+                    <div class="different-shipping-header">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Shipping to a different address</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shipName">Recipient Name *</label>
+                            <input type="text" id="shipName" placeholder="Full name of recipient" />
+                        </div>
+                        <div class="form-group">
+                            <label for="shipPhone">Recipient Phone *</label>
+                            <input type="tel" id="shipPhone" placeholder="08012345678" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="shipAddress">Delivery Address *</label>
+                        <textarea id="shipAddress" rows="3" placeholder="House number, street, city, state"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="shipNotes">Delivery Notes (optional)</label>
+                        <input type="text" id="shipNotes" placeholder="e.g., Call before delivery, gate code, landmark" />
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="payment">Payment Method *</label>
                     <select id="payment" required>
-                        <option value="">Select payment method</option>
-                        <option value="paystack">Paystack (Card/Bank)</option>
-                        <option value="flutterwave">Flutterwave</option>
-                        <option value="transfer">Bank Transfer</option>
-                        <option value="cod">Cash on Delivery</option>
+                        <option value="paystack">💳 Paystack (Card / Bank / USSD)</option>
+                        <option value="transfer">🏦 Bank Transfer</option>
+                        <option value="cod">💵 Cash on Delivery</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-primary" id="placeOrderBtn">Place Order</button>
+                <div id="paymentInfo" class="payment-info">
+                    <i class="fas fa-lock" style="color:#4CAF50;"></i>
+                    <span>Your payment is secured by Paystack. You'll be redirected to complete payment after clicking Place Order.</span>
+                </div>
+                <button type="submit" class="btn-primary" id="placeOrderBtn">
+                    <i class="fas fa-lock"></i> Place Order & Pay Securely
+                </button>
             </form>
             <div id="orderFeedback"></div>
         </div>
+
+        <!-- RIGHT: SUMMARY -->
         <div class="order-summary" id="orderSummary"></div>
     </section>
 
@@ -167,7 +216,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-column">
-                <h4>🛍️ ShopNaija</h4>
+                <h4>🛍️ iShop</h4>
                 <p>Your trusted online store in Nigeria.</p>
                 <div class="social-links">
                     <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -194,20 +243,22 @@
                 <h4>Contact Info</h4>
                 <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
                 <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
-                <p><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</p>
+                <p><i class="fas fa-envelope"></i> info@ishop.com.ng</p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2026 ShopNaija. All rights reserved.</p>
+            <p>© 2026 iShop. All rights reserved.</p>
         </div>
     </footer>
 
-    <script src="script.js"></script>
     <!-- WhatsApp Floating Button -->
-<a href="https://wa.me/2348114808088?text=Hello%20ShopNaija%2C%20I%20need%20help%20with%20an%20order" 
-   target="_blank" 
-   class="whatsapp-float">
-    <i class="fab fa-whatsapp"></i>
-</a>
+    <a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help%20with%20an%20order"
+       target="_blank"
+       class="whatsapp-float"
+       aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script src="script.js"></script>
 </body>
 </html>

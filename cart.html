@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>ShopNaija – Cart</title>
+    <title>iShop – Cart</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -15,7 +15,7 @@
             <div class="top-bar-left">
                 <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
                 <span class="divider">|</span>
-                <a href="#" class="top-link"><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</a>
+                <a href="#" class="top-link"><i class="fas fa-envelope"></i> info@ishop.com.ng</a>
             </div>
             <div class="top-bar-right">
                 <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
@@ -30,8 +30,7 @@
         <div class="header-content">
             <div class="logo">
                 <a href="index.html">
-                    <span class="logo-icon">🛍️</span>
-                    Shop<span>Naija</span>
+                    <span class="logo-icon">🛍️</span> <span class="logo-text">i<span class="logo-accent">Shop</span></span>
                 </a>
             </div>
             <div class="search-bar">
@@ -121,21 +120,22 @@
     </nav>
 
     <!-- CART SECTION -->
-    <section class="page-header">
-        <h1>🛒 Your Shopping Cart</h1>
-        <p id="cartTotalItems">0 items in your cart</p>
-    </section>
-
-    <section class="cart-content">
-        <div class="cart-items" id="cartItems"></div>
-        <div class="cart-summary" id="cartSummary"></div>
+    <section class="cart-page">
+        <div class="cart-page-header">
+            <h1>🛒 Your Shopping Cart</h1>
+            <p id="cartTotalItems">0 items in your cart</p>
+        </div>
+        <div class="cart-layout">
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-summary" id="cartSummary"></div>
+        </div>
     </section>
 
     <!-- FOOTER -->
     <footer>
         <div class="footer-content">
             <div class="footer-column">
-                <h4>🛍️ ShopNaija</h4>
+                <h4>🛍️ iShop</h4>
                 <p>Your trusted online store in Nigeria.</p>
                 <div class="social-links">
                     <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -162,20 +162,22 @@
                 <h4>Contact Info</h4>
                 <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
                 <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
-                <p><i class="fas fa-envelope"></i> worldinfopulse@gmail.com</p>
+                <p><i class="fas fa-envelope"></i> info@ishop.com.ng</p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2026 ShopNaija. All rights reserved.</p>
+            <p>© 2026 iShop. All rights reserved.</p>
         </div>
     </footer>
 
-    <script src="script.js"></script>
     <!-- WhatsApp Floating Button -->
-<a href="https://wa.me/2348114808088?text=Hello%20ShopNaija%2C%20I%20need%20help%20with%20an%20order" 
-   target="_blank" 
-   class="whatsapp-float">
-    <i class="fab fa-whatsapp"></i>
-</a>
+    <a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help%20with%20an%20order"
+       target="_blank"
+       class="whatsapp-float"
+       aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script src="script.js"></script>
 </body>
 </html>

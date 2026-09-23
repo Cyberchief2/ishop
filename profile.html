@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>iShop – My Account</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
+                <span class="divider">|</span>
+                <a href="#" class="top-link"><i class="fas fa-envelope"></i> info.ishop.com.ng</a>
+            </div>
+            <div class="top-bar-right">
+                <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="login.html" class="top-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="wishlist.html" class="top-link"><i class="fas fa-heart"></i> Wishlist</a>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html">
+                    <span class="logo-icon">🛍️</span> <span class="logo-text">i<span class="logo-accent">Shop</span></span>
+                </a>
+            </div>
+            <div class="search-bar">
+                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
+                    <span id="selectedCategory">All Categories</span>
+                    <i class="fas fa-chevron-down" id="searchArrow"></i>
+                </div>
+                <div class="search-dropdown-menu" id="searchDropdown">
+                    <a href="#" onclick="selectCategory('All Categories')">All Categories</a>
+                    <a href="#" onclick="selectCategory('Electronics')">📱 Electronics</a>
+                    <a href="#" onclick="selectCategory('Fashion')">👗 Fashion</a>
+                    <a href="#" onclick="selectCategory('Beauty')">💄 Beauty</a>
+                    <a href="#" onclick="selectCategory('Digital')">💻 Digital</a>
+                </div>
+                <input type="text" id="mainSearch" placeholder="Search for products, brands and more..." />
+                <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="nav-icons">
+                <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="nav-icon-item">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <span class="icon-label">Cart</span>
+                </div>
+                <div class="nav-icon-item">
+                    <a href="profile.html" class="auth-icon" id="authIcon">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <span class="icon-label">Account</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="mega-menu">
+        <div class="mega-menu-content">
+            <ul class="menu-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+                <li><a href="electronics.html"><i class="fas fa-mobile-alt"></i> Electronics</a></li>
+                <li><a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion</a></li>
+                <li><a href="beauty.html"><i class="fas fa-spa"></i> Beauty</a></li>
+                <li><a href="digital-products.html"><i class="fas fa-download"></i> Digital</a></li>
+            </ul>
+            <div class="menu-right">
+                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
+                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="account-page">
+        <!-- Profile Header Card -->
+        <div class="account-header-card">
+            <div class="account-avatar" id="profileAvatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="account-info">
+                <h1 id="profileName">Loading...</h1>
+                <p><i class="fas fa-envelope"></i> <span id="profileEmail">—</span></p>
+                <p><i class="fas fa-phone"></i> <span id="profilePhoneDisplay">—</span></p>
+                <span class="account-badge" id="accountBadge">Customer</span>
+            </div>
+            <button class="btn-logout" onclick="logoutUser()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="account-stats">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                <div>
+                    <span class="stat-value" id="statOrders">0</span>
+                    <span class="stat-label">Orders</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-heart"></i></div>
+                <div>
+                    <span class="stat-value" id="statWishlist">0</span>
+                    <span class="stat-label">Wishlist</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                <div>
+                    <span class="stat-value" id="statCart">0</span>
+                    <span class="stat-label">In Cart</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div>
+                    <span class="stat-value">4.8</span>
+                    <span class="stat-label">Your Rating</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="account-layout">
+            <!-- Left: Section Navigation -->
+            <div class="account-sidebar">
+                <button class="account-nav-item active" data-section="overview" onclick="switchAccountSection('overview')">
+                    <i class="fas fa-th-large"></i> Overview
+                </button>
+                <button class="account-nav-item" data-section="details" onclick="switchAccountSection('details')">
+                    <i class="fas fa-user-edit"></i> Edit Details
+                </button>
+                <button class="account-nav-item" data-section="orders" onclick="switchAccountSection('orders')">
+                    <i class="fas fa-box"></i> My Orders
+                </button>
+                <button class="account-nav-item" data-section="addresses" onclick="switchAccountSection('addresses')">
+                    <i class="fas fa-map-marker-alt"></i> Addresses
+                </button>
+                <button class="account-nav-item" data-section="security" onclick="switchAccountSection('security')">
+                    <i class="fas fa-shield-alt"></i> Security
+                </button>
+            </div>
+
+            <!-- Right: Section Content -->
+            <div class="account-content">
+
+                <!-- Overview Section -->
+                <div class="account-section active" id="section-overview">
+                    <h2>Account Overview</h2>
+                    <p class="account-subtitle">Welcome back to your iShop account dashboard.</p>
+
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <i class="fas fa-shopping-bag"></i>
+                            <h3>Recent Orders</h3>
+                            <p>You have <strong id="overviewOrders">0</strong> orders so far.</p>
+                            <a href="track-order.html" class="btn-outline-small">Track Order</a>
+                        </div>
+                        <div class="overview-card">
+                            <i class="fas fa-heart"></i>
+                            <h3>Wishlist</h3>
+                            <p><strong id="overviewWishlist">0</strong> items saved for later.</p>
+                            <a href="wishlist.html" class="btn-outline-small">View Wishlist</a>
+                        </div>
+                        <div class="overview-card">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>Cart</h3>
+                            <p><strong id="overviewCart">0</strong> items in your cart.</p>
+                            <a href="cart.html" class="btn-outline-small">View Cart</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Details Section -->
+                <div class="account-section" id="section-details">
+                    <h2>Edit Account Details</h2>
+                    <p class="account-subtitle">Keep your information up to date for faster checkout.</p>
+                    <form id="profileForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileFullName">Full Name</label>
+                                <input type="text" id="profileFullName" placeholder="Your full name" />
+                            </div>
+                            <div class="form-group">
+                                <label for="profileEmailField">Email</label>
+                                <input type="email" id="profileEmailField" placeholder="Your email" disabled />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="profilePhone">Phone Number</label>
+                            <input type="tel" id="profilePhone" placeholder="08012345678" />
+                        </div>
+                        <div class="form-group">
+                            <label for="profileAddress">Delivery Address</label>
+                            <textarea id="profileAddress" rows="3" placeholder="House number, street, city, state"></textarea>
+                        </div>
+                        <button type="submit" class="btn-auth">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </form>
+                    <div id="profileFeedback"></div>
+                </div>
+
+                <!-- Orders Section -->
+                <div class="account-section" id="section-orders">
+                    <h2>My Orders</h2>
+                    <p class="account-subtitle">Track your recent purchases.</p>
+                    <div class="empty-state-small">
+                        <i class="fas fa-box-open"></i>
+                        <p>No orders yet. Start shopping to see your orders here.</p>
+                        <a href="shop.html" class="btn-auth" style="display:inline-flex;width:auto;padding:0.7rem 1.5rem;">Shop Now</a>
+                    </div>
+                </div>
+
+                <!-- Addresses Section -->
+                <div class="account-section" id="section-addresses">
+                    <h2>Delivery Addresses</h2>
+                    <p class="account-subtitle">Manage addresses for faster checkout.</p>
+                    <div class="empty-state-small">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>No saved addresses. Add one when you check out.</p>
+                    </div>
+                </div>
+
+                <!-- Security Section -->
+                <div class="account-section" id="section-security">
+                    <h2>Security</h2>
+                    <p class="account-subtitle">Keep your account safe.</p>
+                    <div class="empty-state-small">
+                        <i class="fas fa-shield-alt"></i>
+                        <p>Your account is protected. To change your password, log out and use the "Forgot Password" option on the login page.</p>
+                        <button class="btn-logout" onclick="logoutUser()" style="display:inline-flex;margin-top:1rem;">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>🛍️ iShop</h4>
+                <p>Your trusted online store in Nigeria.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-column">
+                <h4>Categories</h4>
+                <a href="electronics.html">Electronics</a>
+                <a href="fashion.html">Fashion</a>
+                <a href="beauty.html">Beauty</a>
+                <a href="digital-products.html">Digital</a>
+            </div>
+            <div class="footer-column">
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
+                <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
+                <p><i class="fas fa-envelope"></i> info.ishop.com.ng</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 iShop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help%20with%20an%20order"
+       target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script src="script.js"></script>
+</body>
+</html>

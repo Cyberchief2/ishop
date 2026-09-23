@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>iShop – Order Confirmed</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
+                <span class="divider">|</span>
+                <a href="#" class="top-link"><i class="fas fa-envelope"></i> info@ishop.com.ng</a>
+            </div>
+            <div class="top-bar-right">
+                <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+                <a href="login.html" class="top-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="wishlist.html" class="top-link"><i class="fas fa-heart"></i> Wishlist</a>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <a href="index.html">
+                    <span class="logo-icon">🛍️</span> <span class="logo-text">i<span class="logo-accent">Shop</span></span>
+                </a>
+            </div>
+            <div class="nav-icons" style="margin-left:auto;">
+                <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="nav-icon-item">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <span class="icon-label">Cart</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main style="max-width:700px;margin:4rem auto;padding:0 2rem;">
+        <div style="text-align:center;padding:3rem 2rem;background:white;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.06);border:1px solid #f0f0f0;">
+            <div style="width:80px;height:80px;background:#d4edda;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
+                <i class="fas fa-check" style="font-size:2.5rem;color:#155724;"></i>
+            </div>
+            <h1 style="font-size:2rem;font-weight:800;color:#0d1b2a;margin-bottom:0.5rem;">Order Confirmed!</h1>
+            <p style="color:#666;font-size:1.05rem;margin-bottom:1rem;">Thank you for shopping with iShop.</p>
+            <p style="color:#666;margin-bottom:2rem;">Order reference: <strong id="orderRef" style="color:#0d1b2a;">—</strong></p>
+            <p style="color:#888;font-size:0.9rem;margin-bottom:2rem;">
+                We've sent a confirmation email with your order details. Physical items will be delivered within 1–7 business days.
+                Digital products will arrive in your email within 5 minutes.
+            </p>
+            <a href="shop.html" style="display:inline-block;padding:0.9rem 2.5rem;background:#f9c74f;color:#0d1b2a;border-radius:30px;font-weight:700;text-decoration:none;">
+                Continue Shopping
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>🛍️ iShop</h4>
+                <p>Your trusted online store in Nigeria.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+            </div>
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <p>+234 811 480 8088</p>
+                <p>info@ishop.com.ng</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 iShop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const ref = new URLSearchParams(window.location.search).get('ref');
+        if (ref) document.getElementById('orderRef').textContent = ref;
+    </script>
+</body>
+</html>

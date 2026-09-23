@@ -8,7 +8,7 @@ const fs = require('fs');
 // CONFIGURATION
 // ============================================
 
-const STRAPI_URL = 'http://localhost:1337';
+const STRAPI_URL = 'https://ishop-cms-production.up.railway.app';
 const API_TOKEN = '415f84d714e3596b6e0a71a9d35740c6158f2731c5b9f3f02a60d01dc5677fff6ee90fe76d9b2a80fcff8ddc82501a366bc425e79f7b10db7f8e441382b26faa8526ddd88543e799212a2aaa132f868ffb154fdb09bacb8ce20168aacb3d0af8be0c649a22a132b6d275ef07b54904abc91f7081b4d939350d6481b8cc74b6d6'; // 👈 Replace with your token
 
 // ============================================
