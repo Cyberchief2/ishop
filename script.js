@@ -1,9 +1,12 @@
 // ============================================
 // iShop API CONFIGURATION
 // ============================================
-const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate=*';
+const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications';
 const IMAGE_BASE_URL = 'https://ishop-cms-production.up.railway.app';
 const PAYMENT_API = 'https://ishop-payments-production.up.railway.app/api/orders/initialize';
+const FREE_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/free-download';
+const PAID_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/download';
+const STRAPI_AUTH_BASE = 'https://ishop-cms-production.up.railway.app';
 
 // ============================================
 // GOOGLE OAUTH CONFIGURATION
@@ -30,21 +33,6 @@ async function fetchProducts() {
 }
 
 // ============================================
-// CONVERT STRAPI PRODUCT TO WEBSITE FORMAT
-// ============================================
-function convertStrapiProduct(strapiProduct) {
-    let imageUrls = ['https://via.placeholder.com/400x400/1a2a3a/f9c74f?text=No+Image'];
-if (strapiProduct.Image && strapiProduct.Image.length > 0) {
-    imageUrls = strapiProduct.Image
-        .filter(img => img && img.url)
-        .map(img => `${IMAGE_BASE_URL}${img.url}`);
-    if (imageUrls.length === 0) {
-        imageUrls = ['https://via.placeholder.com/400x400/1a2a3a/f9c74f?text=No+Image'];
-    }
-}
-const imageUrl = imageUrls[0];
-
-    // ============================================
 // DESCRIPTION PARSER — Handles paragraphs, lists, nested blocks
 // ============================================
 function extractDescriptionText(blocks) {
@@ -95,11 +83,45 @@ function extractDescriptionText(blocks) {
     return { text: text || bullets.join(' ').trim(), bullets };
 }
 
-const descResult = extractDescriptionText(strapiProduct.Description);
-let description = descResult.text || 'No description available';
-let features = descResult.bullets.length > 0
-    ? descResult.bullets.slice(0, 6)
-    : [description];
+// ============================================
+// CLOUDINARY IMAGE OPTIMIZER
+// ============================================
+function optimizeCloudinaryUrl(url) {
+    if (!url || typeof url !== 'string') return url;
+    if (!url.includes('res.cloudinary.com')) return url;
+    if (url.includes('/w_600,') || url.includes('f_auto') || url.includes('q_auto')) return url;
+
+    return url.replace(
+        /\/upload\//,
+        '/upload/w_600,f_auto,q_auto/'
+    );
+}
+
+// ============================================
+// CONVERT STRAPI PRODUCT TO WEBSITE FORMAT
+// ============================================
+function convertStrapiProduct(strapiProduct) {
+    let imageUrls = ['https://via.placeholder.com/400x400/1a2a3a/f9c74f?text=No+Image'];
+    if (strapiProduct.Image && strapiProduct.Image.length > 0) {
+        imageUrls = strapiProduct.Image
+            .filter(img => img && img.url)
+            .map(img => {
+                const rawUrl = img.url.startsWith('http://') || img.url.startsWith('https://')
+                    ? img.url
+                    : `${IMAGE_BASE_URL}${img.url}`;
+                return optimizeCloudinaryUrl(rawUrl);
+            });
+        if (imageUrls.length === 0) {
+            imageUrls = ['https://via.placeholder.com/400x400/1a2a3a/f9c74f?text=No+Image'];
+        }
+    }
+    const imageUrl = imageUrls[0];
+
+    const descResult = extractDescriptionText(strapiProduct.Description);
+    let description = descResult.text || 'No description available';
+    let features = descResult.bullets.length > 0
+        ? descResult.bullets.slice(0, 6)
+        : [];
 
     let specifications = [];
     if (Array.isArray(strapiProduct.Specifications)) {
@@ -162,7 +184,7 @@ function addToCart(productId) {
 
 async function fetchProductById(productId) {
     try {
-        const listResponse = await fetch('https://ishop-cms-production.up.railway.app/api/products?populate=*');
+        const listResponse = await fetch(API_URL);
         if (!listResponse.ok) {
             throw new Error(`HTTP error! status: ${listResponse.status}`);
         }
@@ -174,7 +196,7 @@ async function fetchProductById(productId) {
             return null;
         }
 
-        const response = await fetch(`https://ishop-cms-production.up.railway.app/api/products/${found.documentId}?populate=*`);
+        const response = await fetch(`https://ishop-cms-production.up.railway.app/api/products/${found.documentId}?populate[0]=Image&populate[1]=Specifications`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -217,7 +239,7 @@ function getCartTotal() {
 }
 
 // ============================================
-// RENDER PRODUCTS
+// RENDER PRODUCTS (clickable cards)
 // ============================================
 function renderProducts(containerId, productList, limit = null) {
     const container = document.getElementById(containerId);
@@ -242,10 +264,11 @@ function renderProducts(containerId, productList, limit = null) {
 
     container.innerHTML = items.map(product => {
         const isInWishlist = wishlistData.includes(product.id);
+        const isFreeDigital = product.type === 'digital' && product.price === 0;
         return `
-        <div class="product-card ${product.type === 'digital' ? 'digital-product' : ''}">
+        <div class="product-card ${product.type === 'digital' ? 'digital-product' : ''}" onclick="goToProduct(${product.id})">
             <button class="wishlist-heart ${isInWishlist ? 'active' : ''}"
-                    onclick="event.preventDefault(); toggleWishlistHeart(${product.id}, this)">
+                    onclick="event.stopPropagation(); event.preventDefault(); toggleWishlistHeart(${product.id}, this)">
                 <i class="fa${isInWishlist ? 's' : 'r'} fa-heart"></i>
             </button>
             ${product.type === 'digital' ? '<span class="digital-badge">💻 Instant Download</span>' : ''}
@@ -255,16 +278,25 @@ function renderProducts(containerId, productList, limit = null) {
             <div class="product-info">
                 <h3>${product.name}</h3>
                 <p class="product-category">${product.category}</p>
-                <p class="product-price">₦${product.price.toLocaleString()}</p>
+                <p class="product-price">${isFreeDigital ? '<span style="color:#4CAF50;font-weight:700;">FREE</span>' : '₦' + product.price.toLocaleString()}</p>
                 <div class="product-rating">⭐ ${product.rating}</div>
-                <button onclick="addToCart(${product.id})" class="btn-add-cart">
-                    ${product.type === 'digital' ? '📥 Buy & Download' : '🛒 Add to Cart'}
-                </button>
-                <a href="product-detail.html?id=${product.id}" class="btn-view">View Details</a>
+                ${isFreeDigital
+                    ? `<button onclick="event.stopPropagation(); downloadFreeProduct('${product.documentId}')" class="btn-add-cart" style="background:#4CAF50;">
+                        📥 Download Free
+                       </button>`
+                    : `<button onclick="event.stopPropagation(); addToCart(${product.id})" class="btn-add-cart">
+                        ${product.type === 'digital' ? '📥 Buy & Download' : '🛒 Add to Cart'}
+                       </button>`
+                }
+                <a href="product-detail.html?id=${product.id}" class="btn-view" onclick="event.stopPropagation();">View Details</a>
             </div>
         </div>
         `;
     }).join('');
+}
+
+function goToProduct(productId) {
+    window.location.href = `product-detail.html?id=${productId}`;
 }
 
 function toggleWishlistHeart(productId, btn) {
@@ -281,6 +313,35 @@ function toggleWishlistHeart(productId, btn) {
     }
 
     localStorage.setItem('iShopWishlist', JSON.stringify(wishlistData));
+}
+
+// ============================================
+// FREE DOWNLOAD HANDLER
+// ============================================
+async function downloadFreeProduct(documentId) {
+    try {
+        console.log('📥 Requesting free download for:', documentId);
+
+        const response = await fetch(`${FREE_DOWNLOAD_API}/${documentId}`);
+        const data = await response.json();
+
+        if (!response.ok || !data.status || !data.url) {
+            throw new Error(data.error || 'Download failed');
+        }
+
+        console.log('✅ Signed URL received, starting download');
+
+        const a = document.createElement('a');
+        a.href = data.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    } catch (error) {
+        console.error('❌ Free download error:', error);
+        alert(`Could not download: ${error.message}`);
+    }
 }
 
 // ============================================
@@ -371,7 +432,7 @@ function renderCart() {
 }
 
 // ============================================
-// RENDER HOMEPAGE
+// RENDER HOMEPAGE (multi-section layout)
 // ============================================
 async function renderHomepage() {
     console.log('🏠 Rendering homepage...');
@@ -381,23 +442,64 @@ async function renderHomepage() {
         console.log('📦 Products fetched from Strapi:', productData.length);
 
         if (productData.length === 0) {
-            document.getElementById('featuredProducts').innerHTML = `
-                <div style="text-align:center;padding:3rem;color:#888;grid-column:1/-1;">
-                    <i class="fas fa-database" style="font-size:2.5rem;display:block;margin-bottom:0.5rem;"></i>
-                    <p>No products available. Please add products in Strapi.</p>
-                </div>
-            `;
+            const featuredEl = document.getElementById('featuredProducts');
+            if (featuredEl) {
+                featuredEl.innerHTML = `
+                    <div style="text-align:center;padding:3rem;color:#888;grid-column:1/-1;">
+                        <i class="fas fa-database" style="font-size:2.5rem;display:block;margin-bottom:0.5rem;"></i>
+                        <p>No products available. Please add products in Strapi.</p>
+                    </div>
+                `;
+            }
             return;
         }
 
         const products = productData.map(convertStrapiProduct);
 
-        const featured = getVarietyProducts(products, 8);
+        const excludedFromFeatured = ['ebook', 'course', 'template'];
+        const featuredPool = products.filter(p => !excludedFromFeatured.includes(p.subType));
+        const featured = getVarietyProducts(featuredPool, 12);
         renderProducts('featuredProducts', featured);
+
+        const electronicsProducts = products.filter(p => p.category === 'electronics');
+        const freshElectronics = shuffleArray([...electronicsProducts]).slice(0, 4);
+        renderProducts('freshElectronics', freshElectronics);
+
+        const fashionProducts = products.filter(p => p.category === 'fashion');
+        const fashionPicks = shuffleArray([...fashionProducts]).slice(0, 4);
+        renderProducts('fashionPicks', fashionPicks);
 
         const digitalProducts = products.filter(p => p.category === 'digital');
         const digitalFeatured = shuffleArray([...digitalProducts]).slice(0, 4);
         renderProducts('featuredDigitalProducts', digitalFeatured);
+
+        if (digitalFeatured.length === 0) {
+            const digitalEl = document.getElementById('featuredDigitalProducts');
+            if (digitalEl) {
+                digitalEl.innerHTML = `
+                    <div style="text-align:center;padding:3rem 1rem;color:#888;grid-column:1/-1;">
+                        <i class="fas fa-download" style="font-size:2.5rem;display:block;margin-bottom:0.75rem;color:#f9c74f;"></i>
+                        <h3 style="margin:0 0 0.5rem;color:#0d1b2a;">📥 Digital Downloads Coming Soon</h3>
+                        <p style="margin:0;">E-books, software, and templates will be available shortly.</p>
+                    </div>
+                `;
+            }
+        }
+
+        const sectionsToCheck = [
+            { id: 'freshElectronics', items: freshElectronics },
+            { id: 'fashionPicks', items: fashionPicks },
+        ];
+
+        sectionsToCheck.forEach(({ id, items }) => {
+            const el = document.getElementById(id);
+            if (el) {
+                const section = el.closest('section') || el.parentElement;
+                if (section && items.length === 0) {
+                    section.style.display = 'none';
+                }
+            }
+        });
 
         console.log('✅ Homepage rendered successfully!');
     } catch (error) {
@@ -405,16 +507,16 @@ async function renderHomepage() {
     }
 }
 
-function getVarietyProducts(products, count = 8) {
+function getVarietyProducts(products, count = 12) {
+    const allShuffled = shuffleArray([...products]);
+
     const byCategory = {};
-    products.forEach(p => {
-        if (!byCategory[p.category]) {
-            byCategory[p.category] = [];
-        }
+    allShuffled.forEach(p => {
+        if (!byCategory[p.category]) byCategory[p.category] = [];
         byCategory[p.category].push(p);
     });
 
-    const categories = Object.keys(byCategory);
+    const categories = shuffleArray(Object.keys(byCategory));
     categories.forEach(cat => {
         byCategory[cat] = shuffleArray([...byCategory[cat]]);
     });
@@ -436,10 +538,9 @@ function getVarietyProducts(products, count = 8) {
     }
 
     if (result.length < count) {
-        const remaining = products.filter(p => !result.includes(p));
-        const shuffledRemaining = shuffleArray(remaining);
-        while (result.length < count && shuffledRemaining.length > 0) {
-            result.push(shuffledRemaining.pop());
+        const remaining = allShuffled.filter(p => !result.includes(p));
+        while (result.length < count && remaining.length > 0) {
+            result.push(remaining.pop());
         }
     }
 
@@ -491,10 +592,15 @@ async function renderShopPage(filter = 'all', search = '', subType = '') {
 // ============================================
 // RENDER CATEGORY
 // ============================================
-async function renderCategory(category) {
+async function renderCategory(category, subType = '') {
     try {
         const productData = await fetchProducts();
-        const products = productData.map(convertStrapiProduct).filter(p => p.category === category);
+        let products = productData.map(convertStrapiProduct).filter(p => p.category === category);
+
+        if (subType) {
+            products = products.filter(p => p.subType === subType.toLowerCase());
+            console.log(`🔎 Filtered by subtype "${subType}": ${products.length} products`);
+        }
 
         const containerId = category === 'digital' ? 'digitalProductsGrid' :
                             category === 'electronics' ? 'electronicsProducts' :
@@ -519,6 +625,21 @@ async function renderProductDetail() {
         const productId = params.get('id');
         const container = document.getElementById('productDetail');
         if (!container) return;
+
+        container.innerHTML = `
+            <div style="text-align:center;padding:5rem 1rem;">
+                <div style="display:inline-block;width:48px;height:48px;border:4px solid #e0e0e0;border-top-color:#f9c74f;border-radius:50%;animation:ishop-spin 0.8s linear infinite;"></div>
+                <p style="margin-top:1rem;color:#888;font-size:0.95rem;">Loading product...</p>
+            </div>
+        `;
+        if (!document.getElementById('ishop-spin-style')) {
+            const style = document.createElement('style');
+            style.id = 'ishop-spin-style';
+            style.textContent = '@keyframes ishop-spin { to { transform: rotate(360deg); } }';
+            document.head.appendChild(style);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 150));
 
         if (!productId) {
             container.innerHTML = `
@@ -554,38 +675,35 @@ async function renderProductDetail() {
         const ratingStars = '⭐'.repeat(fullStars) + (halfStar ? '⭐' : '') + '☆'.repeat(emptyStars);
 
         const allImages = (product.images && product.images.length > 0) ? product.images : [product.image];
+        const isFreeDigital = product.type === 'digital' && product.price === 0;
 
-let galleryHTML = `
-    <div class="product-gallery">
-        <div class="gallery-main" id="galleryMain">
-            <img src="${allImages[0]}" alt="${product.name}" id="mainGalleryImage" />
-            ${product.type === 'digital' ? '<span class="digital-badge-large">💻 Instant Download</span>' : ''}
-            ${allImages.length > 1 ? `
-                <button class="gallery-nav gallery-prev" onclick="navigateGallery(-1)">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="gallery-nav gallery-next" onclick="navigateGallery(1)">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                <div class="gallery-counter">
-                    <span id="galleryCurrentIndex">1</span> / ${allImages.length}
+        let galleryHTML = `
+            <div class="product-gallery">
+                <div class="gallery-main" id="galleryMain">
+                    <img src="${allImages[0]}" alt="${product.name}" id="mainGalleryImage" />
+                    ${product.type === 'digital' ? '<span class="digital-badge-large">💻 Instant Download</span>' : ''}
+                    ${allImages.length > 1 ? `
+                        <button class="gallery-nav gallery-prev" onclick="navigateGallery(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="gallery-nav gallery-next" onclick="navigateGallery(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <div class="gallery-counter">
+                            <span id="galleryCurrentIndex">1</span> / ${allImages.length}
+                        </div>
+                    ` : ''}
                 </div>
-            ` : ''}
-        </div>
-        <div class="gallery-thumbnails" id="galleryThumbnails">
-            ${allImages.map((img, index) => `
-                <div class="gallery-thumbnail ${index === 0 ? 'active' : ''}"
-                     onclick="changeGalleryImage('${img}', ${index})">
-                    <img src="${img}" alt="View ${index + 1}" />
+                <div class="gallery-thumbnails" id="galleryThumbnails">
+                    ${allImages.map((img, index) => `
+                        <div class="gallery-thumbnail ${index === 0 ? 'active' : ''}"
+                             onclick="changeGalleryImage('${img}', ${index})">
+                            <img src="${img}" alt="View ${index + 1}" />
+                        </div>
+                    `).join('')}
                 </div>
-            `).join('')}
-        </div>
-    </div>
-`;
-
-        const featuresList = product.features && product.features.length > 0
-            ? product.features.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')
-            : '<li><i class="fas fa-check-circle"></i> Premium quality product</li>';
+            </div>
+        `;
 
         container.innerHTML = `
             <div class="product-detail-container">
@@ -615,7 +733,7 @@ let galleryHTML = `
                         </div>
 
                         <div class="product-price-section">
-                            <div class="product-price">₦${product.price.toLocaleString()}</div>
+                            <div class="product-price">${isFreeDigital ? '<span style="color:#4CAF50;font-weight:700;font-size:1.5em;">FREE</span>' : '₦' + product.price.toLocaleString()}</div>
                         </div>
 
                         <div class="product-delivery-info">
@@ -643,12 +761,18 @@ let galleryHTML = `
                         </div>
 
                         <div class="product-actions">
-                            <button onclick="addToCart(${product.id})" class="btn-add-to-cart">
-                                <i class="fas fa-shopping-cart"></i> Add to Cart
-                            </button>
-                            <button onclick="buyNow(${product.id})" class="btn-buy-now">
-                                <i class="fas fa-bolt"></i> Buy Now
-                            </button>
+                            ${isFreeDigital ? `
+                                <button onclick="downloadFreeProduct('${product.documentId}')" class="btn-add-to-cart" style="background:#4CAF50;">
+                                    <i class="fas fa-download"></i> Download Free
+                                </button>
+                            ` : `
+                                <button onclick="addToCart(${product.id})" class="btn-add-to-cart">
+                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                </button>
+                                <button onclick="buyNow(${product.id})" class="btn-buy-now">
+                                    <i class="fas fa-bolt"></i> Buy Now
+                                </button>
+                            `}
                             <button onclick="toggleWishlist(${product.id})" class="btn-wishlist">
                                 <i class="fas fa-heart"></i>
                             </button>
@@ -663,17 +787,17 @@ let galleryHTML = `
                         <button class="tab-btn" onclick="switchTab('reviews')">Reviews</button>
                     </div>
                     <div class="tab-content" id="descriptionContent">
-    <div class="description-content">
-        <h3>Product Description</h3>
-        <p>${product.description || 'No description available.'}</p>
-        ${product.features && product.features.length > 0 ? `
-            <h3 style="margin-top:2rem;">📦 What's in the Box</h3>
-            <ul class="features-list">
-                ${product.features.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}
-            </ul>
-        ` : ''}
-    </div>
-</div>
+                        <div class="description-content">
+                            <h3>Product Description</h3>
+                            <p>${product.description || 'No description available.'}</p>
+                            ${product.features && product.features.length > 0 ? `
+                                <h3 style="margin-top:2rem;">📦 What's in the Box</h3>
+                                <ul class="features-list">
+                                    ${product.features.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                        </div>
+                    </div>
                     <div class="tab-content" id="featuresContent" style="display:none;">
                         <div class="features-content">
                             <h3>📋 Specifications</h3>
@@ -691,7 +815,6 @@ let galleryHTML = `
                             ` : `
                                 <p style="color:#888;text-align:center;padding:2rem;">No specifications available for this product.</p>
                             `}
-
                         </div>
                     </div>
                     <div class="tab-content" id="reviewsContent" style="display:none;">
@@ -712,8 +835,9 @@ let galleryHTML = `
 
         const allProducts = (await fetchProducts()).map(convertStrapiProduct);
         const related = allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
-        initializeGallery(allImages);
         renderProducts('relatedProducts', related);
+
+        initializeGallery(allImages);
 
         console.log('✅ Product detail rendered successfully');
     } catch (error) {
@@ -820,10 +944,33 @@ function performSearch() {
 }
 
 // ============================================
-// AUTHENTICATION
+// AUTHENTICATION — Real Strapi-backed
 // ============================================
 function getCurrentUser() {
-    return JSON.parse(localStorage.getItem('iShopUser')) || null;
+    const user = JSON.parse(localStorage.getItem('iShopUser')) || null;
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!user || !jwt) return null;
+    return user;
+}
+
+function getJwt() {
+    return localStorage.getItem('iShopJwt') || null;
+}
+
+function getRefreshToken() {
+    return localStorage.getItem('iShopRefreshToken') || null;
+}
+
+function saveAuthSession({ user, jwt, refreshToken }) {
+    if (user) localStorage.setItem('iShopUser', JSON.stringify(user));
+    if (jwt) localStorage.setItem('iShopJwt', jwt);
+    if (refreshToken) localStorage.setItem('iShopRefreshToken', refreshToken);
+}
+
+function clearAuthSession() {
+    localStorage.removeItem('iShopUser');
+    localStorage.removeItem('iShopJwt');
+    localStorage.removeItem('iShopRefreshToken');
 }
 
 function updateAuthUI() {
@@ -842,14 +989,16 @@ function updateAuthUI() {
     }
 }
 
-function saveUser(userData) {
-    localStorage.setItem('iShopUser', JSON.stringify(userData));
-}
-
 function logoutUser() {
-    localStorage.removeItem('iShopUser');
+    clearAuthSession();
     updateAuthUI();
     window.location.href = 'index.html';
+}
+
+// Keep saveUser for backward-compat
+function saveUser(userData) {
+    const existing = JSON.parse(localStorage.getItem('iShopUser')) || {};
+    localStorage.setItem('iShopUser', JSON.stringify({ ...existing, ...userData }));
 }
 
 // ============================================
@@ -975,13 +1124,12 @@ function toggleDifferentShipping() {
 }
 
 // ============================================
-// CHECKOUT FORM (with Paystack + different shipping)
+// CHECKOUT FORM
 // ============================================
 function setupCheckoutForm() {
     const form = document.getElementById('checkoutForm');
     if (!form) return;
 
-    // Pre-fill from logged-in user profile
     const currentUser = getCurrentUser();
     if (currentUser) {
         const nameInput = document.getElementById('fullName');
@@ -989,7 +1137,7 @@ function setupCheckoutForm() {
         const phoneInput = document.getElementById('phone');
         const addressInput = document.getElementById('address');
 
-        if (nameInput && !nameInput.value) nameInput.value = currentUser.fullName || currentUser.name || '';
+        if (nameInput && !nameInput.value) nameInput.value = currentUser.fullName || currentUser.username || '';
         if (emailInput && !emailInput.value) emailInput.value = currentUser.email || '';
         if (phoneInput && !phoneInput.value) phoneInput.value = currentUser.phone || '';
         if (addressInput && !addressInput.value) addressInput.value = currentUser.address || '';
@@ -1070,6 +1218,7 @@ function setupCheckoutForm() {
                     customerName: name,
                     items: cart.map(item => ({
                         id: item.id,
+                        documentId: item.documentId,
                         name: item.name,
                         price: item.price,
                         quantity: item.quantity,
@@ -1095,7 +1244,7 @@ function setupCheckoutForm() {
                 onSuccess: (transaction) => {
                     cart = [];
                     saveCart();
-                    window.location.href = 'order-confirmed.html?ref=' + transaction.reference;
+                    window.location.href = 'order-confirmed.html?reference=' + transaction.reference;
                 },
                 onCancel: () => {
                     submitBtn.disabled = false;
@@ -1163,7 +1312,7 @@ function updateWishlistUI() {
 }
 
 // ============================================
-// TRACK ORDER
+// TRACK ORDER (legacy)
 // ============================================
 function trackOrder() {
     const orderNumber = document.getElementById('orderNumber');
@@ -1233,267 +1382,6 @@ function buyNow(productId) {
 }
 
 // ============================================
-// SOCIAL LOGIN
-// ============================================
-function loginWithGoogle() {
-    const btn = document.querySelector('.btn-social.google');
-    if (btn) {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-    }
-
-    const redirectUri = window.location.origin + '/';
-    const scope = 'openid email profile';
-
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-        `client_id=${GOOGLE_CLIENT_ID}&` +
-        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-        `response_type=token&` +
-        `scope=${encodeURIComponent(scope)}&` +
-        `prompt=select_account`;
-
-    window.location.href = authUrl;
-}
-
-function handleGoogleCallback() {
-    const hash = window.location.hash;
-    if (hash && hash.includes('access_token')) {
-        const params = new URLSearchParams(hash.substring(1));
-        const accessToken = params.get('access_token');
-
-        if (accessToken) {
-            fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                headers: { 'Authorization': `Bearer ${accessToken}` }
-            })
-            .then(res => res.json())
-            .then(user => {
-                const userData = {
-                    name: user.name || 'Google User',
-                    email: user.email,
-                    picture: user.picture || '',
-                    loginMethod: 'Google'
-                };
-                localStorage.setItem('iShopUser', JSON.stringify(userData));
-                alert(`✅ Welcome ${userData.name}!`);
-                window.location.href = 'profile.html';
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                alert('Login failed. Please try again.');
-                const btn = document.querySelector('.btn-social.google');
-                if (btn) {
-                    btn.innerHTML = '<i class="fab fa-google"></i>';
-                    btn.disabled = false;
-                }
-            });
-        }
-    }
-}
-
-function loginWithFacebook() {
-    alert('🚀 Facebook Login Coming Soon!');
-}
-
-function loginWithTwitter() {
-    alert('🚀 Twitter Login Coming Soon!');
-}
-
-// ============================================
-// SIGNUP & LOGIN HANDLERS
-// ============================================
-function handleSignup(e) {
-    e.preventDefault();
-
-    const fullName = document.getElementById('fullName').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const feedback = document.getElementById('signupFeedback');
-
-    if (!fullName || !email || !password) {
-        feedback.className = 'error';
-        feedback.innerHTML = '⚠️ Please fill in all required fields.';
-        return;
-    }
-    if (password !== confirmPassword) {
-        feedback.className = 'error';
-        feedback.innerHTML = '⚠️ Passwords do not match!';
-        return;
-    }
-    if (password.length < 6) {
-        feedback.className = 'error';
-        feedback.innerHTML = '⚠️ Password must be at least 6 characters.';
-        return;
-    }
-
-    const existingUsers = JSON.parse(localStorage.getItem('iShopUsers')) || [];
-    if (existingUsers.some(u => u.email === email)) {
-        feedback.className = 'error';
-        feedback.innerHTML = '⚠️ This email is already registered.';
-        return;
-    }
-
-    const newUser = {
-        id: Date.now(),
-        fullName,
-        email,
-        phone: phone || '',
-        address: '',
-        password: password,
-        createdAt: new Date().toISOString()
-    };
-
-    existingUsers.push(newUser);
-    localStorage.setItem('iShopUsers', JSON.stringify(existingUsers));
-    saveUser(newUser);
-    updateAuthUI();
-
-    feedback.className = 'success';
-    feedback.innerHTML = `✅ Account created! Welcome, ${fullName}! 🎉`;
-
-    setTimeout(() => {
-        window.location.href = 'profile.html';
-    }, 1500);
-}
-
-function handleLogin(e) {
-    e.preventDefault();
-
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    const feedback = document.getElementById('loginFeedback');
-
-    if (!email || !password) {
-        feedback.className = 'error';
-        feedback.innerHTML = '⚠️ Please enter both email and password.';
-        return;
-    }
-
-    const users = JSON.parse(localStorage.getItem('iShopUsers')) || [];
-    const user = users.find(u => u.email === email && u.password === password);
-
-    if (!user) {
-        feedback.className = 'error';
-        feedback.innerHTML = '❌ Invalid email or password.';
-        return;
-    }
-
-    saveUser(user);
-    updateAuthUI();
-
-    feedback.className = 'success';
-    feedback.innerHTML = `✅ Welcome back, ${user.fullName}! 🎉`;
-
-    setTimeout(() => {
-        window.location.href = 'profile.html';
-    }, 1000);
-}
-
-function handleProfileUpdate(e) {
-    e.preventDefault();
-
-    const user = getCurrentUser();
-    if (!user) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    const fullName = document.getElementById('profileFullName').value.trim();
-    const phone = document.getElementById('profilePhone').value.trim();
-    const address = document.getElementById('profileAddress').value.trim();
-    const feedback = document.getElementById('profileFeedback');
-
-    const updatedUser = {
-        ...user,
-        fullName: fullName || user.fullName || user.name || '',
-        name: fullName || user.name || user.fullName || '',
-        phone: phone || user.phone || '',
-        address: address || user.address || ''
-    };
-
-    saveUser(updatedUser);
-
-    const users = JSON.parse(localStorage.getItem('iShopUsers')) || [];
-    const userIndex = users.findIndex(u => u.id === user.id || u.email === user.email);
-    if (userIndex !== -1) {
-        users[userIndex] = { ...users[userIndex], ...updatedUser };
-        localStorage.setItem('iShopUsers', JSON.stringify(users));
-    }
-
-    const nameEl = document.getElementById('profileName');
-    if (nameEl) nameEl.textContent = `Welcome, ${updatedUser.fullName || updatedUser.name || 'Friend'}!`;
-    updateAuthUI();
-
-    feedback.className = 'success';
-    feedback.innerHTML = '✅ Profile updated successfully!';
-
-    setTimeout(() => { feedback.innerHTML = ''; feedback.className = ''; }, 3000);
-}
-
-// ============================================
-// ACCOUNT DASHBOARD
-// ============================================
-function switchAccountSection(section) {
-    document.querySelectorAll('.account-nav-item').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.section === section);
-    });
-    document.querySelectorAll('.account-section').forEach(sec => {
-        sec.classList.toggle('active', sec.id === 'section-' + section);
-    });
-}
-
-function loadProfilePage() {
-    const user = JSON.parse(localStorage.getItem('iShopUser'));
-    if (!user) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    const displayName = user.name || user.fullName || 'Friend';
-    const email = user.email || '—';
-    const phone = user.phone || '—';
-
-    const nameEl = document.getElementById('profileName');
-    const emailEl = document.getElementById('profileEmail');
-    const phoneDisplayEl = document.getElementById('profilePhoneDisplay');
-    if (nameEl) nameEl.textContent = `Welcome, ${displayName}!`;
-    if (emailEl) emailEl.textContent = email;
-    if (phoneDisplayEl) phoneDisplayEl.textContent = phone;
-
-    const avatar = document.getElementById('profileAvatar');
-    if (avatar) {
-        if (user.picture) {
-            avatar.innerHTML = `<img src="${user.picture}" alt="${displayName}" />`;
-        } else {
-            avatar.innerHTML = `<i class="fas fa-user"></i>`;
-        }
-    }
-
-    const fullNameField = document.getElementById('profileFullName');
-    const emailField = document.getElementById('profileEmailField');
-    const phoneField = document.getElementById('profilePhone');
-    const addressField = document.getElementById('profileAddress');
-    if (fullNameField) fullNameField.value = user.name || user.fullName || '';
-    if (emailField) emailField.value = user.email || '';
-    if (phoneField) phoneField.value = user.phone || '';
-    if (addressField) addressField.value = user.address || '';
-
-    const cart = JSON.parse(localStorage.getItem('iShopCart')) || [];
-    const wishlistData = JSON.parse(localStorage.getItem('iShopWishlist')) || [];
-    const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
-
-    const statCart = document.getElementById('statCart');
-    const statWishlist = document.getElementById('statWishlist');
-    const overviewCart = document.getElementById('overviewCart');
-    const overviewWishlist = document.getElementById('overviewWishlist');
-    if (statCart) statCart.textContent = cartCount;
-    if (statWishlist) statWishlist.textContent = wishlistData.length;
-    if (overviewCart) overviewCart.textContent = cartCount;
-    if (overviewWishlist) overviewWishlist.textContent = wishlistData.length;
-}
-
-// ============================================
 // PRODUCT GALLERY NAVIGATION
 // ============================================
 let currentGalleryImages = [];
@@ -1551,9 +1439,9 @@ function setupSwipe() {
 
         if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
             if (diffX > 0) {
-                navigateGallery(1);  // Swipe left → next image
+                navigateGallery(1);
             } else {
-                navigateGallery(-1); // Swipe right → previous
+                navigateGallery(-1);
             }
         }
 
@@ -1561,6 +1449,334 @@ function setupSwipe() {
         startY = 0;
     }, { passive: true });
 }
+
+// ============================================
+// SOCIAL LOGIN (Google OAuth temporarily disabled — pending real OAuth setup)
+// ============================================
+function loginWithGoogle() {
+    alert('Google Sign-In is being upgraded. Please use email/password for now.');
+}
+
+function handleGoogleCallback() {
+    // Disabled until proper OAuth flow is rebuilt
+    return;
+}
+
+function loginWithFacebook() {
+    alert('🚀 Facebook Login Coming Soon!');
+}
+
+function loginWithTwitter() {
+    alert('🚀 Twitter Login Coming Soon!');
+}
+
+// ============================================
+// SIGNUP & LOGIN HANDLERS — Real Strapi
+// ============================================
+async function handleSignup(e) {
+    e.preventDefault();
+
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const feedback = document.getElementById('signupFeedback');
+
+    if (!fullName || !email || !password) {
+        feedback.className = 'error';
+        feedback.innerHTML = '⚠️ Please fill in all required fields.';
+        return;
+    }
+    if (password !== confirmPassword) {
+        feedback.className = 'error';
+        feedback.innerHTML = '⚠️ Passwords do not match!';
+        return;
+    }
+    if (password.length < 6) {
+        feedback.className = 'error';
+        feedback.innerHTML = '⚠️ Password must be at least 6 characters.';
+        return;
+    }
+
+    feedback.className = '';
+    feedback.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating your account…';
+
+    try {
+        const res = await fetch(`${STRAPI_AUTH_BASE}/api/auth/local/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: email,
+                email: email,
+                password: password
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.jwt) {
+            const msg = data?.error?.message || 'Signup failed. Please try again.';
+            feedback.className = 'error';
+            feedback.innerHTML = `❌ ${msg}`;
+            return;
+        }
+
+        saveAuthSession({
+            user: {
+                id: data.user.id,
+                documentId: data.user.documentId,
+                username: data.user.username,
+                email: data.user.email,
+                fullName: fullName,
+                phone: phone || '',
+                address: ''
+            },
+            jwt: data.jwt,
+            refreshToken: data.refreshToken
+        });
+
+        // Try to save phone on the server
+        if (phone) {
+            try {
+                await fetch(`${STRAPI_AUTH_BASE}/api/users/${data.user.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${data.jwt}`
+                    },
+                    body: JSON.stringify({ phone: phone })
+                });
+            } catch (profileErr) {
+                console.warn('Could not save phone field yet:', profileErr);
+            }
+        }
+
+        updateAuthUI();
+
+        feedback.className = 'success';
+        feedback.innerHTML = `✅ Account created! Welcome, ${fullName}! 🎉`;
+
+        setTimeout(() => {
+            window.location.href = 'profile.html';
+        }, 1200);
+
+    } catch (err) {
+        console.error('Signup error:', err);
+        feedback.className = 'error';
+        feedback.innerHTML = '❌ Could not connect to the server. Please try again.';
+    }
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const feedback = document.getElementById('loginFeedback');
+
+    if (!email || !password) {
+        feedback.className = 'error';
+        feedback.innerHTML = '⚠️ Please enter both email and password.';
+        return;
+    }
+
+    feedback.className = '';
+    feedback.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
+
+    try {
+        const res = await fetch(`${STRAPI_AUTH_BASE}/api/auth/local`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                identifier: email,
+                password: password
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.jwt) {
+            feedback.className = 'error';
+            feedback.innerHTML = '❌ Invalid email or password.';
+            return;
+        }
+
+        saveAuthSession({
+            user: {
+                id: data.user.id,
+                documentId: data.user.documentId,
+                username: data.user.username,
+                email: data.user.email,
+                fullName: data.user.fullName || data.user.username || '',
+                phone: data.user.phone || '',
+                address: data.user.address || ''
+            },
+            jwt: data.jwt,
+            refreshToken: data.refreshToken
+        });
+
+        updateAuthUI();
+
+        feedback.className = 'success';
+        feedback.innerHTML = `✅ Welcome back!`;
+
+        setTimeout(() => {
+            window.location.href = 'profile.html';
+        }, 800);
+
+    } catch (err) {
+        console.error('Login error:', err);
+        feedback.className = 'error';
+        feedback.innerHTML = '❌ Could not connect to the server. Please try again.';
+    }
+}
+
+async function handleProfileUpdate(e) {
+    e.preventDefault();
+
+    const user = getCurrentUser();
+    const jwt = getJwt();
+    if (!user || !jwt) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const fullName = document.getElementById('profileFullName').value.trim();
+    const phone = document.getElementById('profilePhone').value.trim();
+    const address = document.getElementById('profileAddress').value.trim();
+    const feedback = document.getElementById('profileFeedback');
+
+    feedback.className = '';
+    feedback.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+
+    try {
+        const res = await fetch(`${STRAPI_AUTH_BASE}/api/users/${user.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt}`
+            },
+            body: JSON.stringify({ phone, address })
+        });
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData?.error?.message || 'Update failed');
+        }
+
+        const updatedUser = {
+            ...user,
+            fullName: fullName || user.fullName || '',
+            phone: phone || user.phone || '',
+            address: address || user.address || ''
+        };
+        saveAuthSession({ user: updatedUser });
+
+        const nameEl = document.getElementById('profileName');
+        if (nameEl) nameEl.textContent = `Welcome, ${updatedUser.fullName || 'Friend'}!`;
+        updateAuthUI();
+
+        feedback.className = 'success';
+        feedback.innerHTML = '✅ Profile updated successfully!';
+
+        setTimeout(() => { feedback.innerHTML = ''; feedback.className = ''; }, 3000);
+
+    } catch (err) {
+        console.error('Profile update error:', err);
+        feedback.className = 'error';
+        feedback.innerHTML = '❌ Could not save changes. Please try again.';
+    }
+}
+
+// ============================================
+// ACCOUNT DASHBOARD
+// ============================================
+function switchAccountSection(section) {
+    document.querySelectorAll('.account-nav-item').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.section === section);
+    });
+    document.querySelectorAll('.account-section').forEach(sec => {
+        sec.classList.toggle('active', sec.id === 'section-' + section);
+    });
+}
+
+function loadProfilePage() {
+    const user = getCurrentUser();
+    if (!user) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const displayName = user.fullName || user.username || 'Friend';
+    const email = user.email || '—';
+    const phone = user.phone || '—';
+
+    const nameEl = document.getElementById('profileName');
+    const emailEl = document.getElementById('profileEmail');
+    const phoneDisplayEl = document.getElementById('profilePhoneDisplay');
+    if (nameEl) nameEl.textContent = `Welcome, ${displayName}!`;
+    if (emailEl) emailEl.textContent = email;
+    if (phoneDisplayEl) phoneDisplayEl.textContent = phone;
+
+    const avatar = document.getElementById('profileAvatar');
+    if (avatar) {
+        avatar.innerHTML = `<i class="fas fa-user"></i>`;
+    }
+
+    const fullNameField = document.getElementById('profileFullName');
+    const emailField = document.getElementById('profileEmailField');
+    const phoneField = document.getElementById('profilePhone');
+    const addressField = document.getElementById('profileAddress');
+    if (fullNameField) fullNameField.value = user.fullName || user.username || '';
+    if (emailField) emailField.value = user.email || '';
+    if (phoneField) phoneField.value = user.phone || '';
+    if (addressField) addressField.value = user.address || '';
+
+    const cart = JSON.parse(localStorage.getItem('iShopCart')) || [];
+    const wishlistData = JSON.parse(localStorage.getItem('iShopWishlist')) || [];
+    const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
+
+    const statCart = document.getElementById('statCart');
+    const statWishlist = document.getElementById('statWishlist');
+    const overviewCart = document.getElementById('overviewCart');
+    const overviewWishlist = document.getElementById('overviewWishlist');
+    if (statCart) statCart.textContent = cartCount;
+    if (statWishlist) statWishlist.textContent = wishlistData.length;
+    if (overviewCart) overviewCart.textContent = cartCount;
+    if (overviewWishlist) overviewWishlist.textContent = wishlistData.length;
+}
+
+// ============================================
+// HELP DROPDOWN TOGGLE (mobile + desktop)
+// ============================================
+document.addEventListener('click', function (e) {
+    const helpLink = e.target.closest('.help-dropdown-wrap > a');
+    const helpWrap = document.querySelector('.help-dropdown-wrap');
+
+    if (!helpWrap) return;
+
+    if (helpLink) {
+        e.preventDefault();
+        e.stopPropagation();
+        helpWrap.classList.toggle('open');
+        return;
+    }
+
+    if (e.target.closest('.help-dropdown-panel')) {
+        return;
+    }
+
+    helpWrap.classList.remove('open');
+});
+
+window.addEventListener('scroll', function () {
+    const helpWrap = document.querySelector('.help-dropdown-wrap');
+    if (helpWrap && helpWrap.classList.contains('open')) {
+        helpWrap.classList.remove('open');
+    }
+}, { passive: true });
+
 // ============================================
 // INITIALIZE PAGE
 // ============================================
@@ -1569,7 +1785,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('🔍 Current page:', page);
 
-    handleGoogleCallback();
     updateAuthUI();
     updateCartCount();
     startCountdown();
@@ -1595,21 +1810,6 @@ document.addEventListener('DOMContentLoaded', function() {
         logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             if (confirm('Are you sure you want to logout?')) logoutUser();
-        });
-    }
-
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const feedback = document.getElementById('formFeedback');
-            feedback.innerHTML = `
-                <div style="background:#d4edda;padding:1rem;border-radius:8px;margin-top:1rem;color:#155724;">
-                    ✅ Message sent! We'll get back to you within 24 hours.
-                </div>
-            `;
-            this.reset();
-            setTimeout(() => { feedback.innerHTML = ''; }, 5000);
         });
     }
 
@@ -1644,7 +1844,9 @@ document.addEventListener('DOMContentLoaded', function() {
         switchAccountSection('overview');
     } else if (page === 'electronics.html' || page === 'fashion.html' || page === 'beauty.html') {
         const category = page.replace('.html', '');
-        renderCategory(category);
+        const urlParams = new URLSearchParams(window.location.search);
+        const subType = urlParams.get('subtype') || '';
+        renderCategory(category, subType);
         setupSubcategoryButtons(category);
     }
 });

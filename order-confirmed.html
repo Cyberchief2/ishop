@@ -7,6 +7,26 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+
+<!-- Open Graph / Social Share -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="iShop – Nigeria's #1 Online Store" />
+<meta property="og:description" content="Shop electronics, fashion, beauty & digital products at unbeatable prices. Trusted by 500,000+ Nigerians." />
+<meta property="og:image" content="https://ishop.com.ng/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://ishop.com.ng" />
+<meta property="og:site_name" content="iShop" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="iShop – Nigeria's #1 Online Store" />
+<meta name="twitter:description" content="Shop electronics, fashion, beauty & digital products at unbeatable prices." />
+<meta name="twitter:image" content="https://ishop.com.ng/og-image.png" />
+<meta name="description" content="iShop – Nigeria's #1 Online Store. Shop electronics, fashion, beauty & digital products at unbeatable prices." />
 </head>
 <body>
     <div class="top-bar">
@@ -34,6 +54,23 @@
             <div class="nav-icons" style="margin-left:auto;">
                 <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
                 <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="help-dropdown-wrap">
+                    <a href="help.html" class="nav-link">
+                        <i class="fas fa-question-circle"></i> Help
+                        <i class="fas fa-chevron-down" style="font-size:0.7em;margin-left:2px;"></i>
+                    </a>
+                    <div class="help-dropdown-panel">
+                        <a href="help.html#place-order"><i class="fas fa-shopping-bag"></i> Place an order</a>
+                        <a href="help.html#payment"><i class="fas fa-credit-card"></i> Payment options</a>
+                        <a href="help.html#tracking"><i class="fas fa-truck"></i> Track an order</a>
+                        <a href="help.html#cancel"><i class="fas fa-times-circle"></i> Cancel an order</a>
+                        <a href="help.html#returns"><i class="fas fa-undo-alt"></i> Returns & Refunds</a>
+                        <div class="help-dropdown-divider"></div>
+                        <a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help" target="_blank" class="help-item-action">
+                            <i class="fas fa-comment"></i> Live Chat
+                        </a>
+                    </div>
+                </div>
                 <div class="nav-icon-item">
                     <a href="cart.html" class="cart-icon">
                         <i class="fas fa-shopping-cart"></i>
@@ -45,7 +82,7 @@
         </div>
     </header>
 
-    <main style="max-width:700px;margin:4rem auto;padding:0 2rem;">
+    <main style="max-width:800px;margin:3rem auto;padding:0 2rem;">
         <div style="text-align:center;padding:3rem 2rem;background:white;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.06);border:1px solid #f0f0f0;">
             <div style="width:80px;height:80px;background:#d4edda;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
                 <i class="fas fa-check" style="font-size:2.5rem;color:#155724;"></i>
@@ -53,11 +90,25 @@
             <h1 style="font-size:2rem;font-weight:800;color:#0d1b2a;margin-bottom:0.5rem;">Order Confirmed!</h1>
             <p style="color:#666;font-size:1.05rem;margin-bottom:1rem;">Thank you for shopping with iShop.</p>
             <p style="color:#666;margin-bottom:2rem;">Order reference: <strong id="orderRef" style="color:#0d1b2a;">—</strong></p>
-            <p style="color:#888;font-size:0.9rem;margin-bottom:2rem;">
-                We've sent a confirmation email with your order details. Physical items will be delivered within 1–7 business days.
-                Digital products will arrive in your email within 5 minutes.
-            </p>
-            <a href="shop.html" style="display:inline-block;padding:0.9rem 2.5rem;background:#f9c74f;color:#0d1b2a;border-radius:30px;font-weight:700;text-decoration:none;">
+
+            <!-- Loading state -->
+            <div id="loadingBox" style="padding:1.5rem;color:#888;">
+                <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:#f9c74f;"></i>
+                <p style="margin-top:0.5rem;">Preparing your downloads…</p>
+            </div>
+
+            <!-- Downloads section (digital items) -->
+            <div id="downloadsBox" style="display:none;text-align:left;margin-top:1.5rem;"></div>
+
+            <!-- Physical delivery info -->
+            <div id="physicalBox" style="display:none;text-align:left;margin-top:1.5rem;padding:1rem;background:#f8fafc;border-radius:12px;border:1px solid #f0f0f0;">
+                <p style="color:#555;font-size:0.95rem;margin:0;"><i class="fas fa-truck" style="color:#f9c74f;"></i> Your physical items will be delivered within 1–7 business days. We'll contact you on the phone number you provided.</p>
+            </div>
+
+            <!-- Error state -->
+            <div id="errorBox" style="display:none;margin-top:1.5rem;padding:1rem;background:#f8d7da;color:#721c24;border-radius:12px;font-size:0.9rem;"></div>
+
+            <a href="shop.html" style="display:inline-block;margin-top:2rem;padding:0.9rem 2.5rem;background:#f9c74f;color:#0d1b2a;border-radius:30px;font-weight:700;text-decoration:none;">
                 Continue Shopping
             </a>
         </div>
@@ -87,8 +138,106 @@
     </footer>
 
     <script>
-        const ref = new URLSearchParams(window.location.search).get('ref');
-        if (ref) document.getElementById('orderRef').textContent = ref;
+        // -------- CONFIG --------
+        const API_BASE = 'https://ishop-payments-production.up.railway.app';
+
+        // -------- READ REFERENCE FROM URL (supports multiple param names) --------
+        const params = new URLSearchParams(window.location.search);
+        const reference = params.get('reference') || params.get('trxref') || params.get('ref') || '';
+
+        const orderRefEl = document.getElementById('orderRef');
+        const loadingBox = document.getElementById('loadingBox');
+        const downloadsBox = document.getElementById('downloadsBox');
+        const physicalBox = document.getElementById('physicalBox');
+        const errorBox = document.getElementById('errorBox');
+
+        if (reference) {
+            orderRefEl.textContent = reference;
+            runDeliveryFlow(reference);
+        } else {
+            loadingBox.style.display = 'none';
+            errorBox.style.display = 'block';
+            errorBox.textContent = 'No order reference found. If you completed payment, please contact us with your Paystack reference so we can help.';
+        }
+
+        async function runDeliveryFlow(reference) {
+            try {
+                // 1. Verify payment (safe to call even if already paid — updates Strapi if webhook was slow)
+                try {
+                    await fetch(`${API_BASE}/api/orders/verify/${reference}`);
+                } catch (e) {
+                    console.warn('Verify step failed (may already be paid):', e);
+                }
+
+                // 2. Try to fetch download links
+                let data = null;
+                try {
+                    const res = await fetch(`${API_BASE}/api/download/${reference}`);
+                    data = await res.json();
+                } catch (e) {
+                    console.warn('Download fetch failed:', e);
+                }
+
+                loadingBox.style.display = 'none';
+
+                // 3. Render downloads if any
+                if (data && data.status && Array.isArray(data.downloads) && data.downloads.length > 0) {
+                    renderDownloads(data.downloads);
+                }
+
+                // 4. Show physical delivery notice ONLY if order actually has physical items
+                if (data && data.hasPhysicalItems === true) {
+                    physicalBox.style.display = 'block';
+                } else if (!data) {
+                    // Fallback: if the download fetch failed entirely, show physical notice anyway
+                    physicalBox.style.display = 'block';
+                }
+
+            } catch (err) {
+                loadingBox.style.display = 'none';
+                physicalBox.style.display = 'block';
+                console.warn('Delivery flow error:', err);
+            }
+        }
+
+        function renderDownloads(downloads) {
+            downloadsBox.style.display = 'block';
+
+            const validDownloads = downloads.filter(d => d.url);
+            const failedDownloads = downloads.filter(d => d.error);
+
+            let html = `
+                <div style="padding:1.5rem;background:#fef9e7;border-radius:12px;border:1px solid #f9c74f;">
+                    <h3 style="font-size:1.1rem;font-weight:700;color:#0d1b2a;margin-bottom:0.3rem;">
+                        <i class="fas fa-download" style="color:#f9c74f;"></i> Your Digital Downloads
+                    </h3>
+                    <p style="color:#666;font-size:0.85rem;margin-bottom:1rem;">
+                        Click below to download. Links are valid for 1 hour — revisit this page anytime to regenerate.
+                    </p>
+            `;
+
+            validDownloads.forEach(item => {
+                html += `
+                    <a href="${item.url}" target="_blank" rel="noopener"
+                       style="display:flex;align-items:center;gap:0.75rem;padding:0.9rem 1.2rem;background:white;border-radius:10px;margin-bottom:0.6rem;text-decoration:none;color:#0d1b2a;font-weight:600;border:1px solid #f0f0f0;">
+                        <i class="fas fa-file-download" style="color:#f9c74f;font-size:1.3rem;"></i>
+                        <span style="flex:1;">${item.name || 'Download'}</span>
+                        <i class="fas fa-arrow-right" style="color:#999;"></i>
+                    </a>
+                `;
+            });
+
+            failedDownloads.forEach(item => {
+                html += `
+                    <div style="padding:0.75rem;background:#fff5f5;border-radius:8px;color:#c0392b;font-size:0.85rem;margin-bottom:0.4rem;">
+                        ⚠️ ${item.name}: ${item.error}
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            downloadsBox.innerHTML = html;
+        }
     </script>
 </body>
 </html>

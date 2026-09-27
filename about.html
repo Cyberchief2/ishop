@@ -7,14 +7,425 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-</head>
-<!-- WhatsApp Floating Button -->
-<a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help%20with%20an%20order" 
-   target="_blank" 
-   class="whatsapp-float">
-    <i class="fab fa-whatsapp"></i>
-</a>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
 
+<!-- Open Graph / Social Share -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="iShop – Nigeria's #1 Online Store" />
+<meta property="og:description" content="Shop electronics, fashion, beauty & digital products at unbeatable prices. Trusted by 500,000+ Nigerians." />
+<meta property="og:image" content="https://ishop.com.ng/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://ishop.com.ng" />
+<meta property="og:site_name" content="iShop" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="iShop – Nigeria's #1 Online Store" />
+<meta name="twitter:description" content="Shop electronics, fashion, beauty & digital products at unbeatable prices." />
+<meta name="twitter:image" content="https://ishop.com.ng/og-image.png" />
+<meta name="description" content="iShop – Nigeria's #1 Online Store. Shop electronics, fashion, beauty & digital products at unbeatable prices." />
+    <style>
+        /* ===== ABOUT PAGE STYLES ===== */
+        .about-hero {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1a2a3a 100%);
+            color: white;
+            padding: 5rem 1rem 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(249,199,79,0.08) 0%, transparent 70%);
+            animation: floatGlow 20s ease-in-out infinite;
+        }
+        @keyframes floatGlow {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(5%, 5%); }
+        }
+        .about-hero-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
+        .about-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(249,199,79,0.15);
+            color: #f9c74f;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(249,199,79,0.3);
+        }
+        .about-hero h1 { font-size: 2.8rem; font-weight: 900; margin: 0 0 1rem; line-height: 1.1; }
+        .about-hero h1 span { color: #f9c74f; }
+        .about-hero p { font-size: 1.15rem; color: #c0c8d0; margin: 0 0 2.5rem; line-height: 1.6; }
+        .about-hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .stat-item { text-align: center; }
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #f9c74f;
+            line-height: 1;
+            margin-bottom: 0.35rem;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #8896a8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .about-container { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+        .about-section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .section-tag {
+            display: inline-block;
+            color: #f9c74f;
+            background: #0d1b2a;
+            padding: 0.35rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+        .about-section-header h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0d1b2a;
+            margin: 0 0 0.75rem;
+            line-height: 1.2;
+        }
+        .about-section-header h2 span { color: #f9c74f; }
+        .about-section-header p {
+            color: #666;
+            font-size: 1.05rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* STORY */
+        .about-story { padding: 5rem 0; background: #f9fafb; }
+        .about-story-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        .about-story-image { position: relative; }
+        .about-story-image img {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            display: block;
+        }
+        .about-image-badge {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            background: #0d1b2a;
+            color: white;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .about-image-badge i { color: #f9c74f; font-size: 1.5rem; }
+        .about-image-badge strong { display: block; font-size: 1rem; color: #f9c74f; }
+        .about-image-badge span { font-size: 0.8rem; color: #c0c8d0; }
+
+        .about-story-text h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0d1b2a;
+            margin: 1rem 0 1.5rem;
+            line-height: 1.25;
+        }
+        .about-story-text p {
+            color: #555;
+            line-height: 1.75;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .about-story-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .story-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #0d1b2a;
+            font-weight: 600;
+        }
+        .story-feature i { color: #4CAF50; }
+
+        /* WHY US */
+        .about-why { padding: 5rem 0; background: white; }
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .why-card {
+            background: #f9fafb;
+            border-radius: 14px;
+            padding: 2rem 1.5rem;
+            transition: transform 0.25s, box-shadow 0.25s;
+            border: 1px solid #eef1f4;
+        }
+        .why-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            border-color: #f9c74f;
+        }
+        .why-icon {
+            width: 60px;
+            height: 60px;
+            background: #0d1b2a;
+            color: #f9c74f;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .why-card h3 { font-size: 1.15rem; margin: 0 0 0.75rem; color: #0d1b2a; font-weight: 700; }
+        .why-card p { color: #666; font-size: 0.95rem; line-height: 1.6; margin: 0; }
+
+        /* MISSION / VISION / VALUES */
+        .about-mvv {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1a2a3a 100%);
+        }
+        .about-mvv .about-section-header h2 { color: white; }
+        .mvv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .mvv-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(249,199,79,0.2);
+            border-radius: 16px;
+            padding: 2rem 1.75rem;
+            backdrop-filter: blur(10px);
+            transition: transform 0.25s, border-color 0.25s;
+        }
+        .mvv-card:hover {
+            transform: translateY(-4px);
+            border-color: #f9c74f;
+        }
+        .mvv-icon {
+            width: 56px;
+            height: 56px;
+            background: #f9c74f;
+            color: #0d1b2a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.25rem;
+        }
+        .mvv-card h3 {
+            font-size: 1.25rem;
+            color: #f9c74f;
+            margin: 0 0 1rem;
+            font-weight: 700;
+        }
+        .mvv-card p {
+            color: #c0c8d0;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* TEAM */
+        .about-team { padding: 5rem 0; background: #f9fafb; }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+        }
+        .team-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .team-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+        }
+        .team-avatar {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.25rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1a2a3a 100%);
+            color: #f9c74f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            overflow: hidden;
+            border: 4px solid #f9c74f;
+        }
+        .team-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .team-card h4 {
+            font-size: 1.15rem;
+            color: #0d1b2a;
+            margin: 0 0 0.35rem;
+            font-weight: 700;
+        }
+        .team-role {
+            display: inline-block;
+            color: #f9c74f;
+            background: #0d1b2a;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+        .team-card p {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* TIMELINE */
+        .about-timeline { padding: 5rem 0; background: white; }
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding-left: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #f9c74f, #0d1b2a);
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2.5rem;
+        }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-dot {
+            position: absolute;
+            left: -30px;
+            top: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #f9c74f;
+            border: 4px solid white;
+            box-shadow: 0 0 0 2px #f9c74f;
+        }
+        .timeline-date {
+            color: #f9c74f;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .timeline-title {
+            font-size: 1.15rem;
+            color: #0d1b2a;
+            margin: 0.35rem 0 0.5rem;
+            font-weight: 700;
+        }
+        .timeline-desc {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* CTA */
+        .about-cta {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #f9c74f 0%, #f9a84f 100%);
+        }
+        .cta-content { text-align: center; max-width: 700px; margin: 0 auto; }
+        .cta-content h2 {
+            font-size: 2rem;
+            color: #0d1b2a;
+            margin: 0 0 1rem;
+            font-weight: 800;
+        }
+        .cta-content p {
+            color: #0d1b2a;
+            font-size: 1.1rem;
+            margin: 0 0 2rem;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-cta-primary, .btn-cta-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: transform 0.15s;
+        }
+        .btn-cta-primary { background: #0d1b2a; color: #f9c74f; }
+        .btn-cta-secondary { background: white; color: #0d1b2a; }
+        .btn-cta-primary:hover, .btn-cta-secondary:hover { transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .about-hero h1 { font-size: 2rem; }
+            .about-story-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .about-section-header h2 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
 <body>
     <!-- TOP BAR -->
     <div class="top-bar">
@@ -37,7 +448,7 @@
         <div class="header-content">
             <div class="logo">
                 <a href="index.html">
-                    <span class="logo-icon">🛍️</span> <span class="logo-text">i<span class="logo-accent">Shop</span></span>
+                    <span class="logo-icon">🛍️</span><span class="logo-text">i<span class="logo-accent">Shop</span></span>
                 </a>
             </div>
             <div class="search-bar">
@@ -81,91 +492,10 @@
             <ul class="menu-links">
                 <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
-                <li class="dropdown-hover">
-                    <a href="shop.html?filter=electronics"><i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>📱 Phones & Tablets</h4>
-                                <a href="shop.html?filter=electronics&subtype=smartphones">Smartphones</a>
-                                <a href="shop.html?filter=electronics&subtype=smartphones">Android Phones</a>
-                                <a href="shop.html?filter=electronics&subtype=smartphones">iPhones</a>
-                                <a href="shop.html?filter=electronics&subtype=tablets">Tablets</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>💻 Computing</h4>
-                                <a href="shop.html?filter=electronics&subtype=laptops">Laptops</a>
-                                <a href="shop.html?filter=electronics&subtype=laptops">MacBooks</a>
-                                <a href="shop.html?filter=electronics&subtype=accessories">Accessories</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🎧 Audio</h4>
-                                <a href="shop.html?filter=electronics&subtype=audio">Headphones</a>
-                                <a href="shop.html?filter=electronics&subtype=audio">Earbuds</a>
-                                <a href="shop.html?filter=electronics&subtype=audio">Speakers</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="shop.html?filter=fashion"><i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>👩 Women's Fashion</h4>
-                                <a href="shop.html?filter=fashion&subtype=clothing">Dresses</a>
-                                <a href="shop.html?filter=fashion&subtype=clothing">Tops</a>
-                                <a href="shop.html?filter=fashion&subtype=shoes">Shoes</a>
-                                <a href="shop.html?filter=fashion&subtype=bags">Handbags</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>👨 Men's Fashion</h4>
-                                <a href="shop.html?filter=fashion&subtype=clothing">Shirts</a>
-                                <a href="shop.html?filter=fashion&subtype=traditional">Agbada</a>
-                                <a href="shop.html?filter=fashion&subtype=shoes">Shoes</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="shop.html?filter=beauty"><i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>🧴 Skincare</h4>
-                                <a href="shop.html?filter=beauty&subtype=skincare">Face Wash</a>
-                                <a href="shop.html?filter=beauty&subtype=skincare">Moisturizers</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>💄 Makeup</h4>
-                                <a href="shop.html?filter=beauty&subtype=makeup">Foundation</a>
-                                <a href="shop.html?filter=beauty&subtype=makeup">Lipstick</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="digital-products.html"><i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>💻 Software</h4>
-                                <a href="digital-products.html?type=software">Accounting Software</a>
-                                <a href="digital-products.html?type=software">Antivirus</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>📚 E-books</h4>
-                                <a href="digital-products.html?type=ebook">Business Books</a>
-                                <a href="digital-products.html?type=ebook">Cookbooks</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🎓 Courses</h4>
-                                <a href="digital-products.html?type=course">Web Development</a>
-                                <a href="digital-products.html?type=course">Graphic Design</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
+                <li><a href="electronics.html"><i class="fas fa-mobile-alt"></i> Electronics</a></li>
+                <li><a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion</a></li>
+                <li><a href="beauty.html"><i class="fas fa-spa"></i> Beauty</a></li>
+                <li><a href="digital-products.html"><i class="fas fa-download"></i> Digital</a></li>
             </ul>
             <div class="menu-right">
                 <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
@@ -174,269 +504,210 @@
         </div>
     </nav>
 
-    <!-- ============================================ -->
-    <!-- PROFESSIONAL ABOUT PAGE -->
-    <!-- ============================================ -->
-
-    <!-- 1. HERO SECTION -->
+    <!-- 1. HERO -->
     <section class="about-hero">
         <div class="about-hero-content">
-            <div class="about-hero-badge">
-                <i class="fas fa-star"></i> Trusted by 500,000+ Nigerians
-            </div>
-            <h1>About <span>iShop</span></h1>
-            <p>Your trusted online marketplace delivering quality products and exceptional service across Nigeria since 2024</p>
+            <div class="about-hero-badge"><i class="fas fa-star"></i> Trusted by 500,000+ Nigerians</div>
+            <h1>We're Building the Future of<br/><span>Nigerian Commerce</span></h1>
+            <p>From Lagos to Kano, iShop connects millions of Nigerians with authentic products, fast delivery, and a shopping experience they can trust.</p>
             <div class="about-hero-stats">
-                <div class="stat-item">
-                    <span class="stat-number">500K+</span>
-                    <span class="stat-label">Happy Customers</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">100K+</span>
-                    <span class="stat-label">Products Available</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">36</span>
-                    <span class="stat-label">States Covered</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">4.8★</span>
-                    <span class="stat-label">Customer Rating</span>
-                </div>
+                <div class="stat-item"><span class="stat-number">500K+</span><span class="stat-label">Happy Customers</span></div>
+                <div class="stat-item"><span class="stat-number">100K+</span><span class="stat-label">Products</span></div>
+                <div class="stat-item"><span class="stat-number">36</span><span class="stat-label">States Covered</span></div>
+                <div class="stat-item"><span class="stat-number">4.8★</span><span class="stat-label">Rating</span></div>
             </div>
         </div>
     </section>
 
-    <!-- 2. OUR STORY SECTION -->
+    <!-- 2. OUR STORY -->
     <section class="about-story">
         <div class="about-container">
             <div class="about-story-grid">
                 <div class="about-story-image">
                     <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600" alt="iShop Story" />
                     <div class="about-image-badge">
-                        <i class="fas fa-calendar"></i>
+                        <i class="fas fa-rocket"></i>
                         <div>
                             <strong>Since 2024</strong>
-                            <span>Serving Nigeria</span>
+                            <span>Disrupting commerce</span>
                         </div>
                     </div>
                 </div>
                 <div class="about-story-text">
                     <span class="section-tag">Our Story</span>
-                    <h2>Making Quality Products Accessible to Every Nigerian</h2>
-                    <p>iShop was founded in 2024 with a simple mission: to make quality products accessible to every Nigerian, regardless of their location. We connect local and international brands with customers across all 36 states of the country.</p>
-                    <p>What started as a small team of passionate entrepreneurs has grown into one of Nigeria's most trusted online marketplaces. We're proud to serve over 500,000 customers who rely on us for authentic products, fast delivery, and exceptional customer service.</p>
+                    <h2>Born from a Simple Frustration</h2>
+                    <p>In 2024, our founders noticed a painful reality: millions of Nigerians wanted to shop online but were constantly let down — fake products, delayed deliveries, and payment issues. We knew it didn't have to be this way.</p>
+                    <p>So we built iShop — a marketplace where every product is verified, every delivery is tracked, and every customer is treated like family. Starting from a small office in Lagos, we've grown to serve hundreds of thousands of customers across all 36 states.</p>
+                    <p>Today, we're proud to be one of Nigeria's fastest-growing online marketplaces — but we're just getting started.</p>
                     <div class="about-story-features">
-                        <div class="story-feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>100% Authentic Products</span>
-                        </div>
-                        <div class="story-feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Fast Nationwide Delivery</span>
-                        </div>
-                        <div class="story-feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Secure Payment Options</span>
-                        </div>
-                        <div class="story-feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>24/7 Customer Support</span>
-                        </div>
+                        <div class="story-feature"><i class="fas fa-check-circle"></i><span>100% Authentic</span></div>
+                        <div class="story-feature"><i class="fas fa-check-circle"></i><span>Nationwide Delivery</span></div>
+                        <div class="story-feature"><i class="fas fa-check-circle"></i><span>Secure Payments</span></div>
+                        <div class="story-feature"><i class="fas fa-check-circle"></i><span>24/7 Support</span></div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 3. WHY CHOOSE US SECTION -->
+    <!-- 3. WHY CHOOSE US -->
     <section class="about-why">
         <div class="about-container">
             <div class="about-section-header">
-                <span class="section-tag">Why Shop With Us</span>
-                <h2>Why Millions Choose <span>iShop</span></h2>
-                <p>We go above and beyond to ensure your shopping experience is seamless, secure, and satisfying</p>
+                <span class="section-tag">Why iShop</span>
+                <h2>Why Hundreds of Thousands<br/>Choose <span>iShop</span></h2>
+                <p>We've built every part of the experience around you — from product authenticity to delivery speed.</p>
             </div>
             <div class="why-grid">
                 <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Authentic Products</h3>
-                    <p>Every product is verified for authenticity. We work directly with brands and authorized distributors.</p>
+                    <div class="why-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3>Verified Products Only</h3>
+                    <p>Every item is sourced from trusted brands and authorized distributors. No counterfeits, ever.</p>
                 </div>
                 <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-truck"></i>
-                    </div>
-                    <h3>Fast Delivery</h3>
-                    <p>Nationwide delivery within 1-7 business days. Free shipping on orders above ₦50,000.</p>
+                    <div class="why-icon"><i class="fas fa-truck-fast"></i></div>
+                    <h3>Swift Nationwide Delivery</h3>
+                    <p>1–2 days in Lagos, 3–7 days elsewhere. Free shipping on orders over ₦50,000.</p>
                 </div>
                 <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <h3>Secure Payments</h3>
-                    <p>Your transactions are protected with 256-bit encryption and multiple payment options.</p>
+                    <div class="why-icon"><i class="fas fa-lock"></i></div>
+                    <h3>Bank-Grade Security</h3>
+                    <p>Every transaction is secured by Paystack's 256-bit encryption. Your data stays safe.</p>
                 </div>
                 <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-undo-alt"></i>
-                    </div>
-                    <h3>Easy Returns</h3>
-                    <p>Not satisfied? Return within 7 days for a full refund. No questions asked.</p>
+                    <div class="why-icon"><i class="fas fa-undo-alt"></i></div>
+                    <h3>Hassle-Free Returns</h3>
+                    <p>7-day returns and 3–14 day refunds. If you're not happy, we make it right.</p>
                 </div>
                 <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <h3>24/7 Support</h3>
-                    <p>Our customer care team is available round-the-clock via phone, email, or chat.</p>
+                    <div class="why-icon"><i class="fas fa-headset"></i></div>
+                    <h3>24/7 Human Support</h3>
+                    <p>Real people, ready to help via WhatsApp, email, or phone — any time, any day.</p>
                 </div>
                 <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-tags"></i>
-                    </div>
-                    <h3>Best Prices</h3>
-                    <p>We guarantee competitive prices on all products with regular discounts and flash sales.</p>
+                    <div class="why-icon"><i class="fas fa-tags"></i></div>
+                    <h3>Fair, Honest Pricing</h3>
+                    <p>Competitive prices with no hidden fees. What you see is what you pay.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 4. MISSION, VISION, VALUES -->
+    <!-- 4. MISSION / VISION / VALUES -->
     <section class="about-mvv">
         <div class="about-container">
+            <div class="about-section-header">
+                <span class="section-tag">Our Purpose</span>
+                <h2>Mission, Vision & Values</h2>
+            </div>
             <div class="mvv-grid">
-                <div class="mvv-card mission">
-                    <div class="mvv-icon">
-                        <i class="fas fa-bullseye"></i>
-                    </div>
+                <div class="mvv-card">
+                    <div class="mvv-icon"><i class="fas fa-bullseye"></i></div>
                     <h3>Our Mission</h3>
-                    <p>To make quality products accessible to every Nigerian by providing a trusted, convenient, and affordable online shopping platform.</p>
+                    <p>To make authentic, quality products accessible to every Nigerian — no matter where they live, and to deliver them with a level of trust and service they've never experienced before.</p>
                 </div>
-                <div class="mvv-card vision">
-                    <div class="mvv-icon">
-                        <i class="fas fa-eye"></i>
-                    </div>
+                <div class="mvv-card">
+                    <div class="mvv-icon"><i class="fas fa-eye"></i></div>
                     <h3>Our Vision</h3>
-                    <p>To become Africa's most trusted e-commerce platform, empowering millions of customers and thousands of sellers.</p>
+                    <p>To become Africa's most trusted digital marketplace — empowering millions of customers, uplifting thousands of sellers, and setting the standard for what e-commerce should feel like.</p>
                 </div>
-                <div class="mvv-card values">
-                    <div class="mvv-icon">
-                        <i class="fas fa-heart"></i>
-                    </div>
+                <div class="mvv-card">
+                    <div class="mvv-icon"><i class="fas fa-heart"></i></div>
                     <h3>Our Values</h3>
-                    <p>Integrity, customer-first mindset, innovation, and a commitment to excellence in everything we do.</p>
+                    <p><strong>Integrity</strong> — we do what we say. <strong>Customer-first</strong> — every decision starts with you. <strong>Innovation</strong> — always improving. <strong>Excellence</strong> — nothing less than our best.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 5. COMMITMENT SECTION -->
-    <section class="about-commitment">
-        <div class="about-container">
-            <div class="commitment-content">
-                <div class="commitment-text">
-                    <span class="section-tag">Our Commitment</span>
-                    <h2>Committed to Your Satisfaction</h2>
-                    <p>At iShop, we're not just selling products — we're building relationships. Our commitment goes beyond the transaction. We're dedicated to:</p>
-                    <ul class="commitment-list">
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Quality Assurance</strong>
-                                <span>Every product meets our rigorous quality standards</span>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Customer Satisfaction</strong>
-                                <span>Your happiness is our top priority, always</span>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Continuous Improvement</strong>
-                                <span>We're always improving to serve you better</span>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Community Support</strong>
-                                <span>We support local businesses and communities</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="commitment-image">
-                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600" alt="Our Commitment" />
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 6. TEAM SECTION -->
+    <!-- 5. TEAM -->
     <section class="about-team">
         <div class="about-container">
             <div class="about-section-header">
                 <span class="section-tag">Our Team</span>
-                <h2>Meet the People Behind iShop</h2>
-                <p>Passionate individuals dedicated to transforming online shopping in Nigeria</p>
+                <h2>The People Behind <span>iShop</span></h2>
+                <p>A small, passionate team obsessed with delivering an exceptional experience to every Nigerian shopper.</p>
             </div>
             <div class="team-grid">
                 <div class="team-card">
-                    <div class="team-avatar">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
+                    <div class="team-avatar"><i class="fas fa-user-tie"></i></div>
                     <h4>Agwu Mecha Kalu</h4>
-                    <span class="team-role">CEO & Founder</span>
-                    <p>Visionary leader, Cyber Security Spectialist with 10+ years in e-commerce</p>
+                    <span class="team-role">Founder & CEO</span>
+                    <p>Cybersecurity specialist and serial entrepreneur with a vision to transform Nigerian e-commerce.</p>
                 </div>
                 <div class="team-card">
-                    <div class="team-avatar">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
+                    <div class="team-avatar"><i class="fas fa-user-tie"></i></div>
                     <h4>Kalu Mecha Kalu</h4>
                     <span class="team-role">Head of Operations</span>
-                    <p>Ensuring smooth delivery across Nigeria</p>
+                    <p>Ensuring every order flows smoothly from warehouse to your doorstep across all 36 states.</p>
                 </div>
                 <div class="team-card">
-                    <div class="team-avatar">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
+                    <div class="team-avatar"><i class="fas fa-user-cog"></i></div>
                     <h4>Okwara Mecha Kalu</h4>
-                    <span class="team-role">Tech Lead</span>
-                    <p>Building the technology that powers our platform</p>
+                    <span class="team-role">Chief Technology Officer</span>
+                    <p>Architecting the technology platform that powers millions of transactions securely.</p>
                 </div>
                 <div class="team-card">
-                    <div class="team-avatar">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
+                    <div class="team-avatar"><i class="fas fa-user-headset"></i></div>
                     <h4>Chinonyerem Kalu Uduma</h4>
-                    <span class="team-role">Customer Success</span>
-                    <p>Leading our 24/7 customer support team</p>
+                    <span class="team-role">Customer Care Representative</span>
+                    <p>Leading our 24/7 support team and ensuring every customer feels heard and valued.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 7. CTA SECTION -->
+    <!-- 6. TIMELINE -->
+    <section class="about-timeline">
+        <div class="about-container">
+            <div class="about-section-header">
+                <span class="section-tag">Our Journey</span>
+                <h2>Milestones That Shaped Us</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Early 2024</div>
+                    <h3 class="timeline-title">The Idea is Born</h3>
+                    <p class="timeline-desc">Frustrated by the state of e-commerce in Nigeria, our founders set out to build something better.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Mid 2024</div>
+                    <h3 class="timeline-title">iShop Goes Live</h3>
+                    <p class="timeline-desc">Our platform launches with a small but carefully curated catalog of electronics and fashion products.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Late 2024</div>
+                    <h3 class="timeline-title">10,000 Customers</h3>
+                    <p class="timeline-desc">We cross our first major milestone — 10,000 happy customers across Nigeria in just 6 months.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2025</div>
+                    <h3 class="timeline-title">Nationwide Expansion</h3>
+                    <p class="timeline-desc">Delivery now reaches all 36 states + FCT. We introduce digital products — e-books, courses, and software.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2026 & Beyond</div>
+                    <h3 class="timeline-title">Building Africa's Best</h3>
+                    <p class="timeline-desc">500,000+ customers. Our eyes are set on becoming Africa's most trusted marketplace.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. CTA -->
     <section class="about-cta">
         <div class="about-container">
             <div class="cta-content">
                 <h2>Ready to Experience iShop?</h2>
-                <p>Join over 500,000 satisfied customers and start shopping today</p>
+                <p>Join over 500,000 Nigerians who shop smarter, safer, and faster with iShop.</p>
                 <div class="cta-buttons">
-                    <a href="shop.html" class="btn-cta-primary">
-                        <i class="fas fa-shopping-bag"></i> Start Shopping
-                    </a>
-                    <a href="contact.html" class="btn-cta-secondary">
-                        <i class="fas fa-envelope"></i> Contact Us
-                    </a>
+                    <a href="shop.html" class="btn-cta-primary"><i class="fas fa-shopping-bag"></i> Start Shopping</a>
+                    <a href="contact.html" class="btn-cta-secondary"><i class="fas fa-envelope"></i> Contact Us</a>
                 </div>
             </div>
         </div>
@@ -460,20 +731,20 @@
                 <a href="shop.html">Shop</a>
                 <a href="digital-products.html">Digital</a>
                 <a href="about.html">About Us</a>
-                <a href="contact.html">Contact Us</a>
+                <a href="help.html">Help Center</a>
             </div>
             <div class="footer-column">
                 <h4>Categories</h4>
-                <a href="shop.html?filter=electronics">Electronics</a>
-                <a href="shop.html?filter=fashion">Fashion</a>
-                <a href="shop.html?filter=beauty">Beauty</a>
+                <a href="electronics.html">Electronics</a>
+                <a href="fashion.html">Fashion</a>
+                <a href="beauty.html">Beauty</a>
                 <a href="digital-products.html">Digital</a>
             </div>
             <div class="footer-column">
                 <h4>Contact Info</h4>
                 <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
                 <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
-                <p><i class="fas fa-envelope"></i> info@ishop.com.ng</p>
+                <p><i class="fas fa-envelope"></i> help@ishop.com.ng</p>
             </div>
         </div>
         <div class="footer-bottom">
@@ -481,12 +752,10 @@
         </div>
     </footer>
 
+    <a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help" target="_blank" class="whatsapp-float">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
     <script src="script.js"></script>
-    <!-- WhatsApp Floating Button -->
-<a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help%20with%20an%20order" 
-   target="_blank" 
-   class="whatsapp-float">
-    <i class="fab fa-whatsapp"></i>
-</a>
 </body>
 </html>

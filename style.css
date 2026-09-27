@@ -5374,3 +5374,187 @@ footer {
         font-size: 0.7rem;
     }
 }
+/* Clickable product cards */
+.product-card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+.product-card .btn-add-cart,
+.product-card .btn-view,
+.product-card .wishlist-heart {
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+}
+/* ============================================ */
+/* HELP DROPDOWN — CLEAN SINGLE SOURCE */
+/* ============================================ */
+.help-dropdown-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.help-dropdown-wrap > a {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.help-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #ffffff;
+    width: 250px;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    padding: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    z-index: 9999;
+    pointer-events: none;
+}/* Invisible bridge to cover the 8px gap between Help link and panel */
+.help-dropdown-panel::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: transparent;
+    pointer-events: auto;
+}
+
+.help-dropdown-wrap:hover .help-dropdown-panel,
+.help-dropdown-wrap.open .help-dropdown-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.help-dropdown-panel a {
+    display: block;
+    padding: 0.6rem 0.9rem;
+    color: #0d1b2a;
+    font-size: 0.88rem;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.help-dropdown-panel a:hover {
+    background: #f7f9fb;
+    color: #f9c74f;
+}
+
+.help-dropdown-panel a i {
+    margin-right: 0.5rem;
+    width: 16px;
+    text-align: center;
+    color: #f9c74f;
+}
+
+.help-dropdown-divider {
+    height: 1px;
+    background: #eee;
+    margin: 0.4rem 0.5rem;
+}
+
+.help-dropdown-panel a.help-item-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 0.7rem 0.9rem;
+    margin: 0.25rem 0 0;
+    border-radius: 8px;
+    background: #f9c74f;
+    color: #0d1b2a;
+    transition: transform 0.15s, opacity 0.15s;
+}
+
+.help-dropdown-panel a.help-item-action i {
+    color: #0d1b2a;
+    margin-right: 0;
+}
+
+.help-dropdown-panel a.help-item-action:hover {
+    background: #f5b82e;
+    color: #0d1b2a;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+    .help-dropdown-panel {
+        position: fixed;
+        top: 68px;
+        right: 0.75rem;
+        width: 250px;
+        max-width: calc(100vw - 1.5rem);
+        max-height: calc(100vh - 90px);
+        overflow-y: auto;
+        transform: translateY(-10px);
+    }
+
+    .help-dropdown-wrap.open .help-dropdown-panel {
+        transform: translateY(0);
+    }
+
+    .help-dropdown-wrap:hover:not(.open) .help-dropdown-panel {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+    }
+}
+/* ============================================ */
+/* SHOW HELP LINK ON MOBILE */
+/* ============================================ */
+@media (max-width: 768px) {
+    .help-dropdown-wrap {
+        display: inline-flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin-left: auto !important;
+    }
+    .help-dropdown-wrap > a.nav-link {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        font-size: 0.7rem !important;
+        padding: 0.3rem 0.5rem !important;
+        color: #0d1b2a !important;
+        white-space: nowrap !important;
+    }
+    .help-dropdown-wrap > a.nav-link i {
+        font-size: 0.7rem !important;
+        display: inline-block !important;
+    }
+    .help-dropdown-wrap > a.nav-link .fa-chevron-down {
+        font-size: 0.55rem !important;
+    }
+    /* Position dropdown below header, not off-screen */
+    .help-dropdown-panel {
+        position: fixed !important;
+        top: 62px !important;
+        right: 0.75rem !important;
+        left: auto !important;
+        width: 240px !important;
+        max-width: calc(100vw - 1.5rem) !important;
+        max-height: 70vh !important;
+        overflow-y: auto !important;
+        transform: translateY(-10px) !important;
+    }
+    .help-dropdown-wrap.open .help-dropdown-panel {
+        transform: translateY(0) !important;
+    }
+}

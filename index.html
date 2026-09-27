@@ -7,6 +7,26 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+
+<!-- Open Graph / Social Share -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="iShop – Nigeria's #1 Online Store" />
+<meta property="og:description" content="Shop electronics, fashion, beauty & digital products at unbeatable prices. Trusted by 500,000+ Nigerians." />
+<meta property="og:image" content="https://ishop.com.ng/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://ishop.com.ng" />
+<meta property="og:site_name" content="iShop" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="iShop – Nigeria's #1 Online Store" />
+<meta name="twitter:description" content="Shop electronics, fashion, beauty & digital products at unbeatable prices." />
+<meta name="twitter:image" content="https://ishop.com.ng/og-image.png" />
+<meta name="description" content="iShop – Nigeria's #1 Online Store. Shop electronics, fashion, beauty & digital products at unbeatable prices." />
 </head>
 <body>
     <!-- TOP BAR -->
@@ -28,11 +48,11 @@
     <!-- HEADER -->
     <header>
         <div class="header-content">
-          <div class="logo">
-    <a href="index.html">
-        <span class="logo-icon">🛍️</span><span class="logo-text">i<span class="logo-accent">Shop</span></span>
-    </a>
-</div>
+            <div class="logo">
+                <a href="index.html">
+                    <span class="logo-icon">🛍️</span><span class="logo-text">i<span class="logo-accent">Shop</span></span>
+                </a>
+            </div>
             <div class="search-bar">
                 <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
                     <span id="selectedCategory">All Categories</span>
@@ -50,7 +70,24 @@
             </div>
             <div class="nav-icons">
                 <a href="about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
-                <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+<a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+<div class="help-dropdown-wrap">
+    <a href="help.html" class="nav-link">
+        <i class="fas fa-question-circle"></i> Help
+        <i class="fas fa-chevron-down" style="font-size:0.7em;margin-left:2px;"></i>
+    </a>
+    <div class="help-dropdown-panel">
+        <a href="help.html#place-order"><i class="fas fa-shopping-bag"></i> Place an order</a>
+        <a href="help.html#payment"><i class="fas fa-credit-card"></i> Payment options</a>
+        <a href="help.html#tracking"><i class="fas fa-truck"></i> Track an order</a>
+        <a href="help.html#cancel"><i class="fas fa-times-circle"></i> Cancel an order</a>
+        <a href="help.html#returns"><i class="fas fa-undo-alt"></i> Returns & Refunds</a>
+        <div class="help-dropdown-divider"></div>
+        <a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help" target="_blank" class="help-item-action">
+            <i class="fas fa-comment"></i> Live Chat
+        </a>
+    </div>
+</div>
                 <div class="nav-icon-item">
                     <a href="cart.html" class="cart-icon">
                         <i class="fas fa-shopping-cart"></i>
@@ -68,19 +105,14 @@
         </div>
     </header>
 
-    <!-- ============================================ -->
-    <!-- MEGA MENU - DETAILED JUMLA STYLE -->
-    <!-- ============================================ -->
+    <!-- MEGA MENU -->
     <nav class="mega-menu">
         <div class="mega-menu-content">
             <ul class="menu-links">
-                <!-- HOME -->
                 <li><a href="index.html" class="active"><i class="fas fa-home"></i> Home</a></li>
-
-                <!-- ALL PRODUCTS -->
                 <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
 
-                <!-- ELECTRONICS DROPDOWN -->
+                <!-- ELECTRONICS -->
                 <li class="dropdown-hover">
                     <a href="electronics.html">
                         <i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i>
@@ -140,7 +172,7 @@
                     </div>
                 </li>
 
-                <!-- FASHION DROPDOWN -->
+                <!-- FASHION -->
                 <li class="dropdown-hover">
                     <a href="fashion.html">
                         <i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i>
@@ -192,7 +224,7 @@
                     </div>
                 </li>
 
-                <!-- BEAUTY DROPDOWN -->
+                <!-- BEAUTY -->
                 <li class="dropdown-hover">
                     <a href="beauty.html">
                         <i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i>
@@ -237,7 +269,7 @@
                     </div>
                 </li>
 
-                <!-- DIGITAL DROPDOWN -->
+                <!-- DIGITAL -->
                 <li class="dropdown-hover">
                     <a href="digital-products.html">
                         <i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i>
@@ -345,7 +377,7 @@
         </div>
     </section>
 
-    <!-- FEATURED PRODUCTS -->
+    <!-- FEATURED PRODUCTS (12 items) -->
     <section class="featured-products">
         <div class="section-header">
             <h2><i class="fas fa-fire" style="color:#e74c3c;"></i> Featured Products</h2>
@@ -354,13 +386,38 @@
         <div class="product-grid" id="featuredProducts"></div>
     </section>
 
-    <!-- DIGITAL PRODUCTS -->
+    <!-- FRESH IN ELECTRONICS (4 items, auto-hides if empty) -->
+    <section class="featured-products" id="freshElectronicsSection">
+        <div class="section-header">
+            <h2><i class="fas fa-bolt" style="color:#e67e22;"></i> Fresh in Electronics</h2>
+            <a href="electronics.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="product-grid" id="freshElectronics"></div>
+    </section>
+
+    <!-- FASHION PICKS (4 items, auto-hides if empty) -->
+    <section class="featured-products" id="fashionPicksSection">
+        <div class="section-header">
+            <h2><i class="fas fa-star" style="color:#e91e63;"></i> Fashion Picks</h2>
+            <a href="fashion.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="product-grid" id="fashionPicks"></div>
+    </section>
+
+    <!-- DIGITAL PRODUCTS (shows "Coming Soon" if empty) -->
     <section class="featured-products digital-section">
         <div class="section-header">
             <h2><i class="fas fa-download" style="color:#f9c74f;"></i> Top Digital Downloads</h2>
             <a href="digital-products.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
         </div>
         <div class="product-grid" id="featuredDigitalProducts"></div>
+    </section>
+
+    <!-- BROWSE ALL PRODUCTS BUTTON -->
+    <section style="padding: 1rem 0 3rem; text-align: center;">
+        <a href="shop.html" style="display:inline-block; padding:1rem 2.5rem; background:#0d1b2a; color:#f9c74f; border-radius:12px; font-weight:700; text-decoration:none; font-size:1.05rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            🛍️ Browse All Products <i class="fas fa-arrow-right"></i>
+        </a>
     </section>
 
     <!-- SERVICES -->

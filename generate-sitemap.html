@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sitemap Generator</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 900px; margin: 0 auto; }
+        h1 { color: #0d1b2a; }
+        button { padding: 0.75rem 1.5rem; background: #f9c74f; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        button:hover { background: #f5b82e; }
+        #output { margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 8px; white-space: pre; font-family: monospace; font-size: 0.75rem; max-height: 400px; overflow-y: auto; }
+        #copy-btn { background: #0d1b2a; color: #f9c74f; margin-left: 0.5rem; }
+        .status { margin-top: 1rem; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>🗺️ iShop Sitemap Generator</h1>
+    <p>Click below to fetch all product IDs from Strapi and generate the complete <code>sitemap.xml</code>.</p>
+    <button onclick="generate()">Generate Sitemap</button>
+    <button id="copy-btn" onclick="copySitemap()">Copy to Clipboard</button>
+    <div id="status" class="status"></div>
+    <div id="output"></div>
+
+    <script>
+        let sitemapText = '';
+
+        async function generate() {
+            document.getElementById('status').textContent = 'Fetching products from Strapi...';
+            document.getElementById('output').textContent = '';
+
+            try {
+                const response = await fetch('https://ishop-cms-production.up.railway.app/api/products?pagination[pageSize]=1000');
+                const data = await response.json();
+                const products = data.data || [];
+
+                let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url><loc>https://ishop.com.ng/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://ishop.com.ng/shop.html</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://ishop.com.ng/digital-products.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ishop.com.ng/electronics.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ishop.com.ng/fashion.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ishop.com.ng/beauty.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ishop.com.ng/about.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ishop.com.ng/contact.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ishop.com.ng/help.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+
+`;
+
+                products.forEach(p => {
+                    sitemap += `  <url><loc>https://ishop.com.ng/product-detail.html?id=${p.id}</loc><priority>0.7</priority></url>\n`;
+                });
+
+                sitemap += `\n</urlset>`;
+
+                sitemapText = sitemap;
+                document.getElementById('output').textContent = sitemap;
+                document.getElementById('status').textContent = `✅ Generated sitemap with ${products.length} products.`;
+            } catch (err) {
+                document.getElementById('status').textContent = '❌ Error: ' + err.message;
+            }
+        }
+
+        function copySitemap() {
+            if (!sitemapText) { alert('Generate first!'); return; }
+            navigator.clipboard.writeText(sitemapText).then(() => {
+                document.getElementById('status').textContent = '✅ Copied to clipboard!';
+            });
+        }
+    </script>
+</body>
+</html>

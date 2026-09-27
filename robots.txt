@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Disallow private/temporary pages
+Disallow: /cart.html
+Disallow: /checkout.html
+Disallow: /order-confirmed.html
+Disallow: /profile.html
+Disallow: /login.html
+Disallow: /signup.html
+
+# Sitemap location
+Sitemap: https://ishop.com.ng/sitemap.xml
