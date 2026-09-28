@@ -7,6 +7,7 @@ const PAYMENT_API = 'https://ishop-payments-production.up.railway.app/api/orders
 const FREE_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/free-download';
 const PAID_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/download';
 const STRAPI_AUTH_BASE = 'https://ishop-cms-production.up.railway.app';
+const ORDERS_API_BASE = 'https://ishop-payments-production.up.railway.app';
 
 // ============================================
 // GOOGLE OAUTH CONFIGURATION
@@ -33,7 +34,7 @@ async function fetchProducts() {
 }
 
 // ============================================
-// DESCRIPTION PARSER — Handles paragraphs, lists, nested blocks
+// DESCRIPTION PARSER
 // ============================================
 function extractDescriptionText(blocks) {
     if (!blocks) return { text: '', bullets: [] };
@@ -239,7 +240,7 @@ function getCartTotal() {
 }
 
 // ============================================
-// RENDER PRODUCTS (clickable cards)
+// RENDER PRODUCTS
 // ============================================
 function renderProducts(containerId, productList, limit = null) {
     const container = document.getElementById(containerId);
@@ -432,7 +433,7 @@ function renderCart() {
 }
 
 // ============================================
-// RENDER HOMEPAGE (multi-section layout)
+// RENDER HOMEPAGE
 // ============================================
 async function renderHomepage() {
     console.log('🏠 Rendering homepage...');
@@ -995,7 +996,6 @@ function logoutUser() {
     window.location.href = 'index.html';
 }
 
-// Keep saveUser for backward-compat
 function saveUser(userData) {
     const existing = JSON.parse(localStorage.getItem('iShopUser')) || {};
     localStorage.setItem('iShopUser', JSON.stringify({ ...existing, ...userData }));
@@ -1229,7 +1229,8 @@ function setupCheckoutForm() {
                     shippingName: shippingName,
                     shippingPhone: shippingPhone,
                     shippingNotes: shippingNotes,
-                    differentShipping: differentShipping
+                    differentShipping: differentShipping,
+                    userJwt: getJwt()
                 })
             });
 
@@ -1451,14 +1452,13 @@ function setupSwipe() {
 }
 
 // ============================================
-// SOCIAL LOGIN (Google OAuth temporarily disabled — pending real OAuth setup)
+// SOCIAL LOGIN (Google OAuth temporarily disabled)
 // ============================================
 function loginWithGoogle() {
     alert('Google Sign-In is being upgraded. Please use email/password for now.');
 }
 
 function handleGoogleCallback() {
-    // Disabled until proper OAuth flow is rebuilt
     return;
 }
 
@@ -1536,7 +1536,6 @@ async function handleSignup(e) {
             refreshToken: data.refreshToken
         });
 
-        // Try to save phone on the server
         if (phone) {
             try {
                 await fetch(`${STRAPI_AUTH_BASE}/api/users/${data.user.id}`, {
@@ -1690,6 +1689,127 @@ async function handleProfileUpdate(e) {
 }
 
 // ============================================
+// MY ORDERS — Fetch and render user's orders
+// ============================================
+async function loadMyOrders() {
+    const container = document.getElementById('section-orders');
+    if (!container) return;
+
+    const user = getCurrentUser();
+    const jwt = getJwt();
+
+    if (!user || !jwt) {
+        container.innerHTML = `
+            <h2>My Orders</h2>
+            <p class="account-subtitle">Please log in to view your orders.</p>
+            <a href="login.html" class="btn-auth" style="display:inline-flex;width:auto;padding:0.7rem 1.5rem;">Login</a>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <h2>My Orders</h2>
+        <p class="account-subtitle">Loading your orders…</p>
+        <div style="text-align:center;padding:2rem;">
+            <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:#f9c74f;"></i>
+        </div>
+    `;
+
+    try {
+        const res = await fetch(`${ORDERS_API_BASE}/api/orders/my`, {
+            headers: { Authorization: `Bearer ${jwt}` },
+        });
+
+        if (!res.ok) {
+            if (res.status === 401) {
+                container.innerHTML = `
+                    <h2>My Orders</h2>
+                    <p class="account-subtitle">Your session has expired.</p>
+                    <a href="login.html" class="btn-auth" style="display:inline-flex;width:auto;padding:0.7rem 1.5rem;">Login again</a>
+                `;
+                return;
+            }
+            throw new Error('Failed to load orders');
+        }
+
+        const data = await res.json();
+        const orders = data.orders || [];
+
+        if (orders.length === 0) {
+            container.innerHTML = `
+                <h2>My Orders</h2>
+                <p class="account-subtitle">Track your recent purchases.</p>
+                <div class="empty-state-small">
+                    <i class="fas fa-box-open"></i>
+                    <p>No orders yet. Start shopping to see your orders here.</p>
+                    <a href="shop.html" class="btn-auth" style="display:inline-flex;width:auto;padding:0.7rem 1.5rem;">Shop Now</a>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <h2>My Orders</h2>
+            <p class="account-subtitle">${orders.length} order${orders.length > 1 ? 's' : ''} found</p>
+        `;
+
+        orders.forEach((order) => {
+            const date = new Date(order.createdAt).toLocaleDateString('en-NG', {
+                year: 'numeric', month: 'short', day: 'numeric',
+            });
+            const statusClass = order.orderStatus === 'paid' ? 'background:#d4edda;color:#155724;' :
+                               order.orderStatus === 'shipped' ? 'background:#cce5ff;color:#004085;' :
+                               order.orderStatus === 'cancelled' ? 'background:#f8d7da;color:#721c24;' :
+                               'background:#fff3cd;color:#856404;';
+
+            const itemsHtml = order.items.map(item => `
+                <div style="display:flex;justify-content:space-between;padding:0.4rem 0;font-size:0.85rem;color:#555;">
+                    <span>${item.name} × ${item.quantity}</span>
+                    <span>₦${(item.price * item.quantity).toLocaleString()}</span>
+                </div>
+            `).join('');
+
+            const hasDigital = order.items.some(i => i.type === 'digital');
+            const downloadBtn = (order.orderStatus === 'paid' && hasDigital) ? `
+                <a href="order-confirmed.html?reference=${order.reference}" 
+                   style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:0.6rem;padding:0.5rem 1rem;background:#f9c74f;color:#0d1b2a;border-radius:8px;font-weight:600;font-size:0.85rem;text-decoration:none;">
+                    <i class="fas fa-download"></i> Download Files
+                </a>
+            ` : '';
+
+            html += `
+                <div style="border:1px solid #f0f0f0;border-radius:12px;padding:1.25rem;margin-bottom:1rem;background:#fff;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;">
+                        <div>
+                            <div style="font-weight:700;color:#0d1b2a;font-size:0.95rem;">${order.reference}</div>
+                            <div style="font-size:0.8rem;color:#888;margin-top:0.15rem;">${date}</div>
+                        </div>
+                        <span style="${statusClass}padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${order.orderStatus}</span>
+                    </div>
+                    <div style="border-top:1px solid #f0f0f0;padding-top:0.6rem;">
+                        ${itemsHtml}
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid #f0f0f0;flex-wrap:wrap;gap:0.5rem;">
+                        <span style="font-weight:700;color:#0d1b2a;">Total: ₦${Number(order.amount).toLocaleString()}</span>
+                        ${downloadBtn}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+
+    } catch (err) {
+        console.error('loadMyOrders error:', err);
+        container.innerHTML = `
+            <h2>My Orders</h2>
+            <p class="account-subtitle">Could not load your orders. Please try again.</p>
+            <button onclick="loadMyOrders()" class="btn-auth" style="display:inline-flex;width:auto;padding:0.7rem 1.5rem;">Retry</button>
+        `;
+    }
+}
+
+// ============================================
 // ACCOUNT DASHBOARD
 // ============================================
 function switchAccountSection(section) {
@@ -1699,6 +1819,10 @@ function switchAccountSection(section) {
     document.querySelectorAll('.account-section').forEach(sec => {
         sec.classList.toggle('active', sec.id === 'section-' + section);
     });
+    // Refresh orders when My Orders tab is opened
+    if (section === 'orders') {
+        loadMyOrders();
+    }
 }
 
 function loadProfilePage() {
@@ -1748,7 +1872,7 @@ function loadProfilePage() {
 }
 
 // ============================================
-// HELP DROPDOWN TOGGLE (mobile + desktop)
+// HELP DROPDOWN TOGGLE
 // ============================================
 document.addEventListener('click', function (e) {
     const helpLink = e.target.closest('.help-dropdown-wrap > a');
@@ -1842,6 +1966,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (page === 'profile.html') {
         loadProfilePage();
         switchAccountSection('overview');
+        loadMyOrders();
     } else if (page === 'electronics.html' || page === 'fashion.html' || page === 'beauty.html') {
         const category = page.replace('.html', '');
         const urlParams = new URLSearchParams(window.location.search);
