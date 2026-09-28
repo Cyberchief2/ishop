@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iShop OG Image Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #000;
+  }
+  .og-card {
+    width: 1200px;
+    height: 630px;
+    background: #0d1b2a;
+    position: relative;
+    overflow: hidden;
+    padding: 60px 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  /* Yellow radial glow */
+  .og-card::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(249,199,79,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .og-card::after {
+    content: '';
+    position: absolute;
+    bottom: -300px;
+    left: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(249,199,79,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* Top row: logo + trusted-by */
+  .top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+  }
+  .logo-box {
+    width: 160px;
+    height: 160px;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  .logo-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .trusted-by {
+    text-align: right;
+    color: #ffffff;
+  }
+  .trusted-by .big {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f9c74f;
+    letter-spacing: 0.5px;
+  }
+  .trusted-by .small {
+    font-size: 15px;
+    color: #8a9aa8;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Middle: headline */
+  .headline-block {
+    position: relative;
+    z-index: 1;
+  }
+  .headline {
+    font-size: 96px;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 0.98;
+    letter-spacing: -2px;
+  }
+  .headline .yellow {
+    color: #f9c74f;
+  }
+  .subhead {
+    font-size: 24px;
+    color: #8a9aa8;
+    margin-top: 20px;
+    font-weight: 500;
+    max-width: 900px;
+    line-height: 1.35;
+  }
+
+  /* Badges row */
+  .badges {
+    display: flex;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 22px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(249,199,79,0.25);
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .badge .icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+  .badge .yellow { color: #f9c74f; }
+
+  /* Footer */
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 2px solid rgba(249,199,79,0.25);
+    position: relative;
+    z-index: 1;
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  .footer .label {
+    color: #8a9aa8;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .footer .yellow { color: #f9c74f; }
+</style>
+</head>
+<body>
+  <div class="og-card">
+
+    <!-- Top row -->
+    <div class="top-row">
+      <div class="logo-box">
+        <img src="ishop-logo.png" alt="iShop" />
+      </div>
+      <div class="trusted-by">
+        <div class="big">Trusted by 500,000+</div>
+        <div class="small">Nigerians nationwide</div>
+      </div>
+    </div>
+
+    <!-- Headline -->
+    <div class="headline-block">
+      <div class="headline">
+        <span class="yellow">iShop</span> — Nigeria's<br>
+        <span class="yellow">#1</span> Online Store
+      </div>
+      <div class="subhead">
+        Shop electronics, fashion, beauty &amp; digital products at unbeatable prices — with fast, reliable delivery.
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="badges">
+      <div class="badge">
+        <span class="icon">🚚</span>
+        <span>Free Delivery over ₦50,000</span>
+      </div>
+      <div class="badge">
+        <span class="icon">↩️</span>
+        <span>7-Day Returns</span>
+      </div>
+      <div class="badge">
+        <span class="icon">📥</span>
+        <span>Instant Downloads</span>
+      </div>
+      <div class="badge">
+        <span class="icon yellow">✓</span>
+        <span>Secure Payment</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div>
+        <span class="label">Visit us</span>
+        <span class="yellow">ishop.com.ng</span>
+      </div>
+      <div style="text-align:right;">
+        <span class="label">Call us</span>
+        +234 811 480 8088
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
