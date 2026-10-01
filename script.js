@@ -1531,7 +1531,8 @@ async function handleSignup(e) {
                 email: data.user.email,
                 fullName: fullName,
                 phone: phone || '',
-                address: ''
+                address: '',
+                provider: 'local'
             },
             jwt: data.jwt,
             refreshToken: data.refreshToken
@@ -1610,7 +1611,8 @@ async function handleLogin(e) {
                 email: data.user.email,
                 fullName: data.user.fullName || data.user.username || '',
                 phone: data.user.phone || '',
-                address: data.user.address || ''
+                address: data.user.address || '',
+                provider: data.user.provider || 'local'
             },
             jwt: data.jwt,
             refreshToken: data.refreshToken
@@ -2019,12 +2021,29 @@ function switchAccountSection(section) {
     document.querySelectorAll('.account-section').forEach(sec => {
         sec.classList.toggle('active', sec.id === 'section-' + section);
     });
-    // Refresh data when sections open
+
     if (section === 'orders') loadMyOrders();
     if (section === 'addresses') loadAddressForm();
     if (section === 'security') {
         const pf = document.getElementById('passwordFeedback');
         if (pf) { pf.innerHTML = ''; pf.className = ''; }
+
+        // Check if user signed up with Google
+        const user = getCurrentUser();
+        const form = document.getElementById('changePasswordForm');
+
+        if (user && user.provider === 'google') {
+            if (form) form.style.display = 'none';
+            if (pf) {
+                pf.style.color = '#856404';
+                pf.style.background = '#fff3cd';
+                pf.style.padding = '1rem';
+                pf.style.borderRadius = '8px';
+                pf.innerHTML = 'ℹ️ You signed up with Google, so you don\'t have a password on file. To add one, log out and use <strong>Forgot Password</strong> on the login page.';
+            }
+        } else {
+            if (form) form.style.display = 'block';
+        }
     }
 }
 
