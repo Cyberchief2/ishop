@@ -742,7 +742,7 @@ async function renderProductDetail() {
                                 <i class="fas fa-truck"></i>
                                 <div>
                                     <strong>Free Delivery</strong>
-                                    <span>On orders over ₦50,000</span>
+                                    <span>On orders over ₦100,000</span>
                                 </div>
                             </div>
                             <div class="delivery-item">
@@ -1455,10 +1455,11 @@ function setupSwipe() {
 // SOCIAL LOGIN (Google OAuth temporarily disabled)
 // ============================================
 function loginWithGoogle() {
-    alert('Google Sign-In is being upgraded. Please use email/password for now.');
+    window.location.href = 'https://ishop-cms-production.up.railway.app/api/connect/google';
 }
 
 function handleGoogleCallback() {
+    // Not used — Google OAuth is handled by Strapi via /connect/google
     return;
 }
 
@@ -1687,6 +1688,205 @@ async function handleProfileUpdate(e) {
         feedback.innerHTML = '❌ Could not save changes. Please try again.';
     }
 }
+// ============================================
+// CHANGE PASSWORD
+// ============================================
+async function handleChangePassword(e) {
+    e.preventDefault();
+
+    const user = getCurrentUser();
+    const jwt = getJwt();
+    if (!user || !jwt) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+    const feedback = document.getElementById('passwordFeedback');
+
+    // Validation
+    if (newPassword !== confirmNewPassword) {
+        feedback.className = 'error';
+        feedback.style.color = '#721c24';
+        feedback.style.background = '#f8d7da';
+        feedback.style.padding = '0.8rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = '⚠️ New passwords do not match.';
+        return;
+    }
+    if (newPassword.length < 6) {
+        feedback.className = 'error';
+        feedback.style.color = '#721c24';
+        feedback.style.background = '#f8d7da';
+        feedback.style.padding = '0.8rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = '⚠️ New password must be at least 6 characters.';
+        return;
+    }
+
+    feedback.style.color = '';
+    feedback.style.background = '';
+    feedback.style.padding = '';
+    feedback.className = '';
+    feedback.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating password…';
+
+    try {
+        // Strapi's change-password endpoint
+        const res = await fetch(`${STRAPI_AUTH_BASE}/api/auth/change-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({
+                currentPassword,
+                password: newPassword,
+                passwordConfirmation: confirmNewPassword,
+            }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.jwt) {
+            const msg = data?.error?.message || 'Could not update password.';
+            feedback.className = 'error';
+            feedback.style.color = '#721c24';
+            feedback.style.background = '#f8d7da';
+            feedback.style.padding = '0.8rem';
+            feedback.style.borderRadius = '8px';
+            feedback.innerHTML = `❌ ${msg}`;
+            return;
+        }
+
+        // Update the JWT in storage (Strapi returns a new one)
+        if (data.jwt) {
+            localStorage.setItem('iShopJwt', data.jwt);
+        }
+
+        feedback.className = 'success';
+        feedback.style.color = '#155724';
+        feedback.style.background = '#d4edda';
+        feedback.style.padding = '0.8rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = '✅ Password updated successfully!';
+
+        // Clear fields
+        document.getElementById('changePasswordForm').reset();
+
+        setTimeout(() => { feedback.innerHTML = ''; feedback.className = ''; feedback.style.padding = ''; feedback.style.background = ''; feedback.style.color = ''; }, 4000);
+    } catch (err) {
+        console.error('Change password error:', err);
+        feedback.className = 'error';
+        feedback.style.color = '#721c24';
+        feedback.style.background = '#f8d7da';
+        feedback.style.padding = '0.8rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = '❌ Could not connect. Please try again.';
+    }
+}
+
+// ============================================
+// DELIVERY ADDRESS — load, save, display
+// ============================================
+function loadAddressForm() {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    const nameField = document.getElementById('addressFullName');
+    const phoneField = document.getElementById('addressPhone');
+    const lineField = document.getElementById('addressLine');
+
+    if (nameField && !nameField.value) nameField.value = user.fullName || user.username || '';
+    if (phoneField && !phoneField.value) phoneField.value = user.phone || '';
+    if (lineField && !lineField.value) lineField.value = user.address || '';
+
+    renderSavedAddress(user);
+}
+
+function renderSavedAddress(user) {
+    const container = document.getElementById('savedAddressDisplay');
+    if (!container) return;
+
+    if (!user.address && !user.phone) {
+        container.innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = `
+        <h3 style="font-size: 1rem; font-weight: 700; color: #0d1b2a; margin-bottom: 0.75rem;">Current Saved Address</h3>
+        <div style="border: 1px solid #f0f0f0; border-radius: 12px; padding: 1.25rem; background: #f8fafc;">
+            <div style="font-weight: 700; color: #0d1b2a; margin-bottom: 0.4rem;">${user.fullName || user.username || 'You'}</div>
+            <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                <i class="fas fa-phone" style="color: #f9c74f; width: 16px;"></i> ${user.phone || 'No phone on file'}
+            </div>
+            <div style="color: #666; font-size: 0.9rem;">
+                <i class="fas fa-map-marker-alt" style="color: #f9c74f; width: 16px;"></i> ${user.address || 'No address on file'}
+            </div>
+        </div>
+    `;
+}
+
+async function handleAddressSave(e) {
+    e.preventDefault();
+
+    const user = getCurrentUser();
+    const jwt = getJwt();
+    if (!user || !jwt) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const fullName = document.getElementById('addressFullName').value.trim();
+    const phone = document.getElementById('addressPhone').value.trim();
+    const address = document.getElementById('addressLine').value.trim();
+    const feedback = document.getElementById('addressFeedback');
+
+    feedback.className = '';
+    feedback.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving address…';
+
+    try {
+        const res = await fetch(`${STRAPI_AUTH_BASE}/api/users/${user.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({ phone, address }),
+        });
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData?.error?.message || 'Save failed');
+        }
+
+        // Update local user
+        const updatedUser = { ...user, fullName, phone, address };
+        saveAuthSession({ user: updatedUser });
+
+        // Re-render
+        renderSavedAddress(updatedUser);
+
+        feedback.className = 'success';
+        feedback.style.color = '#155724';
+        feedback.style.background = '#d4edda';
+        feedback.style.padding = '0.8rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = '✅ Address saved!';
+
+        setTimeout(() => { feedback.innerHTML = ''; feedback.className = ''; feedback.style.padding = ''; feedback.style.background = ''; feedback.style.color = ''; }, 3000);
+
+    } catch (err) {
+        console.error('Address save error:', err);
+        feedback.className = 'error';
+        feedback.style.color = '#721c24';
+        feedback.style.background = '#f8d7da';
+        feedback.style.padding = '0.8rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = '❌ Could not save. Please try again.';
+    }
+}
 
 // ============================================
 // MY ORDERS — Fetch and render user's orders
@@ -1819,9 +2019,12 @@ function switchAccountSection(section) {
     document.querySelectorAll('.account-section').forEach(sec => {
         sec.classList.toggle('active', sec.id === 'section-' + section);
     });
-    // Refresh orders when My Orders tab is opened
-    if (section === 'orders') {
-        loadMyOrders();
+    // Refresh data when sections open
+    if (section === 'orders') loadMyOrders();
+    if (section === 'addresses') loadAddressForm();
+    if (section === 'security') {
+        const pf = document.getElementById('passwordFeedback');
+        if (pf) { pf.innerHTML = ''; pf.className = ''; }
     }
 }
 
@@ -1928,6 +2131,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const profileForm = document.getElementById('profileForm');
     if (profileForm) profileForm.addEventListener('submit', handleProfileUpdate);
+
+        const changePasswordForm = document.getElementById('changePasswordForm');
+    if (changePasswordForm) changePasswordForm.addEventListener('submit', handleChangePassword);
+
+    const addressForm = document.getElementById('addressForm');
+    if (addressForm) addressForm.addEventListener('submit', handleAddressSave);
 
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {

@@ -264,23 +264,60 @@
                 <div class="account-section" id="section-addresses">
                     <h2>Delivery Addresses</h2>
                     <p class="account-subtitle">Manage addresses for faster checkout.</p>
-                    <div class="empty-state-small">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <p>No saved addresses. Add one when you check out.</p>
-                    </div>
+
+                    <form id="addressForm" style="max-width: 480px;">
+                        <div class="form-group">
+                            <label for="addressFullName">Full Name</label>
+                            <input type="text" id="addressFullName" placeholder="John Doe" />
+                        </div>
+                        <div class="form-group">
+                            <label for="addressPhone">Phone</label>
+                            <input type="tel" id="addressPhone" placeholder="08012345678" />
+                        </div>
+                        <div class="form-group">
+                            <label for="addressLine">Delivery Address</label>
+                            <textarea id="addressLine" rows="3" placeholder="House number, street, city, state"></textarea>
+                        </div>
+                        <button type="submit" class="btn-auth" style="width: auto; padding: 0.8rem 2rem;">
+                            <i class="fas fa-save"></i> Save Address
+                        </button>
+                    </form>
+                    <div id="addressFeedback" style="margin-top: 1rem; font-size: 0.9rem;"></div>
+
+                    <div id="savedAddressDisplay" style="margin-top: 2rem;"></div>
                 </div>
 
                 <!-- Security Section -->
                 <div class="account-section" id="section-security">
                     <h2>Security</h2>
-                    <p class="account-subtitle">Keep your account safe.</p>
-                    <div class="empty-state-small">
-                        <i class="fas fa-shield-alt"></i>
-                        <p>Your account is protected. To change your password, log out and use the "Forgot Password" option on the login page.</p>
-                        <button class="btn-logout" onclick="logoutUser()" style="display:inline-flex;margin-top:1rem;">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                    <p class="account-subtitle">Keep your account safe by updating your password regularly.</p>
+
+                    <form id="changePasswordForm" style="max-width: 480px;">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" placeholder="Enter your current password" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" placeholder="Minimum 6 characters" required minlength="6" />
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmNewPassword">Confirm New Password</label>
+                            <input type="password" id="confirmNewPassword" placeholder="Repeat new password" required />
+                        </div>
+                        <button type="submit" class="btn-auth" style="width: auto; padding: 0.8rem 2rem;">
+                            <i class="fas fa-lock"></i> Update Password
                         </button>
-                    </div>
+                    </form>
+                    <div id="passwordFeedback" style="margin-top: 1rem; font-size: 0.9rem;"></div>
+
+                    <hr style="margin: 2.5rem 0 1.5rem; border: none; border-top: 1px solid #f0f0f0;" />
+
+                    <h3 style="font-size: 1.1rem; font-weight: 700; color: #0d1b2a; margin-bottom: 1rem;">Sign Out</h3>
+                    <p class="account-subtitle">Log out of your account on this device.</p>
+                    <button class="btn-logout" onclick="logoutUser()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
                 </div>
 
             </div>
@@ -307,11 +344,10 @@
                 <a href="contact.html">Contact Us</a>
             </div>
             <div class="footer-column">
-                <h4>Categories</h4>
-                <a href="electronics.html">Electronics</a>
-                <a href="fashion.html">Fashion</a>
-                <a href="beauty.html">Beauty</a>
-                <a href="digital-products.html">Digital</a>
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="refund.html">Refund Policy</a>
             </div>
             <div class="footer-column">
                 <h4>Contact Info</h4>
