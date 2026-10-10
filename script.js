@@ -3383,10 +3383,18 @@ window.addEventListener('scroll', function () {
 // INITIALIZE PAGE
 // ============================================
 function initializeApp() {
+    // Detect admin page first
+    const page = window.location.pathname.split('/').pop().split('?')[0];
+
+    // On the admin page, only run admin init — skip all site-wide setup
+    if (page === 'admin.html') {
+        console.log('🔍 Admin page — running admin init only');
+        if (typeof initAdminPanel === 'function') initAdminPanel();
+        return;
+    }
+
     injectHeaderAndFooter();
     initHeroCarousel();
-
-    const page = window.location.pathname.split('/').pop().split('?')[0];
 
     console.log('🔍 Current page:', page);
 
@@ -6729,8 +6737,4 @@ document.addEventListener('click', function (e) {
 });
 
 // ---------- AUTO-INIT ----------
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAdminPanel);
-} else {
-    initAdminPanel();
-}
+// Handled by initializeApp() above — no separate init needed for admin.
