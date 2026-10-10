@@ -416,15 +416,15 @@ function getHeaderHTML(activePage = '') {
                             <a href="profile.html"><i class="fas fa-user"></i> My Account</a>
                             <a href="profile.html#orders" onclick="handleMyOrdersClick(event);"><i class="fas fa-box"></i> My Orders</a>
                             <a href="wishlist.html"><i class="fas fa-heart"></i> Wishlist</a>
+                            <a href="admin.html" id="adminPanelLink" style="display:none;color:#d4a017;font-weight:700;">
+                                <i class="fas fa-shield-halved"></i> Admin Panel
+                            </a>
                             <div class="vendor-account-links" id="vendorAccountLinks" style="display:none;">
                                 <div class="account-dropdown-divider"></div>
                                 <div class="account-vendor-label">
                                     <i class="fas fa-store"></i> Vendor Tools
                                 </div>
                                 <a href="vendor-dashboard.html"><i class="fas fa-tachometer-alt"></i> Vendor Dashboard</a>
-                                <a href="admin.html" class="admin-only-link" id="adminPanelLink" style="display:none;">
-                                    <i class="fas fa-shield-halved"></i> Admin Panel
-                                </a>
                                 <a href="vendor-products.html"><i class="fas fa-boxes"></i> My Products</a>
                                 <a href="vendor-earnings.html"><i class="fas fa-wallet"></i> My Earnings</a>
 <a href="vendor-product-form.html"><i class="fas fa-plus-circle"></i> Add Product</a>
