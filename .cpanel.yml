@@ -1,0 +1,14 @@
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/bvnwcmnb/public_html/
+    - /bin/cp -R *.html $DEPLOYPATH
+    - /bin/cp -R *.js $DEPLOYPATH
+    - /bin/cp -R *.css $DEPLOYPATH
+    - /bin/cp -R *.png $DEPLOYPATH
+    - /bin/cp -R *.jpg $DEPLOYPATH
+    - /bin/cp -R *.ico $DEPLOYPATH
+    - /bin/cp -R *.svg $DEPLOYPATH
+    - /bin/cp -R *.xml $DEPLOYPATH
+    - /bin/cp -R *.txt $DEPLOYPATH
+    - /bin/cp -R *.webmanifest $DEPLOYPATH
+    - /bin/cp -R images $DEPLOYPATH
