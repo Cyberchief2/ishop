@@ -6699,29 +6699,57 @@ function adminToast(message, type = 'default') {
 
 let adminConfirmCallback = null;
 
-function adminConfirm({ title, message, icon, iconName, btnText, btnClass, onConfirm }) {
-    const modal = document.getElementById('adminConfirmModal');
-    const titleEl = document.getElementById('adminConfirmModalTitle');
-    const msgEl = document.getElementById('adminConfirmModalMessage');
-    const iconEl = document.getElementById('adminConfirmModalIcon');
-    const btnEl = document.getElementById('adminConfirmModalBtn');
-    if (!modal) return;
+function adminConfirm(opts) {
+    try {
+        const { title, message, icon, iconName, btnText, btnClass, onConfirm } = opts || {};
 
-    titleEl.textContent = title;
-    msgEl.textContent = message;
-    iconEl.className = 'admin-modal-icon ' + (icon || '');
-    iconEl.innerHTML = `<i class="fas fa-${iconName || 'question-circle'}"></i>`;
-    btnEl.textContent = btnText || 'Confirm';
-    btnEl.className = 'admin-btn ' + (btnClass || 'admin-btn-primary');
+        const modal = document.getElementById('adminConfirmModal');
+        const titleEl = document.getElementById('adminConfirmModalTitle');
+        const msgEl = document.getElementById('adminConfirmModalMessage');
+        const iconEl = document.getElementById('adminConfirmModalIcon');
+        const btnEl = document.getElementById('adminConfirmModalBtn');
 
-    adminConfirmCallback = onConfirm;
+        if (!modal) {
+            console.error('[adminConfirm] modal element not found');
+            return;
+        }
 
-    btnEl.onclick = async () => {
-        adminCloseConfirm();
-        if (adminConfirmCallback) await adminConfirmCallback();
-    };
+        // Guard every inner element
+        if (titleEl) titleEl.textContent = title || 'Confirm';
+        if (msgEl) msgEl.textContent = message || '';
+        if (iconEl) {
+            iconEl.className = 'admin-modal-icon ' + (icon || '');
+            iconEl.innerHTML = `<i class="fas fa-${iconName || 'question-circle'}"></i>`;
+        }
+        if (btnEl) {
+            btnEl.textContent = btnText || 'Confirm';
+            btnEl.className = 'admin-btn ' + (btnClass || 'admin-btn-primary');
+        }
 
-    modal.style.display = 'flex';
+        adminConfirmCallback = onConfirm;
+
+        if (btnEl) {
+            btnEl.onclick = async () => {
+                adminCloseConfirm();
+                if (adminConfirmCallback) {
+                    try { await adminConfirmCallback(); }
+                    catch (e) { console.error('[adminConfirm] onConfirm threw:', e); }
+                }
+            };
+        }
+
+        // Force show — this is the critical line
+        modal.style.display = 'flex';
+        modal.style.zIndex = '999999';
+
+        console.log('[adminConfirm] opened modal for:', title);
+    } catch (err) {
+        console.error('[adminConfirm] error:', err);
+        // Fallback — use the browser's native confirm as a last resort
+        if (typeof opts?.onConfirm === 'function' && window.confirm(opts?.title || 'Confirm this action?')) {
+            try { opts.onConfirm(); } catch (e) { console.error(e); }
+        }
+    }
 }
 
 function adminCloseConfirm() {
