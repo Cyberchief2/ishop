@@ -6329,6 +6329,9 @@ function adminRenderAllVendors() {
 }
 
 function adminApproveVendor(vendorDocumentId, businessName) {
+    // Sync key from storage to avoid staleness
+    adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
+
     adminConfirm({
         title: 'Approve Vendor?',
         message: `Approve "${businessName || 'this vendor'}"? They'll be able to list products immediately.`,
@@ -6337,18 +6340,20 @@ function adminApproveVendor(vendorDocumentId, businessName) {
         btnText: 'Yes, Approve',
         btnClass: 'admin-btn-success',
         onConfirm: async () => {
+            console.log('[approve] callback fired for', vendorDocumentId);
             try {
                 const res = await fetch(`${ADMIN_API_BASE}/api/admin/vendors/${vendorDocumentId}/approve?key=${encodeURIComponent(adminState.key)}`, {
                     method: 'POST',
                 });
                 const data = await res.json();
+                console.log('[approve] response:', res.status, data);
                 if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
                 adminToast('Vendor approved ✅', 'success');
                 adminLoadPendingVendors();
                 adminLoadAllVendors();
                 adminLoadStats();
             } catch (err) {
-                console.error('Approve error:', err);
+                console.error('[approve] error:', err);
                 adminToast('Could not approve vendor', 'error');
             }
         },
@@ -6356,6 +6361,8 @@ function adminApproveVendor(vendorDocumentId, businessName) {
 }
 
 function adminRejectVendor(vendorId, businessName) {
+    adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
+
     adminConfirm({
         title: 'Reject Vendor?',
         message: `"${businessName}" will be marked as rejected. They'll receive a rejection email.`,
@@ -6728,7 +6735,6 @@ function adminConfirm(opts) {
             return;
         }
 
-        // Guard every inner element
         if (titleEl) titleEl.textContent = title || 'Confirm';
         if (msgEl) msgEl.textContent = message || '';
         if (iconEl) {
@@ -6742,24 +6748,33 @@ function adminConfirm(opts) {
 
         adminConfirmCallback = onConfirm;
 
+        // Clone the button to strip ALL previous listeners, then wire fresh
         if (btnEl) {
-            btnEl.onclick = async () => {
+            const freshBtn = btnEl.cloneNode(true);
+            btnEl.parentNode.replaceChild(freshBtn, btnEl);
+            freshBtn.addEventListener('click', async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                console.log('[adminConfirm] confirm button clicked');
                 adminCloseConfirm();
                 if (adminConfirmCallback) {
-                    try { await adminConfirmCallback(); }
-                    catch (e) { console.error('[adminConfirm] onConfirm threw:', e); }
+                    try {
+                        await adminConfirmCallback();
+                    } catch (e) {
+                        console.error('[adminConfirm] onConfirm threw:', e);
+                    }
                 }
-            };
+            });
         }
 
-        // Force show — this is the critical line
+        // Also wire the Cancel button via delegation (it uses onclick="adminCloseConfirm()" already, fine)
+
         modal.style.display = 'flex';
         modal.style.zIndex = '999999';
 
         console.log('[adminConfirm] opened modal for:', title);
     } catch (err) {
         console.error('[adminConfirm] error:', err);
-        // Fallback — use the browser's native confirm as a last resort
         if (typeof opts?.onConfirm === 'function' && window.confirm(opts?.title || 'Confirm this action?')) {
             try { opts.onConfirm(); } catch (e) { console.error(e); }
         }
