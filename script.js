@@ -6756,13 +6756,22 @@ function adminConfirm(opts) {
                 ev.preventDefault();
                 ev.stopPropagation();
                 console.log('[adminConfirm] confirm button clicked');
+
+                // IMPORTANT: grab the callback BEFORE closing the modal
+                const cb = adminConfirmCallback;
+
+                // Now it's safe to reset the modal state
                 adminCloseConfirm();
-                if (adminConfirmCallback) {
+
+                // And only then run the callback
+                if (typeof cb === 'function') {
                     try {
-                        await adminConfirmCallback();
+                        await cb();
                     } catch (e) {
                         console.error('[adminConfirm] onConfirm threw:', e);
                     }
+                } else {
+                    console.warn('[adminConfirm] no callback found');
                 }
             });
         }
