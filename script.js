@@ -6021,7 +6021,7 @@ function initAdminPanel() {
     const loginScreen = document.getElementById('adminLoginScreen');
     if (!loginScreen) return; // not the admin page
 
-    const savedKey = sessionStorage.getItem('iShopAdminKey');
+    const savedKey = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey');
     if (savedKey) {
         adminState.key = savedKey;
         adminShowMainScreen();
@@ -6067,6 +6067,7 @@ async function adminHandleLogin(e) {
         adminState.key = key;
         adminState.stats = data.stats;
         sessionStorage.setItem('iShopAdminKey', key);
+        localStorage.setItem('iShopAdminKey', key);
 
         feedback.className = 'admin-feedback success';
         feedback.textContent = '✅ Access granted. Loading…';
@@ -6083,6 +6084,7 @@ async function adminHandleLogin(e) {
 
 function adminLogout() {
     sessionStorage.removeItem('iShopAdminKey');
+    localStorage.removeItem('iShopAdminKey');
     adminState.key = '';
     document.getElementById('adminMainScreen').style.display = 'none';
     document.getElementById('adminLoginScreen').style.display = 'flex';
@@ -6097,8 +6099,8 @@ function adminShowMainScreen() {
     document.getElementById('adminLoginScreen').style.display = 'none';
     document.getElementById('adminMainScreen').style.display = 'block';
 
-    // Load overview first
-    adminRenderStats();
+    // Load stats first (async) then render
+    adminLoadStats();
     adminLoadPendingVendors();
     adminLoadAllVendors();
     adminLoadPendingProducts();
@@ -6136,6 +6138,17 @@ function adminRefreshAll() {
 async function adminLoadStats() {
     try {
         const res = await fetch(`${ADMIN_API_BASE}/api/admin/stats?key=${encodeURIComponent(adminState.key)}`);
+        if (res.status === 401) {
+            console.error('[admin] Stats 401 — clearing session and showing login');
+            sessionStorage.removeItem('iShopAdminKey');
+    localStorage.removeItem('iShopAdminKey');
+            adminState.key = '';
+            document.getElementById('adminMainScreen').style.display = 'none';
+            document.getElementById('adminLoginScreen').style.display = 'flex';
+            const fb = document.getElementById('adminLoginFeedback');
+            if (fb) { fb.className = 'admin-feedback error'; fb.textContent = 'Session expired. Please enter your admin key again.'; }
+            return;
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (data.status) {
