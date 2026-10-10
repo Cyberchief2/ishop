@@ -1,7 +1,906 @@
 // ============================================
+// SITE CONFIG — edit once, used everywhere
+// ============================================
+const SITE_CONFIG = {
+    phone: '+234 811 480 8088',
+    phoneLink: 'tel:+2348114808088',
+    whatsapp: 'https://wa.me/2348114808088',
+    email: 'info@ishop.com.ng',
+    emailLink: 'mailto:info@ishop.com.ng',
+    address: 'Lagos, Nigeria',
+};
+
+// ============================================
+// SHIPPING CALCULATOR (LGA-based) — uses shipping.js
+// ============================================
+
+// Only charge delivery if the cart contains at least one physical item
+function cartHasPhysical() {
+    return cart.some(item => item.type === 'physical' || item.type === '');
+}
+
+// Get the currently selected STATE (default or different shipping)
+function getSelectedState() {
+    const differentShipping = document.getElementById('differentShipping')?.checked;
+    if (differentShipping) {
+        return document.getElementById('shipState')?.value || '';
+    }
+    return document.getElementById('state')?.value || '';
+}
+
+// Get the currently selected LGA (default or different shipping)
+function getSelectedLga() {
+    const differentShipping = document.getElementById('differentShipping')?.checked;
+    if (differentShipping) {
+        return document.getElementById('shipLga')?.value || '';
+    }
+    return document.getElementById('lga')?.value || '';
+}
+
+// Calculate the delivery fee based on the current form state
+function getCurrentDeliveryFee() {
+    if (!cartHasPhysical()) return 0;
+    const stateSlug = getSelectedState();
+    const lgaSlug = getSelectedLga();
+    if (!stateSlug) return 0;
+    return getShippingFee(stateSlug, lgaSlug);
+}
+
+// Populate the state dropdowns from shipping.js
+function populateStateDropdowns() {
+    const states = getAllStates();
+    const stateDropdown = document.getElementById('state');
+    const shipStateDropdown = document.getElementById('shipState');
+    const optionsHTML = states.map(s => '<option value="' + s.slug + '">' + s.name + '</option>').join('');
+    if (stateDropdown) {
+        stateDropdown.innerHTML = '<option value="">Select your state</option>' + optionsHTML;
+    }
+    if (shipStateDropdown) {
+        shipStateDropdown.innerHTML = '<option value="">Select recipient\'s state</option>' + optionsHTML;
+    }
+}
+
+// Update LGA dropdown when a state is selected (default shipping)
+function updateLGAs(stateSlug) {
+    const lgaDropdown = document.getElementById('lga');
+    if (!lgaDropdown) return;
+    if (!stateSlug) {
+        lgaDropdown.innerHTML = '<option value="">Select state first</option>';
+        lgaDropdown.disabled = true;
+        return;
+    }
+    const lgas = getLGAsForState(stateSlug);
+    lgaDropdown.innerHTML = '<option value="">Select LGA</option>' +
+        lgas.map(l => '<option value="' + l.slug + '">' + l.name + ' (₦' + l.fee.toLocaleString() + ')</option>').join('');
+    lgaDropdown.disabled = false;
+    onLgaChange();
+}
+
+// Update LGA dropdown for "different shipping"
+function updateShipLGAs(stateSlug) {
+    const lgaDropdown = document.getElementById('shipLga');
+    if (!lgaDropdown) return;
+    if (!stateSlug) {
+        lgaDropdown.innerHTML = '<option value="">Select state first</option>';
+        lgaDropdown.disabled = true;
+        return;
+    }
+    const lgas = getLGAsForState(stateSlug);
+    lgaDropdown.innerHTML = '<option value="">Select LGA</option>' +
+        lgas.map(l => '<option value="' + l.slug + '">' + l.name + ' (₦' + l.fee.toLocaleString() + ')</option>').join('');
+    lgaDropdown.disabled = false;
+    onLgaChange();
+}
+
+// Called whenever an LGA is changed — refreshes the order summary
+function onLgaChange() {
+    // Reset any DHL-specific selection when LGA changes
+    selectedShippingMethod = 'flat';
+    dhlQuoteCache = { key: '', quotes: [], loading: false, error: null };
+    renderCheckoutSummary();
+    // Ask for DHL rates (silent no-op if DHL is disabled server-side)
+    fetchDHLQuoteIfNeeded();
+}
+
+// ============================================
+// DHL SHIPPING — live rate quotes
+// ============================================
+
+const DHL_QUOTE_API = 'https://ishop-payments-production.up.railway.app/api/shipping/quote';
+
+// Holds the currently selected shipping method: 'flat' | 'dhl-<productCode>'
+let selectedShippingMethod = 'flat';
+
+// Cached DHL quotes for the current checkout context
+let dhlQuoteCache = {
+    key: '',
+    quotes: [],
+    loading: false,
+    error: null,
+};
+
+// Rough weight estimate for a cart (kg). Uses item.weight if present, else a
+// per-category default. Physical items only.
+function estimateCartWeightKg() {
+    const physical = cart.filter(i => (i.type || 'physical') === 'physical');
+    let total = 0;
+
+    for (const item of physical) {
+        let unitWeight = Number(item.weight);
+        if (!unitWeight || unitWeight <= 0) {
+            const cat = String(item.category || '').toLowerCase();
+            if (cat.includes('electronic')) unitWeight = 0.8;
+            else if (cat.includes('fashion')) unitWeight = 0.5;
+            else if (cat.includes('beauty')) unitWeight = 0.3;
+            else if (cat.includes('home')) unitWeight = 2.5;
+            else if (cat.includes('traditional')) unitWeight = 0.6;
+            else unitWeight = 0.5;
+        }
+        total += unitWeight * Number(item.quantity || 1);
+    }
+
+    // DHL minimum shipment weight is 0.5 kg
+    return Math.max(0.5, Math.round(total * 10) / 10);
+}
+
+// Map our LGA slug → a human-readable city name DHL understands
+function lgaSlugToCityName(lgaSlug) {
+    if (!lgaSlug) return '';
+    const stateSlug = getSelectedState();
+    const lgas = getLGAsForState(stateSlug) || [];
+    const found = lgas.find(l => l.slug === lgaSlug);
+    const raw = found ? found.name : lgaSlug.replace(/-/g, ' ');
+    // Strip parentheses suffix e.g. "Eti-Osa (VI, Ikoyi, Lekki)" → "Eti-Osa"
+    return raw.replace(/\s*\(.*\)\s*$/, '').trim();
+}
+
+// Map our state slug → human-readable name
+function stateSlugToName(stateSlug) {
+    if (!stateSlug) return '';
+    const states = getAllStates() || [];
+    const found = states.find(s => s.slug === stateSlug);
+    if (!found) return stateSlug.replace(/-/g, ' ');
+    // Abuja is stored as "Abuja (FCT)" — normalize to "Abuja"
+    return found.name.replace(/\s*\(.*\)\s*$/, '').trim();
+}
+
+// Only fetch a DHL quote when the inputs that affect it have actually changed
+function dhlQuoteCacheKey() {
+    const state = getSelectedState();
+    const lga = getSelectedLga();
+    const weight = estimateCartWeightKg();
+    return `${state}|${lga}|${weight}`;
+}
+
+// Ask the backend for a DHL quote. Silent no-op if DHL isn't enabled.
+async function fetchDHLQuoteIfNeeded() {
+    if (!cartHasPhysical()) return;
+
+    const state = getSelectedState();
+    const lga = getSelectedLga();
+    if (!state || !lga) return;
+
+    const key = dhlQuoteCacheKey();
+    if (key === dhlQuoteCache.key && dhlQuoteCache.quotes.length > 0) return;
+
+    dhlQuoteCache = { key, quotes: [], loading: true, error: null };
+    renderShippingOptionsUI();
+
+    try {
+        const res = await fetch(DHL_QUOTE_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                destinationCountry: 'NG',
+                destinationCity: lgaSlugToCityName(lga) || stateSlugToName(state),
+                destinationPostal: '',
+                weightKg: estimateCartWeightKg(),
+            }),
+        });
+
+        const data = await res.json();
+
+        if (data.source !== 'dhl' || !Array.isArray(data.quotes) || data.quotes.length === 0) {
+            dhlQuoteCache = { key, quotes: [], loading: false, error: null };
+            selectedShippingMethod = 'flat';
+            renderShippingOptionsUI();
+            return;
+        }
+
+        const sorted = data.quotes
+            .filter(q => Number(q.totalPrice) > 0)
+            .sort((a, b) => Number(a.totalPrice) - Number(b.totalPrice))
+            .slice(0, 2);
+
+        dhlQuoteCache = { key, quotes: sorted, loading: false, error: null };
+        renderShippingOptionsUI();
+    } catch (err) {
+        console.warn('DHL quote fetch failed:', err);
+        dhlQuoteCache = { key, quotes: [], loading: false, error: err.message };
+        renderShippingOptionsUI();
+    }
+}
+
+// The flat delivery fee for the currently selected state + LGA
+function currentFlatDeliveryFee() {
+    if (!cartHasPhysical()) return 0;
+    return getCurrentDeliveryFee();
+}
+
+// The currently active delivery fee — either the flat one or the chosen DHL one
+function currentEffectiveDeliveryFee() {
+    if (!cartHasPhysical()) return 0;
+
+    if (selectedShippingMethod && selectedShippingMethod.startsWith('dhl-')) {
+        const productCode = selectedShippingMethod.replace(/^dhl-/, '');
+        const q = dhlQuoteCache.quotes.find(x => x.productCode === productCode);
+        if (q) return Number(q.totalPrice);
+    }
+
+    return currentFlatDeliveryFee();
+}
+
+// ============================================
+// DHL SHIPPING OPTIONS — rendered inside checkout summary
+// ============================================
+
+function renderShippingOptionsUI() {
+    const old = document.getElementById('shippingOptionsBlock');
+    if (old) old.remove();
+
+    if (!cartHasPhysical()) return;
+
+    const summary = document.getElementById('orderSummary');
+    if (!summary) return;
+
+    const state = getSelectedState();
+    const lga = getSelectedLga();
+
+    const showDHL = dhlQuoteCache.quotes.length > 0;
+
+    if (!state || !lga) return;
+    if (!showDHL && !dhlQuoteCache.loading) return;
+
+    const fmt = (n) => '₦' + Number(n || 0).toLocaleString();
+    const flatFee = currentFlatDeliveryFee();
+
+    let html = `<div class="shipping-options-block" id="shippingOptionsBlock">`;
+    html += `<div class="shipping-options-title">Delivery Method</div>`;
+
+    const flatChecked = selectedShippingMethod === 'flat' ? 'checked' : '';
+    html += `
+        <label class="shipping-option">
+            <input type="radio" name="shippingMethod" value="flat" ${flatChecked}
+                   onchange="selectShippingMethod('flat')" />
+            <div class="shipping-option-body">
+                <div class="shipping-option-name">Standard Delivery</div>
+                <div class="shipping-option-meta">3–7 business days</div>
+            </div>
+            <div class="shipping-option-price">${fmt(flatFee)}</div>
+        </label>
+    `;
+
+    if (dhlQuoteCache.loading) {
+        html += `
+            <div class="shipping-option shipping-option-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Checking DHL Express rates…</span>
+            </div>
+        `;
+    } else {
+        dhlQuoteCache.quotes.forEach(q => {
+            const value = `dhl-${q.productCode}`;
+            const checked = selectedShippingMethod === value ? 'checked' : '';
+            const days = q.deliveryDays
+                ? `${q.deliveryDays} business day${q.deliveryDays > 1 ? 's' : ''}`
+                : 'Express';
+            html += `
+                <label class="shipping-option shipping-option-dhl">
+                    <input type="radio" name="shippingMethod" value="${value}" ${checked}
+                           onchange="selectShippingMethod('${value}')" />
+                    <div class="shipping-option-body">
+                        <div class="shipping-option-name">
+                            DHL Express <span class="shipping-option-tag">Fast</span>
+                        </div>
+                        <div class="shipping-option-meta">${days}</div>
+                    </div>
+                    <div class="shipping-option-price">${fmt(q.totalPrice)}</div>
+                </label>
+            `;
+        });
+    }
+
+    html += `</div>`;
+
+    summary.insertAdjacentHTML('beforeend', html);
+}
+
+function selectShippingMethod(method) {
+    selectedShippingMethod = method;
+    renderCheckoutSummary();
+}
+
+function getHeaderHTML(activePage = '') {
+    const isActive = (page) => activePage === page ? 'active' : '';
+    return `
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="${SITE_CONFIG.phoneLink}" class="top-link"><i class="fas fa-phone"></i> ${SITE_CONFIG.phone}</a>
+                <span class="divider">|</span>
+                <a href="${SITE_CONFIG.emailLink}" class="top-link"><i class="fas fa-envelope"></i> ${SITE_CONFIG.email}</a>
+            </div>
+            <div class="top-bar-right">
+                <span class="top-link top-promo"><i class="fas fa-truck"></i> Free delivery on orders over ₦100,000</span>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-content">
+            <button class="hamburger-btn" onclick="openMobileDrawer()" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <a href="index.html" class="logo">
+                <img src="ishop-logo.png" alt="iShop" class="logo-img" />
+                <span class="logo-text">i<span class="logo-accent">Shop</span></span>
+            </a>
+
+            <div class="search-bar">
+                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
+                    <span id="selectedCategory">All Categories</span>
+                    <i class="fas fa-chevron-down" id="searchArrow"></i>
+                </div>
+                <div class="search-dropdown-menu" id="searchDropdown">
+                    <a href="#" onclick="selectCategory('All Categories')">All Categories</a>
+                    <a href="#" onclick="selectCategory('Electronics')">📱 Electronics</a>
+                    <a href="#" onclick="selectCategory('Fashion')">👗 Fashion</a>
+                    <a href="#" onclick="selectCategory('Beauty')">💄 Beauty</a>
+                    <a href="#" onclick="selectCategory('Digital')">💻 Digital</a>
+                    <a href="#" onclick="selectCategory('Home')">🏠 Home & Kitchen</a>
+                    <a href="#" onclick="selectCategory('Traditional')">👘 Traditional Attire</a>
+                </div>
+                <input type="text" id="mainSearch" placeholder="Search for products, brands and more..." />
+                <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+            </div>
+
+            <div class="nav-icons">
+                <a href="about.html" class="nav-link ${isActive('about')}"><i class="fas fa-info-circle"></i> About</a>
+                <a href="contact.html" class="nav-link ${isActive('contact')}"><i class="fas fa-envelope"></i> Contact</a>
+<a href="become-a-vendor.html" class="nav-link vendor-nav-highlight ${isActive('become-a-vendor')}"><i class="fas fa-store"></i> Sell on iShop</a>
+                <div class="help-dropdown-wrap">
+                    <a href="help.html" class="nav-link">
+                        <i class="fas fa-question-circle"></i> Help
+                        <i class="fas fa-chevron-down" style="font-size:0.7em;margin-left:2px;"></i>
+                    </a>
+                    <div class="help-dropdown-panel">
+                        <a href="help.html#place-order"><i class="fas fa-shopping-bag"></i> Place an order</a>
+                        <a href="help.html#payment"><i class="fas fa-credit-card"></i> Payment options</a>
+                        <a href="track-order.html"><i class="fas fa-truck"></i> Track an order</a>
+                        <a href="help.html#cancel"><i class="fas fa-times-circle"></i> Cancel an order</a>
+                        <a href="help.html#returns"><i class="fas fa-undo-alt"></i> Returns & Refunds</a>
+                        <div class="help-dropdown-divider"></div>
+                        <a href="${SITE_CONFIG.whatsapp}?text=Hello%20iShop%2C%20I%20need%20help" target="_blank" class="help-item-action">
+                            <i class="fas fa-comment"></i> Live Chat
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-icon-item">
+                    <a href="cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge" id="cartCount">0</span>
+                    </a>
+                    <span class="icon-label">Cart</span>
+                </div>
+
+                <div class="account-dropdown-wrap" id="accountDropdownWrap">
+                    <a href="javascript:void(0)" class="nav-link account-toggle" onclick="toggleAccountDropdown(event)">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Account</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="account-dropdown-panel" id="accountDropdownPanel">
+                        <div class="account-dropdown-guest" id="accountGuestPanel">
+                            <a href="login.html" class="account-primary-btn">
+                                <i class="fas fa-sign-in-alt"></i> Sign In
+                            </a>
+                            <a href="signup.html"><i class="fas fa-user-plus"></i> New Customer? Sign Up</a>
+                            <div class="account-dropdown-divider"></div>
+                            <a href="wishlist.html"><i class="fas fa-heart"></i> Wishlist</a>
+                            <a href="track-order.html"><i class="fas fa-truck"></i> Track Order</a>
+                        </div>
+                        <div class="account-dropdown-user" id="accountUserPanel" style="display:none;">
+                            <div class="account-dropdown-hello" id="accountHelloName">Hello, Friend</div>
+                            <a href="profile.html"><i class="fas fa-user"></i> My Account</a>
+                            <a href="profile.html#orders" onclick="handleMyOrdersClick(event);"><i class="fas fa-box"></i> My Orders</a>
+                            <a href="wishlist.html"><i class="fas fa-heart"></i> Wishlist</a>
+                            <div class="vendor-account-links" id="vendorAccountLinks" style="display:none;">
+                                <div class="account-dropdown-divider"></div>
+                                <div class="account-vendor-label">
+                                    <i class="fas fa-store"></i> Vendor Tools
+                                </div>
+                                <a href="vendor-dashboard.html"><i class="fas fa-tachometer-alt"></i> Vendor Dashboard</a>
+                                <a href="vendor-products.html"><i class="fas fa-boxes"></i> My Products</a>
+                                <a href="vendor-earnings.html"><i class="fas fa-wallet"></i> My Earnings</a>
+<a href="vendor-product-form.html"><i class="fas fa-plus-circle"></i> Add Product</a>
+                            </div>
+                            <div class="account-dropdown-divider"></div>
+                            <a href="javascript:void(0)" onclick="logoutUser()" class="account-logout">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mobile-search-row">
+            <div class="search-bar">
+                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
+                    <span id="selectedCategoryMobile">All Categories</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <input type="text" id="mobileSearch" placeholder="Search products, brands and categories..." />
+                <button onclick="performMobileSearch()"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <div class="mobile-cat-strip">
+            <a href="shop.html" class="cat-chip">All</a>
+            <a href="electronics.html" class="cat-chip">📱 Phones</a>
+            <a href="electronics.html?subtype=laptops" class="cat-chip">💻 Laptops</a>
+            <a href="fashion.html" class="cat-chip">👗 Fashion</a>
+            <a href="fashion.html?subtype=shoes" class="cat-chip">👟 Shoes</a>
+            <a href="beauty.html" class="cat-chip">💄 Beauty</a>
+            <a href="digital-products.html" class="cat-chip">💾 Digital</a>
+            <a href="home.html" class="cat-chip">🏠 Home</a>
+            <a href="traditional.html" class="cat-chip">👘 Traditional</a>
+            <a href="shop.html" class="cat-chip cat-chip-hot">🔥 Hot</a>
+            <a href="shop.html" class="cat-chip cat-chip-flash">⚡ Flash</a>
+        </div>
+    </header>
+
+    <nav class="mega-menu">
+        <div class="mega-menu-content">
+            <ul class="menu-links">
+                <li><a href="index.html" class="${isActive('home')}"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="shop.html" class="${isActive('shop')}"><i class="fas fa-store"></i> All Products</a></li>
+                <li class="dropdown-hover">
+                    <a href="electronics.html" class="${isActive('electronics')}"><i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>📱 Phones & Tablets</h4>
+                                <a href="electronics.html?subtype=smartphones">Smartphones</a>
+                                <a href="electronics.html?subtype=tablets">Tablets</a>
+                                <a href="electronics.html?subtype=accessories">Accessories</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💻 Computing</h4>
+                                <a href="electronics.html?subtype=laptops">Laptops</a>
+                                <a href="electronics.html?subtype=laptops">MacBooks</a>
+                                <a href="electronics.html?subtype=accessories">Keyboards & Mice</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎧 Audio</h4>
+                                <a href="electronics.html?subtype=audio">Headphones</a>
+                                <a href="electronics.html?subtype=audio">Earbuds</a>
+                                <a href="electronics.html?subtype=audio">Speakers</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📺 TV</h4>
+                                <a href="electronics.html?subtype=tv">Smart TVs</a>
+                                <a href="electronics.html?subtype=tv">Projectors</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>⌚ Wearables</h4>
+                                <a href="electronics.html?subtype=wearables">Smartwatches</a>
+                                <a href="electronics.html?subtype=wearables">Fitness Trackers</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="fashion.html" class="${isActive('fashion')}"><i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>👩 Women's</h4>
+                                <a href="fashion.html?subtype=clothing">Dresses</a>
+                                <a href="fashion.html?subtype=clothing">Tops</a>
+                                <a href="fashion.html?subtype=traditional">Ankara</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👨 Men's</h4>
+                                <a href="fashion.html?subtype=clothing">Shirts</a>
+                                <a href="fashion.html?subtype=traditional">Agbada</a>
+                                <a href="fashion.html?subtype=traditional">Kaftans</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👟 Shoes</h4>
+                                <a href="fashion.html?subtype=shoes">Sneakers</a>
+                                <a href="fashion.html?subtype=shoes">Heels</a>
+                                <a href="fashion.html?subtype=shoes">Sandals</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👜 Bags</h4>
+                                <a href="fashion.html?subtype=bags">Handbags</a>
+                                <a href="fashion.html?subtype=bags">Wallets</a>
+                                <a href="fashion.html?subtype=jewelry">Jewelry</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="beauty.html" class="${isActive('beauty')}"><i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>🧴 Skincare</h4>
+                                <a href="beauty.html?subtype=skincare">Face Wash</a>
+                                <a href="beauty.html?subtype=skincare">Moisturizers</a>
+                                <a href="beauty.html?subtype=skincare">Serums</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💄 Makeup</h4>
+                                <a href="beauty.html?subtype=makeup">Foundation</a>
+                                <a href="beauty.html?subtype=makeup">Lipstick</a>
+                                <a href="beauty.html?subtype=makeup">Eyeshadow</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🌸 Fragrances</h4>
+                                <a href="beauty.html?subtype=fragrances">Perfumes</a>
+                                <a href="beauty.html?subtype=fragrances">Body Sprays</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>💇 Hair Care</h4>
+                                <a href="beauty.html?subtype=haircare">Shampoo</a>
+                                <a href="beauty.html?subtype=haircare">Conditioner</a>
+                                <a href="beauty.html?subtype=haircare">Wigs & Weaves</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="digital-products.html" class="${isActive('digital')}"><i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>💻 Software</h4>
+                                <a href="digital-products.html?type=software">Antivirus</a>
+                                <a href="digital-products.html?type=software">Office Suites</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📚 E-books</h4>
+                                <a href="digital-products.html?type=ebook">Business Books</a>
+                                <a href="digital-products.html?type=ebook">Fiction</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎓 Courses</h4>
+                                <a href="digital-products.html?type=course">Web Development</a>
+                                <a href="digital-products.html?type=course">Digital Marketing</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📄 Templates</h4>
+                                <a href="digital-products.html?type=template">Resume Templates</a>
+                                <a href="digital-products.html?type=template">Social Media Kits</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="home.html" class="${isActive('home')}"><i class="fas fa-couch"></i> Home & Kitchen <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>🛋️ Furniture</h4>
+                                <a href="home.html?subtype=sofas">Sofas</a>
+                                <a href="home.html?subtype=beds">Beds</a>
+                                <a href="home.html?subtype=tables">Tables & Desks</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🍳 Kitchen</h4>
+                                <a href="home.html?subtype=cookware">Cookware</a>
+                                <a href="home.html?subtype=appliances">Appliances</a>
+                                <a href="home.html?subtype=utensils">Utensils</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🛏️ Bedding</h4>
+                                <a href="home.html?subtype=bedding">Bedsheets</a>
+                                <a href="home.html?subtype=bedding">Duvets</a>
+                                <a href="home.html?subtype=bedding">Pillows</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎨 Décor</h4>
+                                <a href="home.html?subtype=decor">Wall Art</a>
+                                <a href="home.html?subtype=decor">Vases</a>
+                                <a href="home.html?subtype=decor">Rugs</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🧹 Cleaning</h4>
+                                <a href="home.html?subtype=cleaning">Vacuum</a>
+                                <a href="home.html?subtype=cleaning">Mops</a>
+                                <a href="home.html?subtype=cleaning">Storage</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="traditional.html" class="${isActive('traditional')}"><i class="fas fa-crown"></i> Traditional Attire <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>👘 Women's</h4>
+                                <a href="traditional.html?subtype=women">Ankara Dresses</a>
+                                <a href="traditional.html?subtype=women">Iro & Buba</a>
+                                <a href="traditional.html?subtype=women">Kaftans</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👔 Men's</h4>
+                                <a href="traditional.html?subtype=men">Agbada</a>
+                                <a href="traditional.html?subtype=men">Buba & Sokoto</a>
+                                <a href="traditional.html?subtype=men">Kaftans</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👑 Accessories</h4>
+                                <a href="traditional.html?subtype=accessories">Gele</a>
+                                <a href="traditional.html?subtype=accessories">Fila</a>
+                                <a href="traditional.html?subtype=accessories">Beads & Jewelry</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>👟 Footwear</h4>
+                                <a href="traditional.html?subtype=footwear">Shoes</a>
+                                <a href="traditional.html?subtype=footwear">Sandals</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🧵 Fabrics</h4>
+                                <a href="traditional.html?subtype=fabrics">Ankara</a>
+                                <a href="traditional.html?subtype=fabrics">Lace</a>
+                                <a href="traditional.html?subtype=fabrics">Aso-Oke</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="menu-right">
+                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
+                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="closeMobileDrawer()"></div>
+
+    <aside class="mobile-drawer" id="mobileDrawer">
+        <div class="mobile-drawer-header">
+            <img src="ishop-logo.png" alt="iShop" class="drawer-logo" />
+            <button class="drawer-close" onclick="closeMobileDrawer()" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="mobile-drawer-nav">
+            <ul>
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+                <li class="drawer-dropdown">
+                    <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                        <i class="fas fa-mobile-alt"></i> Electronics
+                        <i class="fas fa-chevron-down drawer-chevron"></i>
+                    </a>
+                    <ul class="drawer-submenu">
+                        <li><a href="electronics.html?subtype=smartphones">Smartphones</a></li>
+                        <li><a href="electronics.html?subtype=tablets">Tablets</a></li>
+                        <li><a href="electronics.html?subtype=laptops">Laptops</a></li>
+                        <li><a href="electronics.html?subtype=audio">Audio</a></li>
+                        <li><a href="electronics.html?subtype=tv">Smart TVs</a></li>
+                        <li><a href="electronics.html?subtype=wearables">Smartwatches</a></li>
+                    </ul>
+                </li>
+                <li class="drawer-dropdown">
+                    <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                        <i class="fas fa-tshirt"></i> Fashion
+                        <i class="fas fa-chevron-down drawer-chevron"></i>
+                    </a>
+                    <ul class="drawer-submenu">
+                        <li><a href="fashion.html?subtype=clothing">Clothing</a></li>
+                        <li><a href="fashion.html?subtype=traditional">Traditional</a></li>
+                        <li><a href="fashion.html?subtype=shoes">Shoes</a></li>
+                        <li><a href="fashion.html?subtype=bags">Bags</a></li>
+                        <li><a href="fashion.html?subtype=jewelry">Jewelry</a></li>
+                    </ul>
+                </li>
+                <li class="drawer-dropdown">
+                    <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                        <i class="fas fa-spa"></i> Beauty
+                        <i class="fas fa-chevron-down drawer-chevron"></i>
+                    </a>
+                    <ul class="drawer-submenu">
+                        <li><a href="beauty.html?subtype=skincare">Skincare</a></li>
+                        <li><a href="beauty.html?subtype=makeup">Makeup</a></li>
+                        <li><a href="beauty.html?subtype=fragrances">Fragrances</a></li>
+                        <li><a href="beauty.html?subtype=haircare">Hair Care</a></li>
+                    </ul>
+                </li>
+                <li class="drawer-dropdown">
+                    <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                        <i class="fas fa-download"></i> Digital
+                        <i class="fas fa-chevron-down drawer-chevron"></i>
+                    </a>
+                    <ul class="drawer-submenu">
+                        <li><a href="digital-products.html?type=software">Software</a></li>
+                        <li><a href="digital-products.html?type=ebook">E-books</a></li>
+                        <li><a href="digital-products.html?type=course">Courses</a></li>
+                        <li><a href="digital-products.html?type=template">Templates</a></li>
+                    </ul>
+                </li>
+                <li class="drawer-dropdown">
+                    <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                        <i class="fas fa-couch"></i> Home & Kitchen
+                        <i class="fas fa-chevron-down drawer-chevron"></i>
+                    </a>
+                    <ul class="drawer-submenu">
+                        <li><a href="home.html?subtype=sofas">Sofas</a></li>
+                        <li><a href="home.html?subtype=cookware">Cookware</a></li>
+                        <li><a href="home.html?subtype=bedding">Bedding</a></li>
+                        <li><a href="home.html?subtype=decor">Décor</a></li>
+                        <li><a href="home.html?subtype=cleaning">Cleaning</a></li>
+                    </ul>
+                </li>
+                <li class="drawer-dropdown">
+                    <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                        <i class="fas fa-crown"></i> Traditional Attire
+                        <i class="fas fa-chevron-down drawer-chevron"></i>
+                    </a>
+                    <ul class="drawer-submenu">
+                        <li><a href="traditional.html?subtype=women">Women's</a></li>
+                        <li><a href="traditional.html?subtype=men">Men's</a></li>
+                        <li><a href="traditional.html?subtype=accessories">Accessories</a></li>
+                        <li><a href="traditional.html?subtype=footwear">Footwear</a></li>
+                        <li><a href="traditional.html?subtype=fabrics">Fabrics</a></li>
+                    </ul>
+                </li>
+                <li><a href="shop.html" class="drawer-hot"><i class="fas fa-fire"></i> Hot Deals</a></li>
+                <li><a href="shop.html" class="drawer-flash"><i class="fas fa-bolt"></i> Flash Sale</a></li>
+                                <li><a href="become-a-vendor.html" class="drawer-sell-link"><i class="fas fa-store"></i> Sell on iShop</a></li>
+                <li class="drawer-vendor-only" id="drawerVendorLinks" style="display:none;">
+                    <a href="vendor-dashboard.html" style="color:#d4a017;font-weight:700;">
+                        <i class="fas fa-tachometer-alt"></i> Vendor Dashboard
+                    </a>
+                </li>
+                <li class="drawer-vendor-only" id="drawerVendorEarnings" style="display:none;">
+    <a href="vendor-earnings.html" style="color:#d4a017;font-weight:700;">
+        <i class="fas fa-wallet"></i> My Earnings
+    </a>
+</li>
+<li class="drawer-vendor-only" id="drawerVendorProducts" style="display:none;">
+                    <a href="vendor-products.html" style="color:#d4a017;font-weight:700;">
+                        <i class="fas fa-boxes"></i> My Products
+                    </a>
+                </li>
+<li><a href="about.html"><i class="fas fa-info-circle"></i> About Us</a></li>
+                <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                <li><a href="help.html"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                <li><a href="wishlist.html"><i class="fas fa-heart"></i> My Wishlist</a></li>
+            </ul>
+        </nav>
+
+        <div class="mobile-drawer-footer">
+            <a href="${SITE_CONFIG.whatsapp}?text=Hello%20iShop%2C%20I%20need%20help" target="_blank" class="drawer-whatsapp-btn">
+                <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+            </a>
+        </div>
+    </aside>
+
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="javascript:void(0)" onclick="openMobileDrawer()" class="bottom-nav-item">
+            <i class="fas fa-th-large"></i>
+            <span>Categories</span>
+        </a>
+        <a href="cart.html" class="bottom-nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <span class="bottom-nav-badge" id="mobileCartCount">0</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+    </nav>
+    `;
+}
+
+function getFooterHTML() {
+    return `
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>🛍️ iShop</h4>
+                <p>Your trusted online store in Nigeria.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="digital-products.html">Digital</a>
+                <a href="become-a-vendor.html" style="color:#f9c74f;font-weight:600;">Sell on iShop</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="refund.html">Refund Policy</a>
+            </div>
+            <div class="footer-column">
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-map-marker-alt"></i> ${SITE_CONFIG.address}</p>
+                <p><i class="fas fa-phone"></i> ${SITE_CONFIG.phone}</p>
+                <p><i class="fas fa-envelope"></i> ${SITE_CONFIG.email}</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 iShop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <a href="${SITE_CONFIG.whatsapp}?text=Hello%20iShop%2C%20I%20need%20help%20with%20an%20order"
+       target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    `;
+}
+
+function injectHeaderAndFooter() {
+    const page = window.location.pathname.split('/').pop().replace('.html', '') || 'home';
+    const headerEl = document.getElementById('site-header');
+    const footerEl = document.getElementById('site-footer');
+
+    if (headerEl) headerEl.innerHTML = getHeaderHTML(page);
+    if (footerEl) footerEl.innerHTML = getFooterHTML();
+}
+
+function openMobileDrawer() {
+    const drawer = document.getElementById('mobileDrawer');
+    const overlay = document.getElementById('mobileDrawerOverlay');
+    if (drawer) drawer.classList.add('open');
+    if (overlay) overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMobileDrawer() {
+    const drawer = document.getElementById('mobileDrawer');
+    const overlay = document.getElementById('mobileDrawerOverlay');
+    if (drawer) drawer.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function toggleDrawerDropdown(linkEl) {
+    const parentLi = linkEl.parentElement;
+    const isOpen = parentLi.classList.contains('open');
+    document.querySelectorAll('.mobile-drawer-nav .drawer-dropdown.open').forEach(el => {
+        if (el !== parentLi) el.classList.remove('open');
+    });
+    parentLi.classList.toggle('open', !isOpen);
+}
+
+// ============================================
 // iShop API CONFIGURATION
 // ============================================
-const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications';
+const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications&pagination[pageSize]=100';
 const IMAGE_BASE_URL = 'https://ishop-cms-production.up.railway.app';
 const PAYMENT_API = 'https://ishop-payments-production.up.railway.app/api/orders/initialize';
 const FREE_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/free-download';
@@ -102,7 +1001,7 @@ function optimizeCloudinaryUrl(url) {
 // CONVERT STRAPI PRODUCT TO WEBSITE FORMAT
 // ============================================
 function convertStrapiProduct(strapiProduct) {
-    let imageUrls = ['https://via.placeholder.com/400x400/1a2a3a/f9c74f?text=No+Image'];
+    let imageUrls = ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#f8fafc"/><rect x="75" y="70" width="50" height="40" rx="4" fill="#e0e0e0"/><circle cx="88" cy="84" r="5" fill="#f9c74f"/></svg>'];
     if (strapiProduct.Image && strapiProduct.Image.length > 0) {
         imageUrls = strapiProduct.Image
             .filter(img => img && img.url)
@@ -113,7 +1012,7 @@ function convertStrapiProduct(strapiProduct) {
                 return optimizeCloudinaryUrl(rawUrl);
             });
         if (imageUrls.length === 0) {
-            imageUrls = ['https://via.placeholder.com/400x400/1a2a3a/f9c74f?text=No+Image'];
+            imageUrls = ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#f8fafc"/><rect x="75" y="70" width="50" height="40" rx="4" fill="#e0e0e0"/><circle cx="88" cy="84" r="5" fill="#f9c74f"/></svg>'];
         }
     }
     const imageUrl = imageUrls[0];
@@ -135,7 +1034,7 @@ function convertStrapiProduct(strapiProduct) {
         id: strapiProduct.id,
         documentId: strapiProduct.documentId || String(strapiProduct.id),
         name: strapiProduct.Product_Name || 'Unnamed Product',
-        category: (strapiProduct.Category || 'uncategorized').toLowerCase(),
+        category: (function(raw){if(!raw)return 'uncategorized';var c=String(raw).toLowerCase().trim();if(c.indexOf('electronic')===0)return 'electronics';if(c.indexOf('fashion')===0)return 'fashion';if(c.indexOf('beauty')===0)return 'beauty';if(c.indexOf('digital')===0)return 'digital';if(c.indexOf('home')===0)return 'home';if(c.indexOf('traditional')===0)return 'traditional';return c;})(strapiProduct.Category),
         subType: (strapiProduct.Sub_Type || '').toLowerCase(),
         type: (strapiProduct.Type || 'physical').toLowerCase(),
         price: parseFloat(strapiProduct.Price || 0),
@@ -274,7 +1173,7 @@ function renderProducts(containerId, productList, limit = null) {
             </button>
             ${product.type === 'digital' ? '<span class="digital-badge">💻 Instant Download</span>' : ''}
             <div class="image-container">
-                <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400/1a2a3a/f9c74f?text=No+Image'" />
+                <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f8fafc%22/><rect x=%2275%22 y=%2270%22 width=%2250%22 height=%2240%22 rx=%224%22 fill=%22%23e0e0e0%22/><circle cx=%2288%22 cy=%2284%22 r=%225%22 fill=%22%23f9c74f%22/></svg>'" />
             </div>
             <div class="product-info">
                 <h3>${product.name}</h3>
@@ -371,7 +1270,7 @@ function renderCart() {
 
     container.innerHTML = cart.map(item => `
         <div class="cart-item">
-            <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/80x80/1a2a3a/f9c74f?text=No+Image'" />
+            <img src="${item.image}" alt="${item.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect width=%2280%22 height=%2280%22 fill=%22%23f8fafc%22/><rect x=%2230%22 y=%2228%22 width=%2220%22 height=%2216%22 rx=%222%22 fill=%22%23e0e0e0%22/><circle cx=%2235%22 cy=%2233%22 r=%222%22 fill=%22%23f9c74f%22/></svg>'" />
             <div class="cart-item-details">
                 <h4>${item.name}</h4>
                 <p>₦${item.price.toLocaleString()} each</p>
@@ -393,7 +1292,8 @@ function renderCart() {
 
     if (summary) {
         const subtotal = getCartTotal();
-        const delivery = cart.some(item => item.type === 'physical') ? 2500 : 0;
+        const hasPhysical = cart.some(item => item.type === 'physical' || item.type === '');
+        const delivery = 0;
         const total = subtotal + delivery;
 
         summary.innerHTML = `
@@ -402,10 +1302,10 @@ function renderCart() {
                 <span>Subtotal</span>
                 <span>₦${subtotal.toLocaleString()}</span>
             </div>
-            ${delivery > 0 ? `
+            ${hasPhysical ? `
             <div class="summary-row">
                 <span>Delivery</span>
-                <span>₦${delivery.toLocaleString()}</span>
+                <span style="color:#888;font-size:0.85rem;">Calculated at checkout</span>
             </div>
             ` : `
             <div class="summary-row">
@@ -435,6 +1335,181 @@ function renderCart() {
 // ============================================
 // RENDER HOMEPAGE
 // ============================================
+// ============================================
+// HERO CAROUSEL
+// ============================================
+let heroCurrentSlide = 0;
+let heroInterval = null;
+let heroPaused = false;
+const HERO_DURATION = 6000;
+
+function initHeroCarousel() {
+    const carousel = document.getElementById('heroCarousel');
+    if (!carousel) return;
+
+    const slides = carousel.querySelectorAll('.hero-slide');
+    const dotsContainer = document.getElementById('heroDots');
+    if (!slides.length || !dotsContainer) return;
+
+    dotsContainer.innerHTML = '';
+    slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+        dot.onclick = () => goToHeroSlide(i);
+        dotsContainer.appendChild(dot);
+    });
+
+    carousel.addEventListener('mouseenter', () => { heroPaused = true; });
+    carousel.addEventListener('mouseleave', () => { heroPaused = false; });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { heroPaused = true; }
+        else { heroPaused = false; }
+    });
+
+    setupHeroSwipe(carousel);
+
+    startHeroAuto();
+
+    console.log('🎠 Hero carousel initialized with', slides.length, 'slides');
+}
+
+function startHeroAuto() {
+    if (heroInterval) clearInterval(heroInterval);
+    heroInterval = setInterval(() => {
+        if (!heroPaused) nextHeroSlide();
+    }, HERO_DURATION);
+}
+
+function goToHeroSlide(index) {
+    const carousel = document.getElementById('heroCarousel');
+    if (!carousel) return;
+    const slides = carousel.querySelectorAll('.hero-slide');
+    const dots = carousel.querySelectorAll('.hero-dot');
+    if (!slides.length) return;
+
+    if (index < 0) index = slides.length - 1;
+    if (index >= slides.length) index = 0;
+
+    slides.forEach((s, i) => s.classList.toggle('active', i === index));
+    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+    heroCurrentSlide = index;
+    startHeroAuto();
+}
+
+function nextHeroSlide() {
+    goToHeroSlide(heroCurrentSlide + 1);
+}
+
+function prevHeroSlide() {
+    goToHeroSlide(heroCurrentSlide - 1);
+}
+
+function setupHeroSwipe(carousel) {
+    let startX = 0;
+    let startY = 0;
+    carousel.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    }, { passive: true });
+
+    carousel.addEventListener('touchend', (e) => {
+        if (!startX || !startY) return;
+        const dx = startX - e.changedTouches[0].clientX;
+        const dy = startY - e.changedTouches[0].clientY;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+            if (dx > 0) nextHeroSlide(); else prevHeroSlide();
+        }
+        startX = 0;
+        startY = 0;
+    }, { passive: true });
+}
+
+function renderFlashSales(products) {
+    const container = document.getElementById('flashSalesGrid');
+    if (!container) return;
+
+    const pool = products.filter(p => p.image && !p.image.includes('placeholder'));
+    const items = shuffleArray([...pool]).slice(0, 8);
+
+    if (items.length === 0) {
+        container.innerHTML = '<p style="padding:1rem;color:#888;">No flash deals right now.</p>';
+        return;
+    }
+
+    function fakeDiscount(id) {
+        return 30 + ((Number(id) * 7) % 41);
+    }
+
+    function setupFlashScrollHint() {
+    const scrollEl = document.getElementById('flashSalesGrid');
+    const fadeEl = document.getElementById('flashFadeRight');
+    if (!scrollEl || !fadeEl) return;
+
+    function updateFade() {
+        const maxScroll = scrollEl.scrollWidth - scrollEl.clientWidth;
+        if (maxScroll <= 4) {
+            fadeEl.classList.add('hidden');
+            return;
+        }
+        const atEnd = scrollEl.scrollLeft >= maxScroll - 8;
+        fadeEl.classList.toggle('hidden', atEnd);
+    }
+
+    scrollEl.addEventListener('scroll', updateFade, { passive: true });
+    window.addEventListener('resize', updateFade);
+    setTimeout(updateFade, 100);
+}
+
+    container.innerHTML = items.map(product => {
+        const disc = fakeDiscount(product.id);
+        const originalPrice = Math.round(product.price / (1 - disc / 100));
+        const claimed = 40 + ((Number(product.id) * 13) % 50);
+
+        return `
+        <a href="product-detail.html?id=${product.id}" class="flash-card">
+            <div class="flash-badge">-${disc}%</div>
+            <div class="flash-image">
+                <img src="${product.image}" alt="${product.name}" loading="lazy"
+                     onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f8fafc%22/><rect x=%2275%22 y=%2270%22 width=%2250%22 height=%2240%22 rx=%224%22 fill=%22%23e0e0e0%22/><circle cx=%2288%22 cy=%2284%22 r=%225%22 fill=%22%23f9c74f%22/></svg>'" />
+            </div>
+            <div class="flash-info">
+                <h4 class="flash-name">${product.name}</h4>
+                <div class="flash-prices">
+                    <span class="flash-now">₦${product.price.toLocaleString()}</span>
+                    <span class="flash-was">₦${originalPrice.toLocaleString()}</span>
+                </div>
+                <div class="flash-progress">
+                    <div class="flash-progress-bar" style="width:${claimed}%"></div>
+                </div>
+                <span class="flash-claimed">${claimed}% claimed</span>
+            </div>
+        </a>
+        `;
+    }).join('');
+
+    setupFlashScrollHint();
+}
+
+function startFlashCountdown() {
+    const hoursEl = document.getElementById('flashHours');
+    const minEl = document.getElementById('flashMinutes');
+    const secEl = document.getElementById('flashSeconds');
+    if (!hoursEl || !minEl || !secEl) return;
+
+    let h = 14, m = 14, s = 12;
+    setInterval(() => {
+        s--;
+        if (s < 0) { s = 59; m--; }
+        if (m < 0) { m = 59; h--; }
+        if (h < 0) { h = 23; m = 59; s = 59; }
+        hoursEl.textContent = String(h).padStart(2, '0');
+        minEl.textContent = String(m).padStart(2, '0');
+        secEl.textContent = String(s).padStart(2, '0');
+    }, 1000);
+}
+
 async function renderHomepage() {
     console.log('🏠 Rendering homepage...');
 
@@ -456,23 +1531,36 @@ async function renderHomepage() {
         }
 
         const products = productData.map(convertStrapiProduct);
+        console.log('🔎 All categories in DB:', products.map(p => p.category));
+        console.log('📋 Total products:', products.length);
+
+        renderFlashSales(products);
+        startFlashCountdown();
 
         const excludedFromFeatured = ['ebook', 'course', 'template'];
         const featuredPool = products.filter(p => !excludedFromFeatured.includes(p.subType));
-        const featured = getVarietyProducts(featuredPool, 12);
+        const featured = getVarietyProducts(featuredPool, 10);
         renderProducts('featuredProducts', featured);
 
         const electronicsProducts = products.filter(p => p.category === 'electronics');
-        const freshElectronics = shuffleArray([...electronicsProducts]).slice(0, 4);
+        const freshElectronics = shuffleArray([...electronicsProducts]).slice(0, 10);
         renderProducts('freshElectronics', freshElectronics);
 
         const fashionProducts = products.filter(p => p.category === 'fashion');
-        const fashionPicks = shuffleArray([...fashionProducts]).slice(0, 4);
+        const fashionPicks = shuffleArray([...fashionProducts]).slice(0, 10);
         renderProducts('fashionPicks', fashionPicks);
 
         const digitalProducts = products.filter(p => p.category === 'digital');
-        const digitalFeatured = shuffleArray([...digitalProducts]).slice(0, 4);
+        const digitalFeatured = shuffleArray([...digitalProducts]).slice(0, 10);
         renderProducts('featuredDigitalProducts', digitalFeatured);
+
+        const homeProducts = products.filter(p => p.category === 'home');
+        const homePicks = shuffleArray([...homeProducts]).slice(0, 10);
+        renderProducts('homePicks', homePicks);
+
+        const traditionalProducts = products.filter(p => p.category === 'traditional');
+        const traditionalPicks = shuffleArray([...traditionalProducts]).slice(0, 10);
+        renderProducts('traditionalPicks', traditionalPicks);
 
         if (digitalFeatured.length === 0) {
             const digitalEl = document.getElementById('featuredDigitalProducts');
@@ -490,6 +1578,8 @@ async function renderHomepage() {
         const sectionsToCheck = [
             { id: 'freshElectronics', items: freshElectronics },
             { id: 'fashionPicks', items: fashionPicks },
+            { id: 'homePicks', items: homePicks },
+            { id: 'traditionalPicks', items: traditionalPicks },
         ];
 
         sectionsToCheck.forEach(({ id, items }) => {
@@ -606,7 +1696,9 @@ async function renderCategory(category, subType = '') {
         const containerId = category === 'digital' ? 'digitalProductsGrid' :
                             category === 'electronics' ? 'electronicsProducts' :
                             category === 'fashion' ? 'fashionProducts' :
-                            category === 'beauty' ? 'beautyProducts' : null;
+                            category === 'beauty' ? 'beautyProducts' :
+                            category === 'home' ? 'homeProducts' :
+                            category === 'traditional' ? 'traditionalProducts' : null;
         if (containerId) {
             renderProducts(containerId, products);
         }
@@ -863,13 +1955,30 @@ function renderCheckoutSummary() {
     }
 
     const subtotal = getCartTotal();
-    const delivery = cart.some(item => item.type === 'physical') ? 2500 : 0;
+    const hasPhysical = cartHasPhysical();
+    const stateSelected = getSelectedState();
+    const lgaSelected = getSelectedLga();
+
+    let delivery = 0;
+    let deliveryLabel = '';
+
+    if (!hasPhysical) {
+        deliveryLabel = '<span style="color:#4CAF50;font-weight:700;">Free (Digital only)</span>';
+    } else if (!stateSelected) {
+        deliveryLabel = '<span style="color:#888;font-size:0.85rem;">Select state to see fee</span>';
+    } else if (!lgaSelected) {
+        deliveryLabel = '<span style="color:#888;font-size:0.85rem;">Select LGA to see fee</span>';
+    } else {
+        delivery = currentEffectiveDeliveryFee();
+        deliveryLabel = '₦' + delivery.toLocaleString();
+    }
+
     const total = subtotal + delivery;
     const itemsCount = cart.reduce((s, i) => s + i.quantity, 0);
 
     const itemsHTML = cart.map(item => `
         <div class="cart-preview-item">
-            <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/44x44/1a2a3a/f9c74f?text=+'" />
+            <img src="${item.image}" alt="${item.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2244%22 height=%2244%22><rect width=%2244%22 height=%2244%22 fill=%22%23f8fafc%22/><rect x=%2216%22 y=%2215%22 width=%2212%22 height=%2210%22 rx=%221%22 fill=%22%23e0e0e0%22/></svg>'" />
             <div class="cp-info">
                 <strong>${item.name}</strong>
                 <span>Qty ${item.quantity} × ₦${item.price.toLocaleString()}</span>
@@ -887,13 +1996,16 @@ function renderCheckoutSummary() {
         </div>
         <div class="summary-row">
             <span>Delivery</span>
-            <span>${delivery > 0 ? '₦' + delivery.toLocaleString() : '<span style="color:#4CAF50;">Free!</span>'}</span>
+            <span>${deliveryLabel}</span>
         </div>
         <div class="summary-row total">
             <span>Total</span>
             <span>₦${total.toLocaleString()}</span>
         </div>
+        <div id="shippingOptionsMountPoint"></div>
     `;
+
+    renderShippingOptionsUI();
 }
 
 // ============================================
@@ -927,6 +2039,17 @@ document.addEventListener('click', function(event) {
         if (arrow) arrow.classList.remove('rotated');
     }
 });
+
+function performMobileSearch() {
+    const mobileSearchInput = document.getElementById('mobileSearch');
+    if (!mobileSearchInput) return;
+    const term = mobileSearchInput.value.trim();
+    if (term) {
+        window.location.href = `shop.html?q=${encodeURIComponent(term)}`;
+    } else {
+        window.location.href = 'shop.html';
+    }
+}
 
 function performSearch() {
     const searchInput = document.getElementById('mainSearch');
@@ -974,19 +2097,97 @@ function clearAuthSession() {
     localStorage.removeItem('iShopRefreshToken');
 }
 
+function toggleAccountDropdown(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    const wrap = document.getElementById('accountDropdownWrap');
+    if (!wrap) return;
+    wrap.classList.toggle('open');
+}
+
+document.addEventListener('click', function (e) {
+    const wrap = document.getElementById('accountDropdownWrap');
+    if (!wrap) return;
+    if (!e.target.closest('#accountDropdownWrap')) {
+        wrap.classList.remove('open');
+    }
+});
+
+window.addEventListener('scroll', function () {
+    const wrap = document.getElementById('accountDropdownWrap');
+    if (wrap && wrap.classList.contains('open')) wrap.classList.remove('open');
+}, { passive: true });
+
 function updateAuthUI() {
-    const authIcon = document.getElementById('authIcon');
     const user = getCurrentUser();
-    if (authIcon) {
-        if (user) {
-            authIcon.innerHTML = '<i class="fas fa-user-check" style="color:#f9c74f;"></i>';
-            authIcon.title = 'My Profile';
-            authIcon.href = 'profile.html';
-        } else {
-            authIcon.innerHTML = '<i class="fas fa-user-circle"></i>';
-            authIcon.title = 'Login / Sign Up';
-            authIcon.href = 'login.html';
+    const guestPanel = document.getElementById('accountGuestPanel');
+    const userPanel = document.getElementById('accountUserPanel');
+    const helloName = document.getElementById('accountHelloName');
+    const vendorLinks = document.getElementById('vendorAccountLinks');
+
+    if (user) {
+        if (guestPanel) guestPanel.style.display = 'none';
+        if (userPanel) userPanel.style.display = 'block';
+        if (helloName) {
+            const firstName = (user.fullName || user.username || 'Friend').split(' ')[0];
+            helloName.textContent = 'Hello, ' + firstName;
         }
+
+        // Show vendor links only if this user has a vendor account
+        if (vendorLinks) {
+            if (user.isVendor) {
+                vendorLinks.style.display = 'block';
+            } else {
+                vendorLinks.style.display = 'none';
+                // Try to detect vendor status silently
+                detectVendorAndUpdateUI(user);
+            }
+        }
+        // Show vendor links in mobile drawer if user is a vendor
+        const drawerVendorLinks = document.getElementById('drawerVendorLinks');
+        const drawerVendorProducts = document.getElementById('drawerVendorProducts');
+        if (drawerVendorLinks && drawerVendorProducts) {
+            if (user.isVendor) {
+                drawerVendorLinks.style.display = 'block';
+                drawerVendorProducts.style.display = 'block';
+                if (drawerVendorEarnings) drawerVendorEarnings.style.display = 'block';
+            } else {
+                drawerVendorLinks.style.display = 'none';
+                drawerVendorProducts.style.display = 'none';
+                if (drawerVendorEarnings) drawerVendorEarnings.style.display = 'none';
+            }
+        }
+    } else {
+        if (guestPanel) guestPanel.style.display = 'block';
+        if (userPanel) userPanel.style.display = 'none';
+        if (vendorLinks) vendorLinks.style.display = 'none';
+        const drawerVendorLinks = document.getElementById('drawerVendorLinks');
+        const drawerVendorEarnings = document.getElementById('drawerVendorEarnings');
+        const drawerVendorProducts = document.getElementById('drawerVendorProducts');
+        if (drawerVendorLinks) drawerVendorLinks.style.display = 'none';
+        if (drawerVendorEarnings) drawerVendorEarnings.style.display = 'none';
+        if (drawerVendorProducts) drawerVendorProducts.style.display = 'none';
+    }
+}
+
+// Silently check if the current user has a vendor record
+async function detectVendorAndUpdateUI(user) {
+    const jwt = getJwt();
+    if (!jwt || !user?.id) return;
+
+    try {
+        const res = await fetch(`${STRAPI_AUTH_BASE}/api/vendors?filters[user][id][$eq]=${user.id}`, {
+            headers: { 'Authorization': `Bearer ${jwt}` },
+        });
+        const data = await res.json();
+        if (data.data && data.data.length > 0) {
+            const vendor = data.data[0];
+            const updated = { ...user, isVendor: true, vendorId: vendor.documentId || vendor.id, vendorStatus: vendor.approvalStatus };
+            localStorage.setItem('iShopUser', JSON.stringify(updated));
+            const vendorLinks = document.getElementById('vendorAccountLinks');
+            if (vendorLinks) vendorLinks.style.display = 'block';
+        }
+    } catch (err) {
+        // silent fail
     }
 }
 
@@ -1172,20 +2373,34 @@ function setupCheckoutForm() {
         const differentShipping = document.getElementById('differentShipping')?.checked;
 
         let shippingName, shippingPhone, shippingAddress, shippingNotes = '';
+        let shippingStateSlug, shippingLgaSlug;
+
         if (differentShipping) {
             shippingName = document.getElementById('shipName')?.value.trim() || name;
             shippingPhone = document.getElementById('shipPhone')?.value.trim() || phone;
             shippingAddress = document.getElementById('shipAddress')?.value.trim() || '';
             shippingNotes = document.getElementById('shipNotes')?.value.trim() || '';
+            shippingStateSlug = document.getElementById('shipState')?.value || '';
+            shippingLgaSlug = document.getElementById('shipLga')?.value || '';
         } else {
             shippingName = name;
             shippingPhone = phone;
             shippingAddress = document.getElementById('address').value.trim();
             shippingNotes = '';
+            shippingStateSlug = document.getElementById('state')?.value || '';
+            shippingLgaSlug = document.getElementById('lga')?.value || '';
         }
 
         if (!shippingAddress) {
             alert('Please enter a delivery address.');
+            return;
+        }
+        if (!shippingStateSlug) {
+            alert('Please select a delivery state.');
+            return;
+        }
+        if (!shippingLgaSlug) {
+            alert('Please select a Local Government Area (LGA).');
             return;
         }
 
@@ -1206,7 +2421,7 @@ function setupCheckoutForm() {
 
         try {
             const subtotal = getCartTotal();
-            const delivery = cart.some(item => item.type === 'physical') ? 2500 : 0;
+            const delivery = currentEffectiveDeliveryFee();
             const total = subtotal + delivery;
 
             const response = await fetch(PAYMENT_API, {
@@ -1230,6 +2445,13 @@ function setupCheckoutForm() {
                     shippingPhone: shippingPhone,
                     shippingNotes: shippingNotes,
                     differentShipping: differentShipping,
+                    shippingState: shippingStateSlug,
+                    shippingLga: shippingLgaSlug,
+                    deliveryFee: delivery,
+                    shippingMethod: selectedShippingMethod,
+                    dhlProductCode: selectedShippingMethod.startsWith('dhl-')
+                        ? selectedShippingMethod.replace(/^dhl-/, '')
+                        : null,
                     userJwt: getJwt()
                 })
             });
@@ -1306,6 +2528,8 @@ function updateWishlistUI() {
     } else {
         fetchProducts().then(productData => {
             const products = productData.map(convertStrapiProduct);
+        console.log('🔎 All categories in DB:', products.map(p => p.category));
+        console.log('📋 Total products:', products.length);
             const wishlistProducts = products.filter(p => wishlistData.includes(p.id));
             renderProducts('wishlistProducts', wishlistProducts);
         });
@@ -1620,11 +2844,32 @@ async function handleLogin(e) {
 
         updateAuthUI();
 
+        // Check if this user is a vendor and redirect accordingly
+        let redirectUrl = 'profile.html';
+        try {
+            const vendorCheckRes = await fetch(`${STRAPI_AUTH_BASE}/api/vendors?filters[user][id][$eq]=${data.user.id}`, {
+                headers: { 'Authorization': `Bearer ${data.jwt}` },
+            });
+            const vendorCheckData = await vendorCheckRes.json();
+            if (vendorCheckData.data && vendorCheckData.data.length > 0) {
+                // User is a vendor — send them to the vendor dashboard
+                redirectUrl = 'vendor-dashboard.html';
+                // Also mark in localStorage for faster lookups
+                const user = JSON.parse(localStorage.getItem('iShopUser') || '{}');
+                user.isVendor = true;
+                user.vendorId = vendorCheckData.data[0].documentId || vendorCheckData.data[0].id;
+                user.vendorStatus = vendorCheckData.data[0].approvalStatus;
+                localStorage.setItem('iShopUser', JSON.stringify(user));
+            }
+        } catch (vendorCheckErr) {
+            console.warn('Vendor check failed during login:', vendorCheckErr);
+        }
+
         feedback.className = 'success';
         feedback.innerHTML = `✅ Welcome back!`;
 
         setTimeout(() => {
-            window.location.href = 'profile.html';
+            window.location.href = redirectUrl;
         }, 800);
 
     } catch (err) {
@@ -2047,6 +3292,17 @@ function switchAccountSection(section) {
     }
 }
 
+function handleMyOrdersClick(event) {
+    // If we're already on profile.html, switch to the orders section without navigating
+    if (window.location.pathname.endsWith('profile.html')) {
+        event.preventDefault();
+        switchAccountSection('orders');
+        // Update URL hash without reload
+        history.pushState(null, '', 'profile.html#orders');
+    }
+    // Otherwise, let the browser navigate to profile.html#orders normally
+}
+
 function loadProfilePage() {
     const user = getCurrentUser();
     if (!user) {
@@ -2126,7 +3382,10 @@ window.addEventListener('scroll', function () {
 // ============================================
 // INITIALIZE PAGE
 // ============================================
-document.addEventListener('DOMContentLoaded', function() {
+function initializeApp() {
+    injectHeaderAndFooter();
+    initHeroCarousel();
+
     const page = window.location.pathname.split('/').pop().split('?')[0];
 
     console.log('🔍 Current page:', page);
@@ -2151,7 +3410,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileForm = document.getElementById('profileForm');
     if (profileForm) profileForm.addEventListener('submit', handleProfileUpdate);
 
-        const changePasswordForm = document.getElementById('changePasswordForm');
+    const changePasswordForm = document.getElementById('changePasswordForm');
     if (changePasswordForm) changePasswordForm.addEventListener('submit', handleChangePassword);
 
     const addressForm = document.getElementById('addressForm');
@@ -2187,19 +3446,2548 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (page === 'cart.html') {
         renderCart();
     } else if (page === 'checkout.html') {
+        populateStateDropdowns();
         renderCheckoutSummary();
         setupCheckoutForm();
     } else if (page === 'wishlist.html') {
         updateWishlistUI();
     } else if (page === 'profile.html') {
         loadProfilePage();
-        switchAccountSection('overview');
+        const hash = window.location.hash.replace('#', '');
+        const validSections = ['overview', 'details', 'orders', 'addresses', 'security'];
+        const sectionToOpen = validSections.includes(hash) ? hash : 'overview';
+        switchAccountSection(sectionToOpen);
         loadMyOrders();
-    } else if (page === 'electronics.html' || page === 'fashion.html' || page === 'beauty.html') {
+    } else if (page === 'electronics.html' || page === 'fashion.html' || page === 'beauty.html' || page === 'home.html' || page === 'traditional.html') {
         const category = page.replace('.html', '');
         const urlParams = new URLSearchParams(window.location.search);
         const subType = urlParams.get('subtype') || '';
         renderCategory(category, subType);
         setupSubcategoryButtons(category);
     }
+}
+
+// ============================================
+// ROBUST INIT — runs even if extensions break DOMContentLoaded
+// ============================================
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+    console.log('🚀 DOM already ready — running init immediately');
+    initializeApp();
+}
+/* ============================================ */
+/* TRACK ORDER PAGE — FRONTEND LOGIC */
+/* ============================================ */
+
+const TRACK_API_BASE = 'https://ishop-payments-production.up.railway.app';
+
+// Format a date nicely
+function iShopFmtDate(iso) {
+    if (!iso) return '';
+    try {
+        const d = new Date(iso);
+        return d.toLocaleDateString('en-NG', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        }) + ' · ' + d.toLocaleTimeString('en-NG', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch { return ''; }
+}
+
+// Title-case a slug: "lagos" → "Lagos", "ikeja" → "Ikeja"
+function iShopTitle(s) {
+    if (!s) return '';
+    return String(s).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Status labels & badge classes
+const TRACK_STATUS_MAP = {
+    'pending':    { label: 'Pending',    class: 'pending',    icon: 'clock' },
+    'paid':       { label: 'Confirmed',  class: 'paid',       icon: 'check-circle' },
+    'processing': { label: 'Processing', class: 'processing', icon: 'spinner' },
+    'shipped':    { label: 'Shipped',    class: 'shipped',    icon: 'truck' },
+    'delivered':  { label: 'Delivered',  class: 'delivered',  icon: 'check-double' },
+    'cancelled':  { label: 'Cancelled',  class: 'cancelled',  icon: 'times-circle' }
+};
+
+// Main tracking function
+async function iShopTrackOrder() {
+    const input = document.getElementById('trackReferenceInput');
+    const btn = document.getElementById('trackBtn');
+    const result = document.getElementById('trackResult');
+    if (!input || !btn || !result) return;
+
+    const ref = input.value.trim();
+
+    if (!ref) {
+        result.innerHTML = `
+            <div class="track-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Reference required</strong>
+                    Please enter your order reference to track your order.
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Loading state
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Searching…</span>';
+    result.innerHTML = `
+        <div class="track-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            Looking up your order…
+        </div>
+    `;
+
+    try {
+        const res = await fetch(`${TRACK_API_BASE}/api/orders/track/${encodeURIComponent(ref)}`);
+        const data = await res.json();
+
+        if (!res.ok || !data.status || !data.order) {
+            throw new Error(data.error || 'Order not found. Please check your reference.');
+        }
+
+        renderTrackResult(data.order);
+
+    } catch (err) {
+        result.innerHTML = `
+            <div class="track-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Order not found</strong>
+                    ${err.message}
+                    <p style="margin-top:0.6rem;font-size:0.85rem;color:#6b7280;">
+                        If you believe this is an error, please
+                        <a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help%20with%20order%20${encodeURIComponent(ref)}"
+                           target="_blank" style="color:#25D366;font-weight:700;">chat with us on WhatsApp</a>.
+                    </p>
+                </div>
+            </div>
+        `;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-search"></i><span>Track</span>';
+    }
+}
+
+// Render the tracked order into a beautiful card
+function renderTrackResult(order) {
+    const result = document.getElementById('trackResult');
+    if (!result) return;
+
+    const status = (order.status || 'pending').toLowerCase();
+    const statusMeta = TRACK_STATUS_MAP[status] || TRACK_STATUS_MAP.pending;
+
+    // Build the timeline steps
+    // Order: Placed → Confirmed → Processing → Shipped → Delivered
+    const steps = [
+        {
+            key: 'placed',
+            title: 'Order Placed',
+            time: order.createdAt,
+            desc: 'We received your order.',
+            done: true // always done
+        },
+        {
+            key: 'paid',
+            title: 'Payment Confirmed',
+            time: order.paidAt,
+            desc: status === 'cancelled' ? 'Payment was not completed.' : 'Payment received — thank you!',
+            done: ['paid', 'processing', 'shipped', 'delivered'].includes(status),
+            active: status === 'paid'
+        },
+        {
+            key: 'processing',
+            title: 'Processing',
+            time: null,
+            desc: 'Your items are being packed and prepared for dispatch.',
+            done: ['processing', 'shipped', 'delivered'].includes(status),
+            active: status === 'processing'
+        },
+        {
+            key: 'shipped',
+            title: 'Shipped',
+            time: order.shippedAt,
+            desc: 'Your order is on the way.',
+            done: ['shipped', 'delivered'].includes(status),
+            active: status === 'shipped'
+        },
+        {
+            key: 'delivered',
+            title: 'Delivered',
+            time: order.deliveredAt,
+            desc: 'Enjoy your purchase! 🎉',
+            done: status === 'delivered',
+            active: status === 'delivered'
+        }
+    ];
+
+    // Build timeline HTML
+    const timelineHTML = steps.map(step => {
+        let cls = 'pending';
+        if (step.done) cls = 'completed';
+        else if (step.active) cls = 'active';
+
+        const icon = cls === 'completed' ? 'check'
+                   : cls === 'active' ? 'spinner fa-spin'
+                   : 'circle';
+
+        const timeHTML = step.time
+            ? `<p class="track-step-time">${iShopFmtDate(step.time)}</p>`
+            : '';
+
+        return `
+            <div class="track-step ${cls}">
+                <span class="track-step-dot"><i class="fas fa-${icon}"></i></span>
+                <div class="track-step-body">
+                    <p class="track-step-title">${step.title}</p>
+                    ${timeHTML}
+                    <p class="track-step-desc">${step.desc}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Items HTML
+    const items = order.items || [];
+    const itemsHTML = items.map(item => `
+        <div class="track-item-row">
+            <div class="item-name">
+                ${item.name}
+                <div class="item-qty">Qty: ${item.quantity} × ₦${Number(item.price).toLocaleString()}</div>
+            </div>
+            <div class="item-price">₦${(item.price * item.quantity).toLocaleString()}</div>
+        </div>
+    `).join('');
+
+    // Subtotal + delivery + total
+    const subtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+    const deliveryFee = Number(order.deliveryFee) || 0;
+    const total = Number(order.amount) || (subtotal + deliveryFee);
+
+    // Shipping info
+    const locationParts = [];
+    if (order.shippingLga) locationParts.push(iShopTitle(order.shippingLga));
+    if (order.shippingState) locationParts.push(iShopTitle(order.shippingState));
+    const locationLine = locationParts.join(', ');
+
+    // WhatsApp prefilled message
+    const waMsg = `Hello iShop, I need help with order ${order.reference}.`;
+    const waLink = `https://wa.me/2348114808088?text=${encodeURIComponent(waMsg)}`;
+
+    // Build final HTML
+    result.innerHTML = `
+        <div class="track-card">
+            <div class="track-card-header">
+                <div class="track-card-ref-label">Order Reference</div>
+                <div class="track-card-ref-value">${order.reference}</div>
+                <div class="track-card-ref-date">Placed on ${iShopFmtDate(order.createdAt)}</div>
+                <div class="track-status-pill ${statusMeta.class}">
+                    <i class="fas fa-${statusMeta.icon}${status === 'processing' ? ' fa-spin' : ''}"></i>
+                    ${statusMeta.label}
+                </div>
+            </div>
+
+            <div class="track-timeline">
+                <div class="track-timeline-inner">
+                    ${timelineHTML}
+                </div>
+            </div>
+
+            <div class="track-info-grid">
+                <div class="track-info-block">
+                    <h4><i class="fas fa-map-marker-alt" style="color:#f9c74f;"></i> Delivering To</h4>
+                    <p><strong>${order.shippingName || 'You'}</strong></p>
+                    ${order.shippingPhone ? `<p><i class="fas fa-phone" style="color:#999;width:14px;"></i> ${order.shippingPhone}</p>` : ''}
+                    ${locationLine ? `<p>${locationLine}</p>` : ''}
+                    <p>${order.address || ''}</p>
+                </div>
+                <div class="track-info-block">
+                    <h4><i class="fas fa-receipt" style="color:#f9c74f;"></i> Order Summary</h4>
+                    <p>${items.length} item${items.length > 1 ? 's' : ''}</p>
+                    <p>Subtotal: <strong>₦${subtotal.toLocaleString()}</strong></p>
+                    ${deliveryFee > 0 ? `<p>Delivery: <strong>₦${deliveryFee.toLocaleString()}</strong></p>` : `<p>Delivery: <strong style="color:#4CAF50;">Free</strong></p>`}
+                    <p style="margin-top:0.4rem;font-size:1rem;">Total: <strong>₦${total.toLocaleString()}</strong></p>
+                </div>
+            </div>
+
+            <div class="track-items">
+                <h4><i class="fas fa-shopping-bag" style="color:#f9c74f;"></i> Items</h4>
+                ${itemsHTML || '<p style="color:#999;">No items found.</p>'}
+            </div>
+
+            <div class="track-actions">
+                <a href="${waLink}" target="_blank" class="track-action-btn whatsapp">
+                    <i class="fab fa-whatsapp"></i> Ask About This Order
+                </a>
+                <a href="profile.html#orders" class="track-action-btn orders">
+                    <i class="fas fa-box"></i> View My Orders
+                </a>
+                <a href="contact.html" class="track-action-btn help">
+                    <i class="fas fa-life-ring"></i> Get Help
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+// Auto-track on load if URL has ?ref= or ?reference=
+document.addEventListener('DOMContentLoaded', function () {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref') || params.get('reference');
+    if (ref) {
+        const input = document.getElementById('trackReferenceInput');
+        if (input) {
+            input.value = ref;
+            // Small delay so the header/footer render first
+            setTimeout(() => iShopTrackOrder(), 300);
+        }
+    }
+
+    // Enter key submits
+    const input = document.getElementById('trackReferenceInput');
+    if (input) {
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                iShopTrackOrder();
+            }
+        });
+    }
 });
+/* ============================================ */
+/* VENDOR APPLY PAGE (vendor-apply.html) */
+/* ============================================ */
+
+let vendorCurrentStep = 1;
+const VENDOR_TOTAL_STEPS = 3;
+
+// Initialize when page loads
+function initVendorApplyPage() {
+    const form = document.getElementById('vendorApplyForm');
+    if (!form) return;
+
+    // Populate state dropdown from shipping.js
+    const stateSelect = document.getElementById('state');
+    if (stateSelect && typeof getAllStates === 'function') {
+        const states = getAllStates();
+        stateSelect.innerHTML = '<option value="">Select your state</option>' +
+            states.map(s => `<option value="${s.slug}">${s.name}</option>`).join('');
+    }
+
+    // State change -> populate LGA
+    if (stateSelect) {
+        stateSelect.addEventListener('change', function () {
+            const lgaSelect = document.getElementById('lga');
+            if (!lgaSelect) return;
+
+            if (!this.value) {
+                lgaSelect.innerHTML = '<option value="">Select state first</option>';
+                lgaSelect.disabled = true;
+                return;
+            }
+
+            const lgas = getLGAsForState(this.value);
+            lgaSelect.innerHTML = '<option value="">Select LGA</option>' +
+                lgas.map(l => `<option value="${l.slug}">${l.name}</option>`).join('');
+            lgaSelect.disabled = false;
+        });
+    }
+
+    // Next/Back buttons
+    const nextBtn = document.getElementById('vendorNextBtn');
+    const backBtn = document.getElementById('vendorBackBtn');
+
+    if (nextBtn) nextBtn.addEventListener('click', vendorNextStep);
+    if (backBtn) backBtn.addEventListener('click', vendorPrevStep);
+
+    // Form submit
+    form.addEventListener('submit', handleVendorApplySubmit);
+
+    // Auto-format account number (digits only, max 10)
+    const accountNum = document.getElementById('bankAccountNumber');
+    if (accountNum) {
+        accountNum.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 10);
+        });
+    }
+
+    console.log('✅ Vendor apply page initialized');
+}
+
+// Validate current step
+function validateVendorStep(step) {
+    const currentStepEl = document.querySelector(`.vendor-apply-step[data-step="${step}"]`);
+    if (!currentStepEl) return { valid: true };
+
+    const fields = currentStepEl.querySelectorAll('input, select, textarea');
+    let firstInvalid = null;
+
+    for (const field of fields) {
+        if (field.type === 'checkbox' && field.name === 'categories') continue; // skip category checkboxes
+        if (!field.required) continue;
+
+        let value = field.value.trim();
+        if (!value) {
+            firstInvalid = field;
+            break;
+        }
+
+        // Email
+        if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            firstInvalid = field;
+            break;
+        }
+
+        // Account number (10 digits)
+        if (field.id === 'bankAccountNumber' && !/^\d{10}$/.test(value)) {
+            firstInvalid = field;
+            break;
+        }
+    }
+
+    if (firstInvalid) {
+        firstInvalid.focus();
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return {
+            valid: false,
+            message: `Please fill in: ${firstInvalid.previousElementSibling?.textContent?.replace('*', '').trim() || 'this field'}`
+        };
+    }
+
+    // Step 3 specific checks
+    if (step === 3) {
+        const selectedCategories = document.querySelectorAll('input[name="categories"]:checked');
+        if (selectedCategories.length === 0) {
+            return { valid: false, message: 'Please select at least one product category.' };
+        }
+
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        if (password.length < 6) {
+            return { valid: false, message: 'Password must be at least 6 characters.' };
+        }
+        if (password !== confirmPassword) {
+            return { valid: false, message: 'Passwords do not match.' };
+        }
+
+        const agree = document.getElementById('agreeTerms');
+        if (!agree.checked) {
+            return { valid: false, message: 'Please agree to the Terms of Service to continue.' };
+        }
+    }
+
+    return { valid: true };
+}
+
+// Show step
+function vendorShowStep(step) {
+    // Hide all steps
+    document.querySelectorAll('.vendor-apply-step').forEach(el => {
+        el.classList.remove('active');
+    });
+
+    // Show current
+    const target = document.querySelector(`.vendor-apply-step[data-step="${step}"]`);
+    if (target) target.classList.add('active');
+
+    // Update progress bar
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) {
+        progressBar.style.width = `${(step / VENDOR_TOTAL_STEPS) * 100}%`;
+    }
+
+    // Update step indicators
+    document.querySelectorAll('.vendor-progress-step').forEach(el => {
+        const stepNum = parseInt(el.dataset.step, 10);
+        el.classList.remove('active', 'completed');
+        if (stepNum < step) el.classList.add('completed');
+        if (stepNum === step) el.classList.add('active');
+    });
+
+    // Update buttons
+    const backBtn = document.getElementById('vendorBackBtn');
+    const nextBtn = document.getElementById('vendorNextBtn');
+    const submitBtn = document.getElementById('vendorSubmitBtn');
+
+    if (backBtn) backBtn.style.display = step > 1 ? 'inline-flex' : 'none';
+    if (nextBtn) nextBtn.style.display = step < VENDOR_TOTAL_STEPS ? 'inline-flex' : 'none';
+    if (submitBtn) submitBtn.style.display = step === VENDOR_TOTAL_STEPS ? 'inline-flex' : 'none';
+
+    // Clear feedback
+    const feedback = document.getElementById('vendorApplyFeedback');
+    if (feedback) {
+        feedback.innerHTML = '';
+        feedback.className = '';
+    }
+
+    // Scroll to top of form
+    document.getElementById('vendorApplyForm')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Next
+function vendorNextStep() {
+    const result = validateVendorStep(vendorCurrentStep);
+    if (!result.valid) {
+        showVendorFeedback(result.message, 'error');
+        return;
+    }
+    if (vendorCurrentStep < VENDOR_TOTAL_STEPS) {
+        vendorCurrentStep++;
+        vendorShowStep(vendorCurrentStep);
+    }
+}
+
+// Back
+function vendorPrevStep() {
+    if (vendorCurrentStep > 1) {
+        vendorCurrentStep--;
+        vendorShowStep(vendorCurrentStep);
+    }
+}
+
+// Show feedback
+function showVendorFeedback(message, type = 'error') {
+    const feedback = document.getElementById('vendorApplyFeedback');
+    if (!feedback) return;
+
+    const icon = type === 'error' ? '⚠️' : '✅';
+    feedback.innerHTML = `<div style="display:flex;align-items:flex-start;gap:0.6rem;">
+        <span style="font-size:1.1rem;">${icon}</span>
+        <span>${message}</span>
+    </div>`;
+    feedback.className = type === 'error' ? 'error' : 'success';
+
+    // Mobile fix — scroll feedback into view so keyboard doesn't hide it
+    setTimeout(() => {
+        feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+}
+
+// Submit
+async function handleVendorApplySubmit(e) {
+    e.preventDefault();
+
+    // Validate step 3 again
+    const result = validateVendorStep(3);
+    if (!result.valid) {
+        showVendorFeedback(result.message, 'error');
+        return;
+    }
+
+    // Gather data
+    const categories = Array.from(
+        document.querySelectorAll('input[name="categories"]:checked')
+    ).map(cb => cb.value);
+
+    const payload = {
+        businessName: document.getElementById('businessName').value.trim(),
+        ownerName: document.getElementById('ownerName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        whatsapp: document.getElementById('whatsapp').value.trim() || '',
+        businessAddress: document.getElementById('businessAddress').value.trim(),
+        state: document.getElementById('state').value,
+        lga: document.getElementById('lga').value,
+        taxId: document.getElementById('taxId').value.trim() || '',
+        bankName: document.getElementById('bankName').value.trim(),
+        bankAccountName: document.getElementById('bankAccountName').value.trim(),
+        bankAccountNumber: document.getElementById('bankAccountNumber').value.trim(),
+        categories: categories,
+        description: document.getElementById('description').value.trim() || '',
+        password: document.getElementById('password').value,
+    };
+
+    // Disable submit button
+    const submitBtn = document.getElementById('vendorSubmitBtn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+    try {
+        const response = await fetch('https://ishop-payments-production.up.railway.app/api/vendors/apply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.status) {
+            throw new Error(data.error || 'Application failed. Please try again.');
+        }
+
+        // Save JWT + user info for immediate login
+        if (data.jwt) {
+            localStorage.setItem('iShopJwt', data.jwt);
+        }
+        if (data.vendor) {
+            localStorage.setItem('iShopUser', JSON.stringify({
+                fullName: payload.ownerName,
+                email: payload.email,
+                phone: payload.phone,
+                isVendor: true,
+                vendorId: data.vendorId,
+                approvalStatus: 'pending',
+            }));
+        }
+
+        // Show success screen
+        showVendorSuccessScreen(payload, data.vendorId);
+
+    } catch (err) {
+        console.error('Vendor apply error:', err);
+        showVendorFeedback(err.message || 'Something went wrong. Please try again.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+}
+
+// Success screen
+function showVendorSuccessScreen(payload, vendorId) {
+    const container = document.querySelector('.vendor-apply-container');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="vendor-apply-success">
+            <div class="vendor-apply-success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2>Application Submitted! 🎉</h2>
+            <p>
+                Thank you, <strong>${escapeHtml(payload.ownerName)}</strong>.
+                We've received your application for <strong>${escapeHtml(payload.businessName)}</strong>.
+            </p>
+            <p>
+                Our team will review it within <strong>24–48 hours</strong>. You'll receive a confirmation email at
+                <strong>${escapeHtml(payload.email)}</strong> with next steps.
+            </p>
+
+            <div style="background:#fef9e7;border-left:4px solid #f9c74f;padding:1rem 1.25rem;border-radius:10px;text-align:left;max-width:520px;margin:1.5rem auto;">
+                <strong style="color:#856404;display:block;margin-bottom:0.4rem;">Application Reference</strong>
+                <code style="font-family:monospace;color:#0d1b2a;font-size:0.95rem;">${escapeHtml(vendorId || 'pending')}</code>
+            </div>
+
+            <div class="vendor-apply-success-actions">
+                <a href="shop.html" class="primary">
+                    <i class="fas fa-store"></i> Browse iShop
+                </a>
+                <a href="vendor-dashboard.html" class="secondary">
+                    <i class="fas fa-tachometer-alt"></i> View Application Status
+                </a>
+            </div>
+
+            <p style="margin-top:2rem;font-size:0.85rem;color:#8896a8;">
+                Questions? Email us at <a href="mailto:info@ishop.com.ng" style="color:#d4a017;font-weight:700;">info@ishop.com.ng</a>
+                or WhatsApp <a href="https://wa.me/2348114808088" target="_blank" style="color:#25D366;font-weight:700;">+234 811 480 8088</a>
+            </p>
+        </div>
+    `;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Simple HTML escape
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+}
+
+// Init on DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVendorApplyPage);
+} else {
+    initVendorApplyPage();
+}
+/* ============================================ */
+/* VENDOR DASHBOARD (vendor-dashboard.html) */
+/* ============================================ */
+
+const VENDOR_DASHBOARD_API = 'https://ishop-payments-production.up.railway.app';
+
+// Initialize on page load
+function initVendorDashboard() {
+    const container = document.getElementById('vendorDashboardContent');
+    if (!container) return;
+
+    // Check if user is logged in
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) {
+        container.innerHTML = `
+            <div class="vendor-container">
+                <div class="vendor-status-card rejected" style="text-align:center;padding:3rem 1.5rem;">
+                    <div class="vendor-status-icon" style="margin:0 auto 1rem;">
+                        <i class="fas fa-user-lock"></i>
+                    </div>
+                    <h2 style="margin-bottom:0.5rem;">Please log in</h2>
+                    <p style="color:#8896a8;margin-bottom:1.5rem;">You need to be logged in to view your vendor dashboard.</p>
+                    <div class="vendor-status-actions" style="justify-content:center;">
+                        <a href="login.html" class="primary">
+                            <i class="fas fa-sign-in-alt"></i> Log In
+                        </a>
+                        <a href="become-a-vendor.html" class="secondary">
+                            <i class="fas fa-store"></i> Become a Vendor
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Fetch vendor data
+    fetchVendorDashboardData(jwt);
+}
+
+// Fetch vendor data from backend
+async function fetchVendorDashboardData(jwt) {
+    const container = document.getElementById('vendorDashboardContent');
+
+    try {
+        const response = await fetch(`${VENDOR_DASHBOARD_API}/api/vendors/me`, {
+            headers: { 'Authorization': `Bearer ${jwt}` },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.status || !data.vendor) {
+            // No vendor record — show "not a vendor" state
+            if (response.status === 404) {
+                showNonVendorState();
+                return;
+            }
+            throw new Error(data.error || 'Could not load your vendor data');
+        }
+
+        renderVendorDashboard(data.vendor);
+
+    } catch (err) {
+        console.error('Vendor dashboard error:', err);
+        container.innerHTML = `
+            <div class="vendor-container">
+                <div class="vendor-status-card rejected" style="text-align:center;padding:3rem 1.5rem;">
+                    <div class="vendor-status-icon" style="margin:0 auto 1rem;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h2 style="margin-bottom:0.5rem;">Something went wrong</h2>
+                    <p style="color:#8896a8;margin-bottom:1.5rem;">${err.message}</p>
+                    <div class="vendor-status-actions" style="justify-content:center;">
+                        <button class="primary" onclick="location.reload()">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Handle user who isn't a vendor yet
+function showNonVendorState() {
+    const container = document.getElementById('vendorDashboardContent');
+
+    // Update the header greeting from localStorage
+    const user = JSON.parse(localStorage.getItem('iShopUser') || '{}');
+    const welcome = document.getElementById('vendorWelcome');
+    const email = document.getElementById('vendorEmail');
+    if (welcome) welcome.textContent = `Hello, ${(user.fullName || 'there').split(' ')[0]}`;
+    if (email) email.textContent = user.email || '';
+
+    container.innerHTML = `
+        <div class="vendor-container">
+            <div class="vendor-status-card pending" style="text-align:center;padding:3rem 1.5rem;">
+                <div class="vendor-status-icon" style="margin:0 auto 1rem;">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h2 style="margin-bottom:0.5rem;">You're not a vendor yet</h2>
+                <p class="vendor-status-message" style="margin:0 auto 1.5rem;">
+                    Want to sell on iShop? It's free to apply and takes less than 5 minutes.
+                </p>
+                <div class="vendor-status-actions" style="justify-content:center;">
+                    <a href="become-a-vendor.html" class="primary">
+                        <i class="fas fa-rocket"></i> Become a Vendor
+                    </a>
+                    <a href="shop.html" class="secondary">
+                        <i class="fas fa-store"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Main dashboard renderer
+function renderVendorDashboard(vendor) {
+    const container = document.getElementById('vendorDashboardContent');
+    const welcome = document.getElementById('vendorWelcome');
+    const email = document.getElementById('vendorEmail');
+
+    // Update header
+    if (welcome) welcome.textContent = `Welcome, ${vendor.businessName || 'Vendor'}`;
+    if (email) email.textContent = vendor.email || '';
+
+    // Determine status
+    const status = (vendor.approvalStatus || 'pending').toLowerCase();
+
+    // Status meta
+    const statusMeta = {
+        pending: {
+            title: 'Application Under Review',
+            icon: 'clock',
+            badge: 'Pending Approval',
+            message: 'Thanks for applying! Our team is reviewing your business details. This usually takes 24–48 hours. We\'ll email you as soon as a decision is made.',
+        },
+        approved: {
+            title: 'You\'re Approved! 🎉',
+            icon: 'check-circle',
+            badge: 'Approved Vendor',
+            message: 'Welcome aboard! You can now start listing products on iShop. Our team has set up your vendor account with the right commission rates for your categories.',
+        },
+        rejected: {
+            title: 'Application Not Approved',
+            icon: 'times-circle',
+            badge: 'Not Approved',
+            message: 'Unfortunately, we couldn\'t approve your application at this time. This is usually because of incomplete information or a category we don\'t currently support. Reach out to us on WhatsApp for more details.',
+        },
+        suspended: {
+            title: 'Account Suspended',
+            icon: 'ban',
+            badge: 'Suspended',
+            message: 'Your vendor account has been temporarily suspended. Please contact our team to resolve this.',
+        },
+    }[status] || {
+        title: 'Status Unknown',
+        icon: 'info-circle',
+        badge: status,
+        message: 'We couldn\'t determine your account status. Please contact support.',
+    };
+
+    // Tracker (always shows pending or approved — rejected/suspended show different)
+    const trackerHTML = (status === 'approved') ? `
+        <div class="vendor-tracker">
+            <div class="vendor-tracker-step done">
+                <div class="vendor-tracker-dot"><i class="fas fa-check"></i></div>
+                <span class="vendor-tracker-label">Applied</span>
+            </div>
+            <div class="vendor-tracker-line done"></div>
+            <div class="vendor-tracker-step done">
+                <div class="vendor-tracker-dot"><i class="fas fa-check"></i></div>
+                <span class="vendor-tracker-label">Reviewed</span>
+            </div>
+            <div class="vendor-tracker-line done"></div>
+            <div class="vendor-tracker-step current">
+                <div class="vendor-tracker-dot"><i class="fas fa-store"></i></div>
+                <span class="vendor-tracker-label">Ready to Sell</span>
+            </div>
+        </div>
+    ` : (status === 'pending') ? `
+        <div class="vendor-tracker">
+            <div class="vendor-tracker-step done">
+                <div class="vendor-tracker-dot"><i class="fas fa-check"></i></div>
+                <span class="vendor-tracker-label">Applied</span>
+            </div>
+            <div class="vendor-tracker-line"></div>
+            <div class="vendor-tracker-step current">
+                <div class="vendor-tracker-dot"><i class="fas fa-clock"></i></div>
+                <span class="vendor-tracker-label">Under Review</span>
+            </div>
+            <div class="vendor-tracker-line"></div>
+            <div class="vendor-tracker-step">
+                <div class="vendor-tracker-dot"><i class="fas fa-store"></i></div>
+                <span class="vendor-tracker-label">Ready to Sell</span>
+            </div>
+        </div>
+    ` : '';
+
+    // Action buttons based on status
+    let actionsHTML = '';
+    if (status === 'pending') {
+        actionsHTML = `
+            <a href="https://wa.me/2348114808088?text=Hi%20iShop%2C%20I%20applied%20to%20sell%20on%20iShop%20-%20${encodeURIComponent(vendor.businessName)}"
+               target="_blank" class="whatsapp">
+                <i class="fab fa-whatsapp"></i> Ask About My Application
+            </a>
+            <a href="shop.html" class="secondary">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+        `;
+    } else if (status === 'approved') {
+        actionsHTML = `
+            <a href="vendor-product-form.html" class="primary">
+                <i class="fas fa-plus-circle"></i> Add Your First Product
+            </a>
+            <a href="vendor-products.html" class="secondary">
+                <i class="fas fa-boxes"></i> My Products
+            </a>
+            <a href="shop.html" class="secondary">
+                <i class="fas fa-store"></i> View iShop Storefront
+            </a>
+        `;
+    } else {
+        actionsHTML = `
+            <a href="https://wa.me/2348114808088?text=Hi%20iShop%2C%20I%20need%20help%20with%20my%20vendor%20account%20-%20${encodeURIComponent(vendor.businessName)}"
+               target="_blank" class="whatsapp">
+                <i class="fab fa-whatsapp"></i> Contact Support
+            </a>
+            <a href="contact.html" class="secondary">
+                <i class="fas fa-envelope"></i> Email Us
+            </a>
+        `;
+    }
+
+    // Categories display
+    const categories = Array.isArray(vendor.categories) ? vendor.categories : [];
+    const categoriesText = categories.length > 0
+        ? categories.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ')
+        : 'Not specified';
+
+    // Location display
+    const locationText = [
+        vendor.lga ? vendor.lga.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : '',
+        vendor.state ? vendor.state.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : '',
+    ].filter(Boolean).join(', ') || 'Not specified';
+
+    // No placeholder — product management is live
+    const phase2HTML = '';
+
+    // Render
+    container.innerHTML = `
+        <div class="vendor-container">
+            <!-- Status card -->
+            <div class="vendor-status-card ${status}">
+                <div class="vendor-status-header">
+                    <div class="vendor-status-icon">
+                        <i class="fas fa-${statusMeta.icon}${status === 'pending' ? ' fa-spin-slow' : ''}"></i>
+                    </div>
+                    <div class="vendor-status-info">
+                        <h2>${statusMeta.title}</h2>
+                        <span class="vendor-status-badge ${status}">${statusMeta.badge}</span>
+                    </div>
+                </div>
+
+                <p class="vendor-status-message">${statusMeta.message}</p>
+
+                ${trackerHTML}
+
+                <div class="vendor-status-actions">
+                    ${actionsHTML}
+                </div>
+            </div>
+
+            <!-- Business info cards -->
+            <div class="vendor-info-grid">
+                <div class="vendor-info-card">
+                    <div class="vendor-info-card-icon"><i class="fas fa-store"></i></div>
+                    <h3>Business Name</h3>
+                    <p>${escapeHtml(vendor.businessName) || '—'}</p>
+                </div>
+                <div class="vendor-info-card">
+                    <div class="vendor-info-card-icon"><i class="fas fa-user"></i></div>
+                    <h3>Owner</h3>
+                    <p>${escapeHtml(vendor.ownerName) || '—'}</p>
+                </div>
+                <div class="vendor-info-card">
+                    <div class="vendor-info-card-icon"><i class="fas fa-envelope"></i></div>
+                    <h3>Email</h3>
+                    <p>${escapeHtml(vendor.email) || '—'}</p>
+                </div>
+                <div class="vendor-info-card">
+                    <div class="vendor-info-card-icon"><i class="fas fa-phone"></i></div>
+                    <h3>Phone</h3>
+                    <p>${escapeHtml(vendor.phone) || '—'}</p>
+                </div>
+                <div class="vendor-info-card">
+                    <div class="vendor-info-card-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <h3>Location</h3>
+                    <p>${locationText}</p>
+                </div>
+                <div class="vendor-info-card">
+                    <div class="vendor-info-card-icon"><i class="fas fa-tags"></i></div>
+                    <h3>Categories</h3>
+                    <p>${categoriesText}</p>
+                </div>
+                <div class="vendor-info-card">
+                    <div class="vendor-info-card-icon"><i class="fas fa-percentage"></i></div>
+                    <h3>Commission Rate</h3>
+                    <p>${vendor.commissionRate ? vendor.commissionRate + '%' : 'Per category'}</p>
+                </div>
+                <div class="vendor-info-card">
+                    <div class="vendor-info-card-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <h3>Applied</h3>
+                    <p>${vendor.approvedAt ? new Date(vendor.approvedAt).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Just now'}</p>
+                </div>
+            </div>
+
+            ${phase2HTML}
+        </div>
+    `;
+}
+
+// Init
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVendorDashboard);
+} else {
+    initVendorDashboard();
+}
+/* ============================================ */
+/* VENDOR PRODUCTS PAGE (vendor-products.html) */
+/* ============================================ */
+
+const VENDOR_PRODUCTS_API = 'https://ishop-payments-production.up.railway.app';
+
+let vendorProductsState = {
+    allProducts: [],
+    filteredProducts: [],
+    currentFilter: 'all',
+    searchQuery: '',
+    deleteTargetId: null,
+    deleteTargetName: '',
+};
+
+// Initialize
+function initVendorProductsPage() {
+    const container = document.getElementById('vendorProductsContainer');
+    if (!container) return;
+
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) {
+        container.innerHTML = `
+            <div class="vendor-empty-state">
+                <div class="vendor-empty-icon"><i class="fas fa-user-lock"></i></div>
+                <h3>Please log in</h3>
+                <p>You need to be logged in to manage your products.</p>
+                <a href="login.html" class="vendor-add-btn" style="margin: 0 auto;">
+                    <i class="fas fa-sign-in-alt"></i> Log In
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    // Wire filters
+    document.querySelectorAll('.vendor-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.vendor-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            vendorProductsState.currentFilter = btn.dataset.filter;
+            applyVendorProductFilters();
+        });
+    });
+
+    // Wire search
+    const search = document.getElementById('vendorProductsSearch');
+    if (search) {
+        let debounce;
+        search.addEventListener('input', function () {
+            clearTimeout(debounce);
+            debounce = setTimeout(() => {
+                vendorProductsState.searchQuery = this.value.trim().toLowerCase();
+                applyVendorProductFilters();
+            }, 200);
+        });
+    }
+
+    // Wire delete modal buttons
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    if (confirmBtn) confirmBtn.addEventListener('click', confirmVendorDeleteProduct);
+
+    // Load products
+    loadVendorProducts(jwt);
+}
+
+// Fetch products
+async function loadVendorProducts(jwt) {
+    const container = document.getElementById('vendorProductsContainer');
+
+    try {
+        const res = await fetch(`${VENDOR_PRODUCTS_API}/api/vendors/products`, {
+            headers: { 'Authorization': `Bearer ${jwt}` },
+        });
+
+        const data = await res.json();
+
+        // Handle specific error states
+        if (res.status === 403) {
+            container.innerHTML = `
+                <div class="vendor-empty-state">
+                    <div class="vendor-empty-icon"><i class="fas fa-hourglass-half"></i></div>
+                    <h3>Account pending approval</h3>
+                    <p>Your vendor account is still being reviewed. Once approved, you'll be able to add and manage products here.</p>
+                    <a href="vendor-dashboard.html" class="vendor-add-btn" style="margin: 0 auto;">
+                        <i class="fas fa-tachometer-alt"></i> View Dashboard
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        if (res.status === 404) {
+            container.innerHTML = `
+                <div class="vendor-empty-state">
+                    <div class="vendor-empty-icon"><i class="fas fa-store"></i></div>
+                    <h3>Not a vendor yet</h3>
+                    <p>You need a vendor account to manage products.</p>
+                    <a href="become-a-vendor.html" class="vendor-add-btn" style="margin: 0 auto;">
+                        <i class="fas fa-rocket"></i> Become a Vendor
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        if (!res.ok || !data.status) {
+            throw new Error(data.error || 'Could not load products');
+        }
+
+        vendorProductsState.allProducts = data.products || [];
+        updateVendorProductStats();
+        applyVendorProductFilters();
+
+    } catch (err) {
+        console.error('Vendor products load error:', err);
+        container.innerHTML = `
+            <div class="vendor-error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>${err.message}</p>
+                <button class="vendor-btn-secondary" onclick="location.reload()" style="margin-top: 1rem;">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Update stats
+function updateVendorProductStats() {
+    const products = vendorProductsState.allProducts;
+
+    const total = products.length;
+    const live = products.filter(p => p.published).length;
+    const drafts = products.filter(p => !p.published).length;
+    const categories = new Set(products.map(p => p.category).filter(Boolean)).size;
+
+    const el = (id) => document.getElementById(id);
+    if (el('statTotalProducts')) el('statTotalProducts').textContent = total;
+    if (el('statLiveProducts')) el('statLiveProducts').textContent = live;
+    if (el('statDraftProducts')) el('statDraftProducts').textContent = drafts;
+    if (el('statCategories')) el('statCategories').textContent = categories;
+}
+
+// Apply filters + search
+function applyVendorProductFilters() {
+    const { allProducts, currentFilter, searchQuery } = vendorProductsState;
+
+    let filtered = [...allProducts];
+
+    // Filter
+    if (currentFilter === 'live') {
+        filtered = filtered.filter(p => p.published);
+    } else if (currentFilter === 'draft') {
+        filtered = filtered.filter(p => !p.published);
+    } else if (currentFilter === 'physical') {
+        filtered = filtered.filter(p => (p.type || '').toLowerCase() === 'physical');
+    } else if (currentFilter === 'digital') {
+        filtered = filtered.filter(p => (p.type || '').toLowerCase() === 'digital');
+    }
+
+    // Search
+    if (searchQuery) {
+        filtered = filtered.filter(p =>
+            (p.name || '').toLowerCase().includes(searchQuery) ||
+            (p.category || '').toLowerCase().includes(searchQuery)
+        );
+    }
+
+    vendorProductsState.filteredProducts = filtered;
+    renderVendorProducts(filtered);
+}
+
+// Render product grid
+function renderVendorProducts(products) {
+    const container = document.getElementById('vendorProductsContainer');
+    if (!container) return;
+
+    if (vendorProductsState.allProducts.length === 0) {
+        container.innerHTML = `
+            <div class="vendor-empty-state">
+                <div class="vendor-empty-icon"><i class="fas fa-box-open"></i></div>
+                <h3>You haven't listed any products yet</h3>
+                <p>Add your first product to start selling on iShop. Our team reviews every listing before it goes live.</p>
+                <a href="vendor-product-form.html" class="vendor-add-btn" style="margin: 0 auto;">
+                    <i class="fas fa-plus-circle"></i> Add Your First Product
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    if (products.length === 0) {
+        container.innerHTML = `
+            <div class="vendor-empty-state">
+                <div class="vendor-empty-icon"><i class="fas fa-search"></i></div>
+                <h3>No products match your filter</h3>
+                <p>Try a different filter or clear your search.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const cardsHTML = products.map(product => {
+        const isDigital = (product.type || '').toLowerCase() === 'digital';
+        const mainImage = product.images?.[0]?.url || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="%23f8fafc"/><rect x="75" y="70" width="50" height="40" rx="4" fill="%23e0e0e0"/><circle cx="88" cy="84" r="5" fill="%23f9c74f"/></svg>';
+        const statusBadge = product.published
+            ? '<span class="vendor-product-badge live">Live</span>'
+            : '<span class="vendor-product-badge draft">Draft</span>';
+        const digitalBadge = isDigital ? '<span class="vendor-product-badge digital"><i class="fas fa-bolt"></i> Digital</span>' : '';
+
+        const price = Number(product.price || 0).toLocaleString();
+        const createdDate = new Date(product.createdAt).toLocaleDateString('en-NG', {
+            month: 'short', day: 'numeric', year: 'numeric'
+        });
+
+        return `
+            <div class="vendor-product-card">
+                <div class="vendor-product-image">
+                    ${statusBadge}
+                    ${digitalBadge}
+                    <img src="${mainImage}" alt="${escapeHtml(product.name)}" loading="lazy" />
+                </div>
+                <div class="vendor-product-body">
+                    <h3 class="vendor-product-name">${escapeHtml(product.name || 'Untitled')}</h3>
+                    <p class="vendor-product-category">${escapeHtml(product.category || 'Uncategorized')}</p>
+                    <p class="vendor-product-price">₦${price}</p>
+                    <div class="vendor-product-meta">
+                        <span>Added ${createdDate}</span>
+                    </div>
+                    <div class="vendor-product-actions">
+                        <a href="vendor-product-form.html?id=${product.id}" class="btn-edit">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button class="btn-delete" onclick="openVendorDeleteModal(${product.id}, '${escapeHtml(product.name).replace(/'/g, "\\'")}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = `<div class="vendor-products-grid">${cardsHTML}</div>`;
+}
+
+// ============ DELETE FLOW ============
+
+function openVendorDeleteModal(productId, productName) {
+    vendorProductsState.deleteTargetId = productId;
+    vendorProductsState.deleteTargetName = productName;
+
+    const nameEl = document.getElementById('deleteModalProductName');
+    if (nameEl) {
+        nameEl.textContent = `"${productName}" will be permanently deleted. This cannot be undone.`;
+    }
+
+    const modal = document.getElementById('deleteModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) modal.style.display = 'none';
+    vendorProductsState.deleteTargetId = null;
+    vendorProductsState.deleteTargetName = '';
+}
+
+async function confirmVendorDeleteProduct() {
+    const productId = vendorProductsState.deleteTargetId;
+    if (!productId) return;
+
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) {
+        alert('Please log in again.');
+        return;
+    }
+
+    const btn = document.getElementById('confirmDeleteBtn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+
+    try {
+        const res = await fetch(`${VENDOR_PRODUCTS_API}/api/vendors/products/${productId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${jwt}` },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.status) {
+            throw new Error(data.error || 'Delete failed');
+        }
+
+        // Remove from local state
+        vendorProductsState.allProducts = vendorProductsState.allProducts.filter(p => p.id !== productId);
+        updateVendorProductStats();
+        applyVendorProductFilters();
+        closeDeleteModal();
+
+        // Success toast
+        showVendorProductsToast('Product deleted successfully', 'success');
+    } catch (err) {
+        console.error('Delete error:', err);
+        showVendorProductsToast(err.message || 'Could not delete product', 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+// Close modal on overlay click
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('deleteModal');
+    if (modal && e.target === modal) {
+        closeDeleteModal();
+    }
+});
+
+// Simple toast
+function showVendorProductsToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: ${type === 'error' ? '#e74c3c' : '#0d1b2a'};
+        color: white;
+        padding: 0.9rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+        z-index: 9999;
+        transition: transform 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    `;
+    toast.innerHTML = `
+        <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"
+           style="color: ${type === 'error' ? '#fff' : '#f9c74f'};"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    setTimeout(() => {
+        toast.style.transform = 'translateX(-50%) translateY(100px)';
+        setTimeout(() => toast.remove(), 350);
+    }, 3000);
+}
+
+// Initialize on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVendorProductsPage);
+} else {
+    initVendorProductsPage();
+}
+/* ============================================ */
+/* VENDOR PRODUCT FORM (vendor-product-form.html) */
+/* ============================================ */
+
+const PRODUCT_FORM_API = 'https://ishop-payments-production.up.railway.app';
+const STRAPI_UPLOAD_API = 'https://ishop-cms-production.up.railway.app/api/upload';
+
+let productFormState = {
+    currentStep: 1,
+    totalSteps: 3,
+    editProductId: null,       // null = add mode, number = edit mode
+    uploadedImages: [],        // [{ id, url, status: 'uploading'|'done'|'error', error? }]
+    uploadedBookFile: null,    // { id, url, name, size }
+    existingImages: [],        // for edit mode — pre-loaded from Strapi
+    existingBookFile: null,    // for edit mode
+};
+
+// ============================================
+// INITIALIZE
+// ============================================
+
+function initProductFormPage() {
+    const form = document.getElementById('productForm');
+    if (!form) return;
+
+    // Check auth
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Detect edit mode
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get('id');
+    if (editId) {
+        productFormState.editProductId = editId;
+        document.getElementById('productFormTitle').textContent = 'Edit Product';
+        document.getElementById('productFormSubtitle').textContent = 'Update the details and resubmit for review.';
+        document.getElementById('submitBtnText').textContent = 'Save Changes';
+        loadProductForEdit(editId, jwt);
+    }
+
+    // Wire navigation
+    document.getElementById('productNextBtn')?.addEventListener('click', productNextStep);
+    document.getElementById('productBackBtn')?.addEventListener('click', productPrevStep);
+
+    // Type change → toggle stock field visibility
+    const typeSelect = document.getElementById('productType');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', handleProductTypeChange);
+        handleProductTypeChange();
+    }
+
+    // Image upload
+    const imageInput = document.getElementById('productImages');
+    if (imageInput) {
+        imageInput.addEventListener('change', handleImageSelection);
+    }
+        // MOBILE FIX: Some browsers don't fire picker with display:none inputs.
+    // Convert to visually-hidden but still present.
+    ['productImages', 'productBookFile'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input && getComputedStyle(input).display === 'none') {
+            input.style.display = 'block';
+            input.style.position = 'absolute';
+            input.style.opacity = '0';
+            input.style.width = '1px';
+            input.style.height = '1px';
+            input.style.pointerEvents = 'none';
+        }
+    });
+
+    // Book file upload
+    const bookInput = document.getElementById('productBookFile');
+    if (bookInput) {
+        bookInput.addEventListener('change', handleBookFileSelection);
+    }
+
+    // Drag & drop for images
+    setupDragDrop('productImagesDropZone', 'productImages', handleImageSelection);
+
+    // Drag & drop for book file
+    setupDragDrop('bookFileDropZone', 'productBookFile', handleBookFileSelection);
+
+    // Form submit
+    form.addEventListener('submit', handleProductFormSubmit);
+
+    console.log('✅ Product form initialized', editId ? `(edit mode #${editId})` : '(add mode)');
+}
+
+// ============================================
+// TYPE CHANGE → toggle stock + book file
+// ============================================
+
+function handleProductTypeChange() {
+    const type = document.getElementById('productType')?.value || 'physical';
+    const stockGroup = document.getElementById('productStock')?.closest('.vendor-form-group');
+    const bookFileGroup = document.getElementById('bookFileGroup');
+
+    if (type === 'digital') {
+        if (stockGroup) stockGroup.style.display = 'none';
+        if (bookFileGroup) bookFileGroup.style.display = 'block';
+    } else {
+        if (stockGroup) stockGroup.style.display = '';
+        if (bookFileGroup) bookFileGroup.style.display = 'none';
+    }
+}
+
+// ============================================
+// STEP NAVIGATION
+// ============================================
+
+function productShowStep(step) {
+    document.querySelectorAll('.vendor-apply-step').forEach(el => el.classList.remove('active'));
+    const target = document.querySelector(`.vendor-apply-step[data-step="${step}"]`);
+    if (target) target.classList.add('active');
+
+    // Progress bar
+    const progressBar = document.getElementById('productProgressBar');
+    if (progressBar) progressBar.style.width = `${(step / productFormState.totalSteps) * 100}%`;
+
+    // Step dots
+    document.querySelectorAll('.vendor-progress-step').forEach(el => {
+        const n = parseInt(el.dataset.step, 10);
+        el.classList.remove('active', 'completed');
+        if (n < step) el.classList.add('completed');
+        if (n === step) el.classList.add('active');
+    });
+
+    // Buttons
+    const backBtn = document.getElementById('productBackBtn');
+    const nextBtn = document.getElementById('productNextBtn');
+    const submitBtn = document.getElementById('productSubmitBtn');
+    if (backBtn) backBtn.style.display = step > 1 ? 'inline-flex' : 'none';
+    if (nextBtn) nextBtn.style.display = step < productFormState.totalSteps ? 'inline-flex' : 'none';
+    if (submitBtn) submitBtn.style.display = step === productFormState.totalSteps ? 'inline-flex' : 'none';
+
+    // If step 3, render review
+    if (step === 3) renderReviewSummary();
+
+    // Feedback clear
+    const fb = document.getElementById('productFormFeedback');
+    if (fb) { fb.innerHTML = ''; fb.className = ''; }
+
+    document.getElementById('productForm')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function productNextStep() {
+    const result = validateProductStep(productFormState.currentStep);
+    if (!result.valid) {
+        showProductFeedback(result.message, 'error');
+        return;
+    }
+    if (productFormState.currentStep < productFormState.totalSteps) {
+        productFormState.currentStep++;
+        productShowStep(productFormState.currentStep);
+    }
+}
+
+function productPrevStep() {
+    if (productFormState.currentStep > 1) {
+        productFormState.currentStep--;
+        productShowStep(productFormState.currentStep);
+    }
+}
+
+// ============================================
+// VALIDATION
+// ============================================
+
+function validateProductStep(step) {
+    if (step === 1) {
+        const name = document.getElementById('productName')?.value.trim();
+        const category = document.getElementById('productCategory')?.value;
+        const type = document.getElementById('productType')?.value;
+        const price = document.getElementById('productPrice')?.value;
+
+        if (!name) return { valid: false, message: 'Please enter a product name.' };
+        if (!category) return { valid: false, message: 'Please select a category.' };
+        if (!type) return { valid: false, message: 'Please select a product type.' };
+        if (price === '' || Number(price) < 0) return { valid: false, message: 'Please enter a valid price.' };
+    }
+
+    if (step === 2) {
+        const desc = document.getElementById('productDescription')?.value.trim();
+        if (!desc || desc.length < 50) {
+            return { valid: false, message: 'Please write at least 50 characters of description.' };
+        }
+    }
+
+    if (step === 3) {
+        // Must have at least 1 image (existing for edit mode, or freshly uploaded)
+        const hasImages = productFormState.uploadedImages.length > 0 || productFormState.existingImages.length > 0;
+        if (!hasImages) {
+            return { valid: false, message: 'Please upload at least one product image.' };
+        }
+
+        // If digital and no existing book file, require a new one
+        const type = document.getElementById('productType')?.value;
+        if (type === 'digital') {
+            const hasBook = productFormState.uploadedBookFile || productFormState.existingBookFile;
+            if (!hasBook) {
+                return { valid: false, message: 'Please upload the digital file for this product.' };
+            }
+        }
+
+        // All uploads must be done (no errors, no in-progress)
+        const stillUploading = productFormState.uploadedImages.some(img => img.status === 'uploading');
+        if (stillUploading) return { valid: false, message: 'Please wait for image uploads to finish.' };
+
+        const anyError = productFormState.uploadedImages.some(img => img.status === 'error');
+        if (anyError) return { valid: false, message: 'Some images failed to upload. Please remove them and try again.' };
+    }
+
+    return { valid: true };
+}
+
+function showProductFeedback(message, type = 'error') {
+    const fb = document.getElementById('productFormFeedback');
+    if (!fb) return;
+    const icon = type === 'error' ? '⚠️' : '✅';
+    fb.className = type;
+    fb.innerHTML = `<div style="display:flex;align-items:flex-start;gap:0.6rem;">
+        <span style="font-size:1.1rem;">${icon}</span>
+        <span>${message}</span>
+    </div>`;
+
+    // Mobile fix — scroll feedback into view so keyboard doesn't hide it
+    setTimeout(() => {
+        fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+}
+
+// ============================================
+// SPECIFICATIONS (key-value pairs)
+// ============================================
+
+function addSpecificationRow(name = '', value = '') {
+    const container = document.getElementById('specificationsList');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'vendor-spec-row';
+    row.innerHTML = `
+        <input type="text" class="spec-name" placeholder="e.g. Battery" value="${escapeHtml(name)}" />
+        <input type="text" class="spec-value" placeholder="e.g. 5000mAh" value="${escapeHtml(value)}" />
+        <button type="button" class="vendor-spec-remove" title="Remove" onclick="this.closest('.vendor-spec-row').remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    container.appendChild(row);
+}
+
+function getSpecificationsFromForm() {
+    const rows = document.querySelectorAll('#specificationsList .vendor-spec-row');
+    const specs = [];
+    rows.forEach(row => {
+        const name = row.querySelector('.spec-name')?.value.trim();
+        const value = row.querySelector('.spec-value')?.value.trim();
+        if (name && value) specs.push({ spec_name: name, spec_value: value });
+    });
+    return specs;
+}
+
+// ============================================
+// IMAGE UPLOAD
+// ============================================
+
+function handleImageSelection(e) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const totalAfter = productFormState.uploadedImages.length + productFormState.existingImages.length + files.length;
+    if (totalAfter > 5) {
+        alert('You can upload up to 5 images. Please remove some first.');
+        return;
+    }
+
+    files.forEach(file => uploadImageToStrapi(file));
+
+    // Reset input so same file can be re-selected
+    e.target.value = '';
+}
+
+async function uploadImageToStrapi(file) {
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) return;
+
+    // Validate size
+    if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name} is too large. Max 5MB per image.`);
+        return;
+    }
+
+    // Create local preview entry with "uploading" status
+    const tempId = 'temp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+    const previewUrl = URL.createObjectURL(file);
+    const imgEntry = { tempId, id: null, url: previewUrl, status: 'uploading' };
+    productFormState.uploadedImages.push(imgEntry);
+    renderImagesPreview();
+
+    try {
+        const formData = new FormData();
+        formData.append('files', file);
+
+        const res = await fetch(STRAPI_UPLOAD_API, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${jwt}` },
+            body: formData,
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            console.error('Upload failed:', errText.substring(0, 300));
+            throw new Error('Upload failed');
+        }
+
+        const data = await res.json();
+        const media = Array.isArray(data) ? data[0] : null;
+
+        if (!media || !media.id) throw new Error('Invalid upload response');
+
+        // Update state — success
+        imgEntry.id = media.id;
+        imgEntry.url = media.url;
+        imgEntry.status = 'done';
+        renderImagesPreview();
+
+    } catch (err) {
+        console.error('Image upload error:', err);
+        imgEntry.status = 'error';
+        imgEntry.error = err.message || 'Upload failed';
+        renderImagesPreview();
+
+        // Auto-remove after 5 seconds so user isn't stuck
+        setTimeout(() => {
+            productFormState.uploadedImages = productFormState.uploadedImages.filter(i => i.tempId !== tempId);
+            renderImagesPreview();
+        }, 5000);
+    }
+}
+
+function renderImagesPreview() {
+    const container = document.getElementById('productImagesPreview');
+    if (!container) return;
+
+    const allImages = [
+        ...productFormState.existingImages.map(img => ({ ...img, status: 'done', isExisting: true })),
+        ...productFormState.uploadedImages,
+    ];
+
+    if (allImages.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = allImages.map((img, index) => {
+        const removeFn = img.isExisting
+            ? `removeExistingImage(${index})`
+            : `removeUploadedImage('${img.tempId}')`;
+
+        const loadingOverlay = img.status === 'uploading'
+            ? '<div class="vendor-image-uploading"><i class="fas fa-spinner fa-spin"></i></div>'
+            : '';
+
+        const errorOverlay = img.status === 'error'
+            ? `<div class="vendor-image-error">
+                   <i class="fas fa-exclamation-triangle"></i>
+                   <span>${escapeHtml(img.error || 'Failed')}</span>
+               </div>`
+            : '';
+
+        const primaryBadge = index === 0
+            ? '<span class="primary-badge">Main</span>'
+            : '';
+
+        return `
+            <div class="vendor-image-preview-item">
+                ${primaryBadge}
+                <img src="${img.url}" alt="" />
+                ${loadingOverlay}
+                ${errorOverlay}
+                <button type="button" class="vendor-image-remove" onclick="${removeFn}" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+function removeUploadedImage(tempId) {
+    productFormState.uploadedImages = productFormState.uploadedImages.filter(i => i.tempId !== tempId);
+    renderImagesPreview();
+}
+
+function removeExistingImage(index) {
+    productFormState.existingImages.splice(index, 1);
+    renderImagesPreview();
+}
+
+// ============================================
+// BOOK FILE (digital products)
+// ============================================
+
+function handleBookFileSelection(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    uploadBookFileToStrapi(file);
+    e.target.value = '';
+}
+
+async function uploadBookFileToStrapi(file) {
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) return;
+
+    const preview = document.getElementById('bookFilePreview');
+    if (preview) {
+        preview.innerHTML = `
+            <div class="vendor-file-preview-item" style="background:#fef9e7;border-color:#f9c74f;">
+                <i class="fas fa-spinner fa-spin file-icon" style="color:#d4a017;"></i>
+                <div class="file-info">
+                    <strong>Uploading ${escapeHtml(file.name)}...</strong>
+                    <span>Please wait</span>
+                </div>
+            </div>
+        `;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('files', file);
+
+        const res = await fetch(STRAPI_UPLOAD_API, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${jwt}` },
+            body: formData,
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            console.error('Book file upload failed:', errText.substring(0, 300));
+            throw new Error('Upload failed');
+        }
+
+        const data = await res.json();
+        const media = Array.isArray(data) ? data[0] : null;
+        if (!media?.id) throw new Error('Invalid response');
+
+        productFormState.uploadedBookFile = {
+            id: media.id,
+            url: media.url,
+            name: media.name || file.name,
+            size: file.size,
+        };
+
+        renderBookFilePreview();
+    } catch (err) {
+        console.error('Book upload error:', err);
+        if (preview) {
+            preview.innerHTML = `
+                <div class="vendor-file-preview-item" style="background:#fef2f2;border-color:#fecaca;">
+                    <i class="fas fa-exclamation-triangle file-icon" style="color:#e74c3c;"></i>
+                    <div class="file-info">
+                        <strong style="color:#991b1b;">Upload failed</strong>
+                        <span>${escapeHtml(err.message)}</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+}
+
+function renderBookFilePreview() {
+    const preview = document.getElementById('bookFilePreview');
+    if (!preview) return;
+
+    const file = productFormState.uploadedBookFile || productFormState.existingBookFile;
+    if (!file) {
+        preview.innerHTML = '';
+        return;
+    }
+
+    preview.innerHTML = `
+        <div class="vendor-file-preview-item">
+            <i class="fas fa-file-alt file-icon"></i>
+            <div class="file-info">
+                <strong>${escapeHtml(file.name || 'Digital file')}</strong>
+                <span>${file.size ? formatFileSize(file.size) : 'Ready'}</span>
+            </div>
+            <button type="button" class="file-remove" onclick="removeBookFile()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+}
+
+function removeBookFile() {
+    productFormState.uploadedBookFile = null;
+    productFormState.existingBookFile = null;
+    renderBookFilePreview();
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// ============================================
+// DRAG AND DROP
+// ============================================
+
+function setupDragDrop(dropZoneId, inputId, handler) {
+    const zone = document.getElementById(dropZoneId);
+    const input = document.getElementById(inputId);
+    if (!zone || !input) return;
+
+    ['dragenter', 'dragover'].forEach(evt => {
+        zone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            zone.classList.add('dragover');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(evt => {
+        zone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            zone.classList.remove('dragover');
+        });
+    });
+
+    zone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer?.files;
+        if (!files || files.length === 0) return;
+
+        if (inputId === 'productImages') {
+            const syntheticEvent = { target: { files, value: '' } };
+            handler(syntheticEvent);
+        } else {
+            const syntheticEvent = { target: { files, value: '' } };
+            handler(syntheticEvent);
+        }
+    });
+}
+
+// ============================================
+// REVIEW SUMMARY (Step 3)
+// ============================================
+
+function renderReviewSummary() {
+    const container = document.getElementById('productReviewSummary');
+    if (!container) return;
+
+    const name = document.getElementById('productName')?.value.trim() || '—';
+    const category = document.getElementById('productCategory')?.value || '—';
+    const type = document.getElementById('productType')?.value || 'physical';
+    const subType = document.getElementById('productSubType')?.value.trim() || '';
+    const price = document.getElementById('productPrice')?.value || '0';
+    const stock = document.getElementById('productStock')?.value || '';
+    const description = document.getElementById('productDescription')?.value.trim() || '';
+    const specs = getSpecificationsFromForm();
+
+    const allImages = [...productFormState.existingImages, ...productFormState.uploadedImages];
+
+    const imagesHTML = allImages.length > 0
+        ? allImages.map(img => `<div class="vendor-review-image-thumb"><img src="${img.url}" /></div>`).join('')
+        : '<span style="color:#8896a8;">No images</span>';
+
+    const specsHTML = specs.length > 0
+        ? specs.map(s => `<div><strong>${escapeHtml(s.spec_name)}:</strong> ${escapeHtml(s.spec_value)}</div>`).join('')
+        : '<span style="color:#8896a8;">No specifications</span>';
+
+    const bookFileHTML = type === 'digital'
+        ? (productFormState.uploadedBookFile || productFormState.existingBookFile)
+            ? `<div class="vendor-file-preview-item" style="margin:0;">
+                   <i class="fas fa-file-alt file-icon"></i>
+                   <div class="file-info">
+                       <strong>${escapeHtml((productFormState.uploadedBookFile || productFormState.existingBookFile).name || 'Digital file')}</strong>
+                       <span>Ready to deliver</span>
+                   </div>
+               </div>`
+            : '<span style="color:#e74c3c;">No file uploaded yet</span>'
+        : null;
+
+    container.innerHTML = `
+        <div class="vendor-review-row">
+            <span class="vendor-review-label">Product Name</span>
+            <span class="vendor-review-value">${escapeHtml(name)}</span>
+        </div>
+        <div class="vendor-review-row">
+            <span class="vendor-review-label">Category</span>
+            <span class="vendor-review-value">${escapeHtml(category)}${subType ? ' · ' + escapeHtml(subType) : ''}</span>
+        </div>
+        <div class="vendor-review-row">
+            <span class="vendor-review-label">Type</span>
+            <span class="vendor-review-value ${type === 'digital' ? 'digital-badge' : ''}">
+                ${type === 'digital' ? '<i class="fas fa-bolt"></i> Digital Download' : '📦 Physical Product'}
+            </span>
+        </div>
+        <div class="vendor-review-row">
+            <span class="vendor-review-label">Price</span>
+            <span class="vendor-review-value price">₦${Number(price).toLocaleString()}</span>
+        </div>
+        ${type === 'physical' && stock ? `
+            <div class="vendor-review-row">
+                <span class="vendor-review-label">Stock</span>
+                <span class="vendor-review-value">${escapeHtml(stock)} units</span>
+            </div>
+        ` : ''}
+        <div class="vendor-review-row">
+            <span class="vendor-review-label">Description</span>
+            <span class="vendor-review-value">${escapeHtml(description.substring(0, 250))}${description.length > 250 ? '…' : ''}</span>
+        </div>
+        ${specs.length > 0 ? `
+            <div class="vendor-review-row">
+                <span class="vendor-review-label">Specifications</span>
+                <div class="vendor-review-specs">${specsHTML}</div>
+            </div>
+        ` : ''}
+        ${bookFileHTML ? `
+            <div class="vendor-review-row">
+                <span class="vendor-review-label">Digital File</span>
+                <div>${bookFileHTML}</div>
+            </div>
+        ` : ''}
+        <div class="vendor-review-row">
+            <span class="vendor-review-label">Images (${allImages.length})</span>
+            <div class="vendor-review-images">${imagesHTML}</div>
+        </div>
+    `;
+}
+
+// ============================================
+// LOAD PRODUCT FOR EDIT MODE
+// ============================================
+
+async function loadProductForEdit(productId, jwt) {
+    try {
+        const res = await fetch(`${PRODUCT_FORM_API}/api/vendors/products`, {
+            headers: { 'Authorization': `Bearer ${jwt}` },
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Could not load product');
+
+        const product = (data.products || []).find(p => String(p.id) === String(productId));
+        if (!product) throw new Error('Product not found in your catalogue');
+
+        // Pre-fill fields
+        document.getElementById('productName').value = product.name || '';
+        document.getElementById('productCategory').value = (product.category || '').toLowerCase();
+        document.getElementById('productType').value = (product.type || 'physical').toLowerCase();
+        document.getElementById('productSubType').value = product.subType || '';
+        document.getElementById('productPrice').value = product.price || '';
+        document.getElementById('productDescription').value = extractPlainText(product.description) || '';
+
+        // Specs
+        const specsList = document.getElementById('specificationsList');
+        if (specsList) specsList.innerHTML = '';
+        if (Array.isArray(product.specifications)) {
+            product.specifications.forEach(s => addSpecificationRow(s.spec_name, s.spec_value));
+        }
+        if (!product.specifications || product.specifications.length === 0) {
+            // Add one empty row so it looks clean
+        }
+
+        // Existing images
+        productFormState.existingImages = (product.images || []).map(img => ({
+            id: img.id,
+            url: img.url,
+        }));
+
+        // Existing book file
+        if (product.bookFile) {
+            productFormState.existingBookFile = {
+                id: product.bookFile.id,
+                url: product.bookFile.url,
+                name: 'Current file',
+                size: 0,
+            };
+        }
+
+        // Type-dependent visibility
+        handleProductTypeChange();
+
+        // Render previews
+        renderImagesPreview();
+        renderBookFilePreview();
+
+    } catch (err) {
+        console.error('Load product error:', err);
+        alert('Could not load product: ' + err.message);
+        window.location.href = 'vendor-products.html';
+    }
+}
+
+// Extract plain text from Strapi rich-text blocks
+function extractPlainText(blocks) {
+    if (!blocks) return '';
+    if (typeof blocks === 'string') return blocks;
+    if (!Array.isArray(blocks)) return '';
+
+    const parts = [];
+    function walk(node) {
+        if (!node) return;
+        if (typeof node === 'string') { parts.push(node); return; }
+        if (Array.isArray(node)) { node.forEach(walk); return; }
+        if (node.text) parts.push(node.text);
+        if (node.children) walk(node.children);
+    }
+    walk(blocks);
+    return parts.join(' ').trim();
+}
+
+// ============================================
+// SUBMIT
+// ============================================
+
+async function handleProductFormSubmit(e) {
+    e.preventDefault();
+
+    const result = validateProductStep(3);
+    if (!result.valid) {
+        showProductFeedback(result.message, 'error');
+        return;
+    }
+
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) { window.location.href = 'login.html'; return; }
+
+    // Gather data
+    const payload = {
+        name: document.getElementById('productName').value.trim(),
+        category: document.getElementById('productCategory').value,
+        type: document.getElementById('productType').value,
+        subType: document.getElementById('productSubType').value.trim(),
+        price: Number(document.getElementById('productPrice').value),
+        stock: document.getElementById('productStock')?.value || '',
+        description: document.getElementById('productDescription').value.trim(),
+        specifications: getSpecificationsFromForm(),
+        images: [
+            ...productFormState.existingImages.map(img => img.id),
+            ...productFormState.uploadedImages.filter(i => i.status === 'done').map(i => i.id),
+        ],
+        bookFile: productFormState.uploadedBookFile?.id || productFormState.existingBookFile?.id || null,
+    };
+
+    const btn = document.getElementById('productSubmitBtn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+    try {
+        const isEdit = !!productFormState.editProductId;
+        const url = isEdit
+            ? `${PRODUCT_FORM_API}/api/vendors/products/${productFormState.editProductId}`
+            : `${PRODUCT_FORM_API}/api/vendors/products`;
+        const method = isEdit ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt}`,
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.status) {
+            throw new Error(data.error || 'Submission failed');
+        }
+
+        // Success — show success screen
+        showProductSuccessScreen(isEdit, payload);
+
+    } catch (err) {
+        console.error('Submit error:', err);
+        showProductFeedback(err.message || 'Something went wrong. Please try again.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+// ============================================
+// SUCCESS SCREEN
+// ============================================
+
+function showProductSuccessScreen(isEdit, payload) {
+    const container = document.querySelector('.vendor-apply-container');
+    if (!container) return;
+
+    const title = isEdit ? 'Product Updated! 🎉' : 'Product Submitted! 🎉';
+    const message = isEdit
+        ? 'Your changes have been saved. The product will be re-reviewed by our team.'
+        : 'Your product has been submitted for review. Our team will approve it within 24 hours — then it goes live on iShop.';
+
+    container.innerHTML = `
+        <div class="vendor-apply-success">
+            <div class="vendor-apply-success-icon"><i class="fas fa-check"></i></div>
+            <h2>${title}</h2>
+            <p>${message}</p>
+            <p style="margin-top:1rem;color:#8896a8;font-size:0.9rem;">
+                <strong>${escapeHtml(payload.name)}</strong><br>
+                ₦${Number(payload.price).toLocaleString()}
+            </p>
+            <div class="vendor-apply-success-actions">
+                <a href="vendor-products.html" class="primary">
+                    <i class="fas fa-box"></i> View My Products
+                </a>
+                <a href="vendor-product-form.html" class="secondary">
+                    <i class="fas fa-plus-circle"></i> Add Another Product
+                </a>
+            </div>
+        </div>
+    `;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================
+// INIT
+// ============================================
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProductFormPage);
+} else {
+    initProductFormPage();
+}
+/* ============================================ */
+/* VENDOR EARNINGS PAGE */
+/* ============================================ */
+
+const VENDOR_EARNINGS_API = 'https://ishop-payments-production.up.railway.app';
+
+let vendorEarningsState = {
+    pendingBalance: 0,
+    paidOut: 0,
+    totalEarnings: 0,
+    salesCount: 0,
+    recentSales: [],
+    payoutHistory: [],
+};
+
+// Initialize
+function initVendorEarningsPage() {
+    const pendingEl = document.getElementById('statPending');
+    if (!pendingEl) return; // not on this page
+
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Wire payout modal
+    const requestBtn = document.getElementById('requestPayoutBtn');
+    if (requestBtn) requestBtn.addEventListener('click', openPayoutModal);
+
+    const confirmBtn = document.getElementById('confirmPayoutBtn');
+    if (confirmBtn) confirmBtn.addEventListener('click', submitPayoutRequest);
+
+    // Wire modal close on overlay click
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('payoutModal');
+        if (modal && e.target === modal) closePayoutModal();
+    });
+
+    // Load earnings
+    loadVendorEarnings(jwt);
+}
+
+// Load earnings from backend
+async function loadVendorEarnings(jwt) {
+    try {
+        const res = await fetch(`${VENDOR_EARNINGS_API}/api/vendors/earnings`, {
+            headers: { 'Authorization': `Bearer ${jwt}` },
+        });
+
+        const data = await res.json();
+
+        if (res.status === 403) {
+            showEarningsError('Your vendor account must be approved first.');
+            return;
+        }
+        if (res.status === 404) {
+            showEarningsError('No vendor record found for this account.');
+            return;
+        }
+        if (!res.ok || !data.status) {
+            throw new Error(data.error || 'Could not load earnings');
+        }
+
+        vendorEarningsState = {
+            pendingBalance: data.pendingBalance || 0,
+            paidOut: data.paidOut || 0,
+            totalEarnings: data.totalEarnings || 0,
+            salesCount: data.salesCount || 0,
+            recentSales: data.recentSales || [],
+            payoutHistory: data.payoutHistory || [],
+        };
+
+        renderEarningsStats();
+        renderSalesTable();
+        renderPayoutHistory();
+
+    } catch (err) {
+        console.error('Vendor earnings load error:', err);
+        showEarningsError(err.message || 'Something went wrong');
+    }
+}
+
+// Render stats
+function renderEarningsStats() {
+    const fmt = (n) => '₦' + Number(n || 0).toLocaleString();
+
+    const el = (id) => document.getElementById(id);
+    if (el('statPending')) el('statPending').textContent = fmt(vendorEarningsState.pendingBalance);
+    if (el('statPaid')) el('statPaid').textContent = fmt(vendorEarningsState.paidOut);
+    if (el('statTotal')) el('statTotal').textContent = fmt(vendorEarningsState.totalEarnings);
+    if (el('statSales')) el('statSales').textContent = vendorEarningsState.salesCount;
+
+    // Enable/disable payout button based on pending balance
+    const requestBtn = document.getElementById('requestPayoutBtn');
+    if (requestBtn) {
+        if (vendorEarningsState.pendingBalance <= 0) {
+            requestBtn.disabled = true;
+            requestBtn.title = 'No pending balance to pay out';
+        } else {
+            requestBtn.disabled = false;
+            requestBtn.title = '';
+        }
+    }
+
+    // Update modal max hint
+    const hint = document.getElementById('payoutMaxHint');
+    if (hint) {
+        hint.textContent = 'Max: ' + fmt(vendorEarningsState.pendingBalance);
+    }
+}
+
+// Render sales table
+function renderSalesTable() {
+    const container = document.getElementById('salesTableContainer');
+    if (!container) return;
+
+    const sales = vendorEarningsState.recentSales;
+
+    if (!sales || sales.length === 0) {
+        container.innerHTML = `
+            <div class="vendor-empty-state" style="border:none;box-shadow:none;padding:2.5rem 1rem;">
+                <div class="vendor-empty-icon"><i class="fas fa-receipt"></i></div>
+                <h3>No sales yet</h3>
+                <p>Once customers buy your products, you'll see them here.</p>
+                <a href="vendor-products.html" class="vendor-add-btn" style="margin:0 auto;">
+                    <i class="fas fa-box"></i> Manage My Products
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    const fmt = (n) => '₦' + Number(n || 0).toLocaleString();
+
+    const rows = sales.map(s => {
+        const date = s.date ? new Date(s.date).toLocaleDateString('en-NG', {
+            year: 'numeric', month: 'short', day: 'numeric',
+        }) : '—';
+
+        return `
+            <tr>
+                <td class="col-product">${escapeHtml(s.productName || 'Product')}</td>
+                <td class="col-ref">${escapeHtml(s.orderRef || '')}</td>
+                <td>${s.quantity || 1}</td>
+                <td class="col-amount">${fmt(s.gross)}</td>
+                <td>${(s.commissionRate * 100).toFixed(0)}%</td>
+                <td class="col-net">${fmt(s.net)}</td>
+                <td class="col-date">${date}</td>
+            </tr>
+        `;
+    }).join('');
+
+    container.innerHTML = `
+        <div style="overflow-x:auto;">
+            <table class="vendor-sales-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Order Ref</th>
+                        <th>Qty</th>
+                        <th>Amount</th>
+                        <th>Commission</th>
+                        <th>You Earned</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// Render payout history
+function renderPayoutHistory() {
+    const container = document.getElementById('payoutHistoryContainer');
+    if (!container) return;
+
+    const history = vendorEarningsState.payoutHistory;
+
+    if (!history || history.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:2rem 1rem;color:#8896a8;">
+                <i class="fas fa-history" style="font-size:2rem;color:#e0e0e0;display:block;margin-bottom:0.75rem;"></i>
+                <p style="margin:0;font-size:0.9rem;">No payouts yet. Your completed payouts will appear here.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const fmt = (n) => '₦' + Number(n || 0).toLocaleString();
+
+    container.innerHTML = `
+        <div class="vendor-payout-history-list">
+            ${history.slice().reverse().map(p => `
+                <div class="vendor-payout-history-item">
+                    <div class="ph-left">
+                        <div class="ph-icon"><i class="fas fa-check"></i></div>
+                        <div class="ph-info">
+                            <strong>Payout ${escapeHtml(p.id || '')}</strong>
+                            <span>${p.paidAt ? new Date(p.paidAt).toLocaleDateString('en-NG', {
+                                year: 'numeric', month: 'short', day: 'numeric',
+                            }) : '—'}</span>
+                        </div>
+                    </div>
+                    <div class="ph-amount">${fmt(p.amount)}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// Show error state
+function showEarningsError(message) {
+    const container = document.getElementById('salesTableContainer');
+    if (container) {
+        container.innerHTML = `
+            <div class="vendor-error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>${escapeHtml(message)}</p>
+                <button class="vendor-btn-secondary" onclick="location.reload()" style="margin-top:1rem;">
+                    <i class="fas fa-redo"></i> Retry
+                </button>
+            </div>
+        `;
+    }
+    // Zero out stats
+    const el = (id) => document.getElementById(id);
+    if (el('statPending')) el('statPending').textContent = '₦0';
+    if (el('statPaid')) el('statPaid').textContent = '₦0';
+    if (el('statTotal')) el('statTotal').textContent = '₦0';
+    if (el('statSales')) el('statSales').textContent = '0';
+}
+
+// ---------- PAYOUT MODAL ----------
+function openPayoutModal() {
+    const modal = document.getElementById('payoutModal');
+    if (!modal) return;
+
+    if (vendorEarningsState.pendingBalance <= 0) {
+        alert('You have no pending balance to pay out.');
+        return;
+    }
+
+    // Pre-fill with full pending amount
+    const amountInput = document.getElementById('payoutAmount');
+    if (amountInput) {
+        amountInput.value = vendorEarningsState.pendingBalance;
+        amountInput.max = vendorEarningsState.pendingBalance;
+    }
+
+    // Clear feedback
+    const fb = document.getElementById('payoutFeedback');
+    if (fb) { fb.innerHTML = ''; fb.className = ''; }
+
+    modal.style.display = 'flex';
+}
+
+function closePayoutModal() {
+    const modal = document.getElementById('payoutModal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function submitPayoutRequest() {
+    const amountInput = document.getElementById('payoutAmount');
+    const feedback = document.getElementById('payoutFeedback');
+    const confirmBtn = document.getElementById('confirmPayoutBtn');
+
+    if (!amountInput || !feedback || !confirmBtn) return;
+
+    const amount = Number(amountInput.value);
+
+    // Validation
+    if (!amount || amount <= 0) {
+        feedback.className = 'error';
+        feedback.style.color = '#721c24';
+        feedback.style.background = '#f8d7da';
+        feedback.style.padding = '0.6rem 0.9rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = '⚠️ Please enter a valid amount.';
+        return;
+    }
+
+    if (amount > vendorEarningsState.pendingBalance) {
+        feedback.className = 'error';
+        feedback.style.color = '#721c24';
+        feedback.style.background = '#f8d7da';
+        feedback.style.padding = '0.6rem 0.9rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = `⚠️ Amount exceeds your pending balance of ₦${vendorEarningsState.pendingBalance.toLocaleString()}.`;
+        return;
+    }
+
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) {
+        alert('Please log in again.');
+        return;
+    }
+
+    // Disable button
+    const originalText = confirmBtn.innerHTML;
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    feedback.innerHTML = '';
+
+    try {
+        const res = await fetch(`${VENDOR_EARNINGS_API}/api/vendors/request-payout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({ amount }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.status) {
+            throw new Error(data.error || 'Could not submit request');
+        }
+
+        // Success
+        feedback.className = 'success';
+        feedback.style.color = '#155724';
+        feedback.style.background = '#d4edda';
+        feedback.style.padding = '0.6rem 0.9rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = `✅ Payout request for ₦${amount.toLocaleString()} submitted! We'll review and process it within 3–5 business days.`;
+
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalText;
+
+        // Close modal after 3 seconds
+        setTimeout(() => {
+            closePayoutModal();
+        }, 3000);
+
+    } catch (err) {
+        console.error('Payout request error:', err);
+        feedback.className = 'error';
+        feedback.style.color = '#721c24';
+        feedback.style.background = '#f8d7da';
+        feedback.style.padding = '0.6rem 0.9rem';
+        feedback.style.borderRadius = '8px';
+        feedback.innerHTML = `❌ ${err.message}`;
+
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalText;
+    }
+}
+
+// Init on DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVendorEarningsPage);
+} else {
+    initVendorEarningsPage();
+}
