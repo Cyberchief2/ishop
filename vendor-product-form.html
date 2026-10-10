@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Add Product – iShop Vendor</title>
+    <meta name="description" content="Add a new product to your iShop catalogue." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+</head>
+<body class="vendor-apply-page">
+    <div id="site-header"></div>
+
+    <!-- HEADER -->
+    <section class="vendor-apply-header">
+        <a href="vendor-products.html" class="vendor-back-link">
+            <i class="fas fa-arrow-left"></i> Back to My Products
+        </a>
+        <h1 id="productFormTitle">Add New Product</h1>
+        <p id="productFormSubtitle">Fill in the details below. Your product will be reviewed before going live.</p>
+    </section>
+
+    <!-- PROGRESS BAR -->
+    <div class="vendor-progress">
+        <div class="vendor-progress-track">
+            <div class="vendor-progress-bar" id="productProgressBar"></div>
+        </div>
+        <div class="vendor-progress-steps">
+            <div class="vendor-progress-step active" data-step="1">
+                <div class="vendor-progress-dot">1</div>
+                <span>Product Info</span>
+            </div>
+            <div class="vendor-progress-step" data-step="2">
+                <div class="vendor-progress-dot">2</div>
+                <span>Description</span>
+            </div>
+            <div class="vendor-progress-step" data-step="3">
+                <div class="vendor-progress-dot">3</div>
+                <span>Images & Review</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORM CONTAINER -->
+    <section class="vendor-apply-container">
+        <form id="productForm" novalidate>
+
+            <!-- ============ STEP 1: PRODUCT INFO ============ -->
+            <div class="vendor-apply-step active" data-step="1">
+                <div class="vendor-step-header">
+                    <h2><i class="fas fa-box"></i> Product Information</h2>
+                    <p>The basics — what you're selling and at what price.</p>
+                </div>
+
+                <div class="vendor-form-group">
+                    <label for="productName">Product Name <span class="req">*</span></label>
+                    <input type="text" id="productName" placeholder="e.g. Samsung Galaxy A54 5G" required />
+                    <small class="vendor-form-hint">Be specific — brand, model, key specs</small>
+                </div>
+
+                <div class="vendor-form-row">
+                    <div class="vendor-form-group">
+                        <label for="productCategory">Category <span class="req">*</span></label>
+                        <select id="productCategory" required>
+                            <option value="">Select category</option>
+                            <option value="electronics">📱 Electronics</option>
+                            <option value="fashion">👗 Fashion</option>
+                            <option value="beauty">💄 Beauty</option>
+                            <option value="digital">💻 Digital</option>
+                            <option value="home">🏠 Home & Kitchen</option>
+                            <option value="traditional">👘 Traditional Attire</option>
+                        </select>
+                    </div>
+                    <div class="vendor-form-group">
+                        <label for="productType">Product Type <span class="req">*</span></label>
+                        <select id="productType" required>
+                            <option value="physical">📦 Physical (shipped)</option>
+                            <option value="digital">📥 Digital (downloaded)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="vendor-form-group" id="subTypeGroup">
+                    <label for="productSubType">Sub-Type <span class="optional">(optional)</span></label>
+                    <input type="text" id="productSubType" placeholder="e.g. smartphones, shoes, skincare" />
+                    <small class="vendor-form-hint">Helps customers filter — common values: smartphones, laptops, clothing, shoes, bags</small>
+                </div>
+
+                <div class="vendor-form-row">
+                    <div class="vendor-form-group">
+                        <label for="productPrice">Price (₦) <span class="req">*</span></label>
+                        <input type="number" id="productPrice" placeholder="e.g. 45000" required min="0" step="1" />
+                        <small class="vendor-form-hint">Set to 0 for free digital downloads</small>
+                    </div>
+                    <div class="vendor-form-group">
+                        <label for="productStock">Stock Quantity <span class="optional">(physical only)</span></label>
+                        <input type="number" id="productStock" placeholder="e.g. 10" min="0" step="1" />
+                        <small class="vendor-form-hint">Leave blank if unlimited</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ STEP 2: DESCRIPTION ============ -->
+            <div class="vendor-apply-step" data-step="2">
+                <div class="vendor-step-header">
+                    <h2><i class="fas fa-align-left"></i> Description & Specifications</h2>
+                    <p>Tell customers what makes this product great.</p>
+                </div>
+
+                <div class="vendor-form-group">
+                    <label for="productDescription">Product Description <span class="req">*</span></label>
+                    <textarea id="productDescription" rows="6" placeholder="Describe the product features, what's in the box, and why it's a great buy..." required></textarea>
+                    <small class="vendor-form-hint">Minimum 50 characters. Be honest and specific.</small>
+                </div>
+
+                <div class="vendor-form-group">
+                    <label>Specifications <span class="optional">(optional)</span></label>
+                    <small class="vendor-form-hint" style="display:block;margin-bottom:0.75rem;">
+                        Add key-value pairs like "Screen Size: 6.5 inches", "Battery: 5000mAh", etc.
+                    </small>
+
+                    <div id="specificationsList"></div>
+
+                    <button type="button" class="vendor-btn-secondary" onclick="addSpecificationRow()" style="margin-top:0.5rem;">
+                        <i class="fas fa-plus"></i> Add Specification
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============ STEP 3: IMAGES + REVIEW ============ -->
+            <div class="vendor-apply-step" data-step="3">
+                <div class="vendor-step-header">
+                    <h2><i class="fas fa-images"></i> Images & Review</h2>
+                    <p>Upload photos and confirm your listing before submitting.</p>
+                </div>
+
+                <div class="vendor-form-group">
+                    <label>Product Images <span class="req">*</span></label>
+                    <small class="vendor-form-hint" style="display:block;margin-bottom:0.75rem;">
+                        Upload 1–5 images. First image will be used as the main photo. JPG or PNG, max 5MB each.
+                    </small>
+
+                    <input type="file" id="productImages" accept="image/*" multiple class="vendor-hidden-file-input" />
+                    <label for="productImages" class="vendor-file-upload-box" id="productImagesDropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <strong>Click to upload images</strong>
+                        <span>or drag and drop them here</span>
+                    </label>
+
+                    <div id="productImagesPreview" class="vendor-images-preview"></div>
+                </div>
+
+                <div class="vendor-form-group" id="bookFileGroup" style="display:none;">
+                    <label>Digital File <span class="req">*</span></label>
+                    <small class="vendor-form-hint" style="display:block;margin-bottom:0.75rem;">
+                        Upload the file customers will download after purchase (PDF, ZIP, etc.).
+                    </small>
+
+                    <input type="file" id="productBookFile" class="vendor-hidden-file-input" />
+                    <label for="productBookFile" class="vendor-file-upload-box" id="bookFileDropZone">
+                        <i class="fas fa-file-download"></i>
+                        <strong>Click to upload your file</strong>
+                        <span>PDF, ZIP, DOCX, etc.</span>
+                    </label>
+
+                    <div id="bookFilePreview" class="vendor-file-preview"></div>
+                </div>
+
+                <div class="vendor-form-divider">
+                    <span>Review</span>
+                </div>
+
+                <div id="productReviewSummary" class="vendor-review-summary"></div>
+            </div>
+
+            <!-- FEEDBACK + NAV -->
+            <div id="productFormFeedback"></div>
+
+            <div class="vendor-apply-actions">
+                <button type="button" id="productBackBtn" class="vendor-btn-secondary" style="display:none;">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="button" id="productNextBtn" class="vendor-btn-primary">
+                    Continue <i class="fas fa-arrow-right"></i>
+                </button>
+                <button type="submit" id="productSubmitBtn" class="vendor-btn-primary" style="display:none;">
+                    <i class="fas fa-paper-plane"></i> <span id="submitBtnText">Submit Product</span>
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <div id="site-footer"></div>
+
+    <script src="shipping.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

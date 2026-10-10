@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Vendor Dashboard – iShop</title>
+    <meta name="description" content="Manage your iShop vendor account and track your application status." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+</head>
+<body class="vendor-dashboard-page">
+    <div id="site-header"></div>
+
+    <section class="vendor-dashboard-header">
+        <div class="vendor-container">
+            <div class="vendor-dashboard-greeting">
+                <div class="vendor-dashboard-avatar" id="vendorAvatar">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div>
+                    <h1 id="vendorWelcome">Welcome back</h1>
+                    <p id="vendorEmail">Loading…</p>
+                </div>
+            </div>
+            <div class="vendor-dashboard-actions">
+                <button class="vendor-btn-secondary" onclick="logoutUser()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN DASHBOARD CONTENT — populated by JS -->
+    <section class="vendor-dashboard-content" id="vendorDashboardContent">
+        <div class="vendor-container">
+            <div class="vendor-dashboard-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading your vendor dashboard…</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="site-footer"></div>
+
+    <script src="shipping.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

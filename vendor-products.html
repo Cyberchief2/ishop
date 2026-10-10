@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Products – iShop Vendor</title>
+    <meta name="description" content="Manage your iShop product catalogue." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+</head>
+<body class="vendor-products-page">
+    <div id="site-header"></div>
+
+    <!-- PAGE HEADER -->
+    <section class="vendor-products-header">
+        <div class="vendor-container">
+            <div class="vendor-products-header-top">
+                <div>
+                    <a href="vendor-dashboard.html" class="vendor-back-link-light">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <h1>My Products</h1>
+                    <p>Manage your iShop catalogue — add, edit, or remove products.</p>
+                </div>
+                <a href="vendor-product-form.html" class="vendor-add-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add New Product</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS BAR -->
+    <section class="vendor-products-stats">
+        <div class="vendor-container">
+            <div class="vendor-stats-row">
+                <div class="vendor-stat-item">
+                    <span class="vendor-stat-value" id="statTotalProducts">—</span>
+                    <span class="vendor-stat-label">Total Products</span>
+                </div>
+                <div class="vendor-stat-item">
+                    <span class="vendor-stat-value" id="statLiveProducts">—</span>
+                    <span class="vendor-stat-label">Live on Store</span>
+                </div>
+                <div class="vendor-stat-item">
+                    <span class="vendor-stat-value" id="statDraftProducts">—</span>
+                    <span class="vendor-stat-label">Awaiting Approval</span>
+                </div>
+                <div class="vendor-stat-item">
+                    <span class="vendor-stat-value" id="statCategories">—</span>
+                    <span class="vendor-stat-label">Categories Used</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FILTERS -->
+    <section class="vendor-products-filters">
+        <div class="vendor-container">
+            <div class="vendor-filter-row">
+                <button class="vendor-filter-btn active" data-filter="all">
+                    <i class="fas fa-th-large"></i> All
+                </button>
+                <button class="vendor-filter-btn" data-filter="live">
+                    <i class="fas fa-check-circle"></i> Live
+                </button>
+                <button class="vendor-filter-btn" data-filter="draft">
+                    <i class="fas fa-clock"></i> Drafts
+                </button>
+                <button class="vendor-filter-btn" data-filter="physical">
+                    <i class="fas fa-box"></i> Physical
+                </button>
+                <button class="vendor-filter-btn" data-filter="digital">
+                    <i class="fas fa-download"></i> Digital
+                </button>
+
+                <div class="vendor-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="vendorProductsSearch" placeholder="Search products..." />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTS LIST -->
+    <section class="vendor-products-list">
+        <div class="vendor-container">
+            <div id="vendorProductsContainer">
+                <div class="vendor-loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading your products…</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="site-footer"></div>
+
+    <!-- CONFIRM DELETE MODAL -->
+    <div class="vendor-modal-overlay" id="deleteModal" style="display:none;">
+        <div class="vendor-modal">
+            <div class="vendor-modal-icon danger">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <h3>Delete this product?</h3>
+            <p id="deleteModalProductName">This action cannot be undone.</p>
+            <div class="vendor-modal-actions">
+                <button class="vendor-btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="vendor-btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="shipping.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

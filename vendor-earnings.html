@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Earnings – iShop Vendor</title>
+    <meta name="description" content="Track your earnings and request payouts on iShop." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+</head>
+<body class="vendor-earnings-page">
+    <div id="site-header"></div>
+
+    <!-- PAGE HEADER -->
+    <section class="vendor-earnings-header">
+        <div class="vendor-container">
+            <a href="vendor-dashboard.html" class="vendor-back-link-light">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <h1>My Earnings</h1>
+            <p>Track your sales, pending balance, and request payouts.</p>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="vendor-earnings-stats">
+        <div class="vendor-container">
+            <div class="vendor-earnings-stats-grid">
+                <div class="vendor-earnings-stat-card highlight">
+                    <div class="vendor-earnings-stat-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="vendor-earnings-stat-label">Pending Balance</div>
+                    <div class="vendor-earnings-stat-value" id="statPending">—</div>
+                    <div class="vendor-earnings-stat-hint">Available for payout</div>
+                </div>
+
+                <div class="vendor-earnings-stat-card">
+                    <div class="vendor-earnings-stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="vendor-earnings-stat-label">Total Paid Out</div>
+                    <div class="vendor-earnings-stat-value" id="statPaid">—</div>
+                    <div class="vendor-earnings-stat-hint">Lifetime payouts</div>
+                </div>
+
+                <div class="vendor-earnings-stat-card">
+                    <div class="vendor-earnings-stat-icon gold">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="vendor-earnings-stat-label">Total Earnings</div>
+                    <div class="vendor-earnings-stat-value" id="statTotal">—</div>
+                    <div class="vendor-earnings-stat-hint">All time</div>
+                </div>
+
+                <div class="vendor-earnings-stat-card">
+                    <div class="vendor-earnings-stat-icon blue">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="vendor-earnings-stat-label">Total Sales</div>
+                    <div class="vendor-earnings-stat-value" id="statSales">—</div>
+                    <div class="vendor-earnings-stat-hint">Completed orders</div>
+                </div>
+            </div>
+
+            <!-- REQUEST PAYOUT CTA -->
+            <div class="vendor-payout-cta-card">
+                <div class="vendor-payout-cta-text">
+                    <h3>Ready to cash out?</h3>
+                    <p>Request a payout to your registered bank account anytime. Payouts are processed within 3–5 business days.</p>
+                </div>
+                <button class="vendor-payout-request-btn" id="requestPayoutBtn">
+                    <i class="fas fa-paper-plane"></i> Request Payout
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SALES TABLE -->
+    <section class="vendor-earnings-main">
+        <div class="vendor-container">
+            <div class="vendor-earnings-panel">
+                <div class="vendor-earnings-panel-header">
+                    <h2><i class="fas fa-receipt"></i> Recent Sales</h2>
+                    <p>The last 20 orders that included your products.</p>
+                </div>
+                <div id="salesTableContainer">
+                    <div class="vendor-loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading your sales…</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vendor-earnings-panel" style="margin-top:1.5rem;">
+                <div class="vendor-earnings-panel-header">
+                    <h2><i class="fas fa-history"></i> Payout History</h2>
+                    <p>Payouts you've already received.</p>
+                </div>
+                <div id="payoutHistoryContainer">
+                    <div class="vendor-loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading payout history…</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="site-footer"></div>
+
+    <!-- REQUEST PAYOUT MODAL -->
+    <div class="vendor-modal-overlay" id="payoutModal" style="display:none;">
+        <div class="vendor-modal">
+            <div class="vendor-modal-icon gold">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <h3>Request Payout</h3>
+            <p>Enter the amount you'd like to withdraw. It must be less than or equal to your pending balance.</p>
+
+            <div class="vendor-form-group" style="margin-top:1rem;text-align:left;">
+                <label for="payoutAmount">Amount (₦)</label>
+                <input type="number" id="payoutAmount" placeholder="e.g. 50000" min="1" step="1" />
+                <small class="vendor-form-hint" id="payoutMaxHint">Max: —</small>
+            </div>
+
+            <div id="payoutFeedback" style="margin-top:0.75rem;font-size:0.9rem;"></div>
+
+            <div class="vendor-modal-actions" style="margin-top:1.25rem;">
+                <button class="vendor-btn-secondary" onclick="closePayoutModal()">Cancel</button>
+                <button class="vendor-btn-primary" id="confirmPayoutBtn">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="shipping.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

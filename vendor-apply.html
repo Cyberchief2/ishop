@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Apply to Sell on iShop – Vendor Application</title>
+    <meta name="description" content="Apply to become an iShop vendor. Free to join. Fill out your business details in 3 quick steps." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+</head>
+<body class="vendor-apply-page">
+    <div id="site-header"></div>
+
+    <!-- HEADER -->
+    <section class="vendor-apply-header">
+        <a href="become-a-vendor.html" class="vendor-back-link">
+            <i class="fas fa-arrow-left"></i> Back to overview
+        </a>
+        <h1>Become an iShop Vendor</h1>
+        <p>Fill out the form below. Approval takes 24–48 hours.</p>
+    </section>
+
+    <!-- PROGRESS BAR -->
+    <div class="vendor-progress">
+        <div class="vendor-progress-track">
+            <div class="vendor-progress-bar" id="progressBar"></div>
+        </div>
+        <div class="vendor-progress-steps">
+            <div class="vendor-progress-step active" data-step="1">
+                <div class="vendor-progress-dot">1</div>
+                <span>Business Info</span>
+            </div>
+            <div class="vendor-progress-step" data-step="2">
+                <div class="vendor-progress-dot">2</div>
+                <span>Address & Bank</span>
+            </div>
+            <div class="vendor-progress-step" data-step="3">
+                <div class="vendor-progress-dot">3</div>
+                <span>Categories & Password</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORM CONTAINER -->
+    <section class="vendor-apply-container">
+        <form id="vendorApplyForm" novalidate>
+
+            <!-- STEP 1: BUSINESS INFO -->
+            <div class="vendor-apply-step active" data-step="1">
+                <div class="vendor-step-header">
+                    <h2><i class="fas fa-store"></i> Tell us about your business</h2>
+                    <p>This is how customers and our team will know you.</p>
+                </div>
+
+                <div class="vendor-form-group">
+                    <label for="businessName">Business Name <span class="req">*</span></label>
+                    <input type="text" id="businessName" name="businessName" placeholder="e.g. Mecha Electronics Ltd" required />
+                    <small class="vendor-form-hint">Use the name customers will recognise</small>
+                </div>
+
+                <div class="vendor-form-row">
+                    <div class="vendor-form-group">
+                        <label for="ownerName">Owner's Full Name <span class="req">*</span></label>
+                        <input type="text" id="ownerName" name="ownerName" placeholder="Your full legal name" required />
+                    </div>
+                    <div class="vendor-form-group">
+                        <label for="email">Email Address <span class="req">*</span></label>
+                        <input type="email" id="email" name="email" placeholder="you@yourbusiness.com" required />
+                        <small class="vendor-form-hint">Used for login and account updates</small>
+                    </div>
+                </div>
+
+                <div class="vendor-form-row">
+                    <div class="vendor-form-group">
+                        <label for="phone">Phone Number <span class="req">*</span></label>
+                        <input type="tel" id="phone" name="phone" placeholder="08012345678" required />
+                    </div>
+                    <div class="vendor-form-group">
+                        <label for="whatsapp">WhatsApp Number <span class="optional">(optional)</span></label>
+                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="08012345678" />
+                        <small class="vendor-form-hint">If different from the phone number above</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: ADDRESS & BANK -->
+            <div class="vendor-apply-step" data-step="2">
+                <div class="vendor-step-header">
+                    <h2><i class="fas fa-map-marker-alt"></i> Where are you based?</h2>
+                    <p>Your business address and payout details.</p>
+                </div>
+
+                <div class="vendor-form-group">
+                    <label for="businessAddress">Business Address <span class="req">*</span></label>
+                    <textarea id="businessAddress" name="businessAddress" rows="3" placeholder="Street, area, landmark" required></textarea>
+                </div>
+
+                <div class="vendor-form-row">
+                    <div class="vendor-form-group">
+                        <label for="state">State <span class="req">*</span></label>
+                        <select id="state" name="state" required>
+                            <option value="">Select your state</option>
+                        </select>
+                    </div>
+                    <div class="vendor-form-group">
+                        <label for="lga">LGA <span class="req">*</span></label>
+                        <select id="lga" name="lga" required disabled>
+                            <option value="">Select state first</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="vendor-form-group">
+                    <label for="taxId">Tax ID / TIN <span class="optional">(optional)</span></label>
+                    <input type="text" id="taxId" name="taxId" placeholder="Your business registration or tax ID" />
+                </div>
+
+                <div class="vendor-form-divider">
+                    <span>Bank Details for Payouts</span>
+                </div>
+
+                <div class="vendor-form-group">
+                    <label for="bankName">Bank Name <span class="req">*</span></label>
+                    <input type="text" id="bankName" name="bankName" placeholder="e.g. GTBank, Access Bank" required />
+                </div>
+
+                <div class="vendor-form-row">
+                    <div class="vendor-form-group">
+                        <label for="bankAccountName">Account Name <span class="req">*</span></label>
+                        <input type="text" id="bankAccountName" name="bankAccountName" placeholder="As it appears on your statement" required />
+                    </div>
+                    <div class="vendor-form-group">
+                        <label for="bankAccountNumber">Account Number <span class="req">*</span></label>
+                        <input type="text" id="bankAccountNumber" name="bankAccountNumber" placeholder="10 digits" required maxlength="10" pattern="[0-9]{10}" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: CATEGORIES & PASSWORD -->
+            <div class="vendor-apply-step" data-step="3">
+                <div class="vendor-step-header">
+                    <h2><i class="fas fa-tags"></i> What will you sell?</h2>
+                    <p>Choose at least one category. You can add more later.</p>
+                </div>
+
+                <div class="vendor-categories-grid">
+                    <label class="vendor-category-checkbox">
+                        <input type="checkbox" name="categories" value="electronics" />
+                        <div class="vendor-category-box">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>Electronics</span>
+                        </div>
+                    </label>
+                    <label class="vendor-category-checkbox">
+                        <input type="checkbox" name="categories" value="fashion" />
+                        <div class="vendor-category-box">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Fashion</span>
+                        </div>
+                    </label>
+                    <label class="vendor-category-checkbox">
+                        <input type="checkbox" name="categories" value="beauty" />
+                        <div class="vendor-category-box">
+                            <i class="fas fa-spa"></i>
+                            <span>Beauty</span>
+                        </div>
+                    </label>
+                    <label class="vendor-category-checkbox">
+                        <input type="checkbox" name="categories" value="digital" />
+                        <div class="vendor-category-box">
+                            <i class="fas fa-download"></i>
+                            <span>Digital Products</span>
+                        </div>
+                    </label>
+                    <label class="vendor-category-checkbox">
+                        <input type="checkbox" name="categories" value="home" />
+                        <div class="vendor-category-box">
+                            <i class="fas fa-couch"></i>
+                            <span>Home & Kitchen</span>
+                        </div>
+                    </label>
+                    <label class="vendor-category-checkbox">
+                        <input type="checkbox" name="categories" value="traditional" />
+                        <div class="vendor-category-box">
+                            <i class="fas fa-crown"></i>
+                            <span>Traditional Attire</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="vendor-form-group">
+                    <label for="description">Short description of your business <span class="optional">(optional)</span></label>
+                    <textarea id="description" name="description" rows="3" placeholder="Tell us a bit about what you sell and what makes your business unique"></textarea>
+                </div>
+
+                <div class="vendor-form-divider">
+                    <span>Secure Your Account</span>
+                </div>
+
+                <div class="vendor-form-row">
+                    <div class="vendor-form-group">
+                        <label for="password">Password <span class="req">*</span></label>
+                        <input type="password" id="password" name="password" placeholder="Min 6 characters" required minlength="6" />
+                        <small class="vendor-form-hint">Used to log in to your vendor dashboard</small>
+                    </div>
+                    <div class="vendor-form-group">
+                        <label for="confirmPassword">Confirm Password <span class="req">*</span></label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password" required />
+                    </div>
+                </div>
+
+                <label class="vendor-terms-checkbox">
+                    <input type="checkbox" id="agreeTerms" required />
+                    <span>
+                        I agree to iShop's
+                        <a href="terms.html" target="_blank">Terms of Service</a> and
+                        <a href="privacy.html" target="_blank">Privacy Policy</a>, and I confirm that the information provided is accurate.
+                    </span>
+                </label>
+            </div>
+
+            <!-- FEEDBACK + NAVIGATION -->
+            <div id="vendorApplyFeedback"></div>
+
+            <div class="vendor-apply-actions">
+                <button type="button" id="vendorBackBtn" class="vendor-btn-secondary" style="display:none;">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="button" id="vendorNextBtn" class="vendor-btn-primary">
+                    Continue <i class="fas fa-arrow-right"></i>
+                </button>
+                <button type="submit" id="vendorSubmitBtn" class="vendor-btn-primary" style="display:none;">
+                    <i class="fas fa-paper-plane"></i> Submit Application
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <div id="site-footer"></div>
+
+    <script src="shipping.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

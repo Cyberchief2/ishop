@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Traditional Attire – iShop</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+</head>
+<body class="traditional-page">
+    <div id="site-header"></div>
+
+    <section class="page-header">
+        <div class="page-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f9c74f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 20l3-9 4 3 3-8 3 8 4-3 3 9z"/>
+                <circle cx="12" cy="4" r="2"/>
+            </svg>
+        </div>
+        <h1>Traditional Attire</h1>
+        <p>Ankara, agbada, kaftans, gele & more — celebrate in style</p>
+    </section>
+
+    <section class="subcat-section">
+        <div class="subcat-row">
+            <button class="subcat-item active" data-subtype="all">
+                <div class="subcat-icon"><span style="font-size:2rem;">👘</span></div>
+                <div class="subcat-label">All</div>
+            </button>
+            <button class="subcat-item" data-subtype="women">
+                <div class="subcat-icon"><span style="font-size:2rem;">👗</span></div>
+                <div class="subcat-label">Women's</div>
+            </button>
+            <button class="subcat-item" data-subtype="men">
+                <div class="subcat-icon"><span style="font-size:2rem;">👔</span></div>
+                <div class="subcat-label">Men's</div>
+            </button>
+            <button class="subcat-item" data-subtype="accessories">
+                <div class="subcat-icon"><span style="font-size:2rem;">👑</span></div>
+                <div class="subcat-label">Accessories</div>
+            </button>
+            <button class="subcat-item" data-subtype="footwear">
+                <div class="subcat-icon"><span style="font-size:2rem;">👟</span></div>
+                <div class="subcat-label">Footwear</div>
+            </button>
+            <button class="subcat-item" data-subtype="fabrics">
+                <div class="subcat-icon"><span style="font-size:2rem;">🧵</span></div>
+                <div class="subcat-label">Fabrics</div>
+            </button>
+        </div>
+    </section>
+
+    <section class="featured-products">
+        <div class="product-grid" id="traditionalProducts"></div>
+    </section>
+
+    <div id="site-footer"></div>
+    <script src="script.js"></script>
+</body>
+</html>

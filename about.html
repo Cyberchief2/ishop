@@ -7,754 +7,707 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
-<link rel="shortcut icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-<link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
-<!-- Open Graph / Social Share -->
-<meta property="og:type" content="website" />
-<meta property="og:title" content="iShop – Nigeria's #1 Online Store" />
-<meta property="og:description" content="Shop electronics, fashion, beauty & digital products at unbeatable prices. Trusted by 500,000+ Nigerians." />
-<meta property="og:image" content="https://ishop.com.ng/og-image.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://ishop.com.ng" />
-<meta property="og:site_name" content="iShop" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="iShop – Nigeria's #1 Online Store" />
-<meta name="twitter:description" content="Shop electronics, fashion, beauty & digital products at unbeatable prices." />
-<meta name="twitter:image" content="https://ishop.com.ng/og-image.png" />
-<meta name="description" content="iShop – Nigeria's #1 Online Store. Shop electronics, fashion, beauty & digital products at unbeatable prices." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="iShop – Nigeria's #1 Online Store" />
+    <meta property="og:description" content="Shop electronics, fashion, beauty & digital products at unbeatable prices. Trusted by 500,000+ Nigerians." />
+    <meta property="og:image" content="https://ishop.com.ng/og-image.png" />
+    <meta property="og:url" content="https://ishop.com.ng" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="description" content="iShop – Nigeria's #1 Online Store. Shop electronics, fashion, beauty & digital products at unbeatable prices." />
+
     <style>
-        /* ===== ABOUT PAGE STYLES ===== */
+        :root {
+            --navy: #0d1b2a;
+            --navy-2: #1a2a3a;
+            --gold: #f9c74f;
+            --gold-dark: #e0a92e;
+            --text: #2a2f37;
+            --muted: #6b7280;
+            --bg: #f9fafb;
+            --line: #eef1f4;
+        }
+
+        .about-page * { box-sizing: border-box; }
+        .about-page { font-family: 'Inter', sans-serif; color: var(--text); background: #fff; }
+
+        /* ============ HERO ============ */
         .about-hero {
-            background: linear-gradient(135deg, #0d1b2a 0%, #1a2a3a 100%);
-            color: white;
-            padding: 5rem 1rem 4rem;
-            text-align: center;
             position: relative;
+            padding: 6rem 1.5rem 5rem;
+            background: radial-gradient(1200px 600px at 50% -10%, #1a2a3a 0%, var(--navy) 55%, #060d17 100%);
+            color: #fff;
             overflow: hidden;
+            text-align: center;
         }
         .about-hero::before {
             content: '';
             position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(249,199,79,0.08) 0%, transparent 70%);
-            animation: floatGlow 20s ease-in-out infinite;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 15% 20%, rgba(249,199,79,0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(249,199,79,0.10) 0%, transparent 45%);
+            pointer-events: none;
         }
-        @keyframes floatGlow {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(5%, 5%); }
-        }
-        .about-hero-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
+        .about-hero-content { position: relative; z-index: 2; max-width: 820px; margin: 0 auto; }
         .about-hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(249,199,79,0.15);
-            color: #f9c74f;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            background: rgba(249,199,79,0.12);
+            color: var(--gold);
+            padding: 0.5rem 1.1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
-            border: 1px solid rgba(249,199,79,0.3);
+            letter-spacing: 0.5px;
+            margin-bottom: 1.75rem;
+            border: 1px solid rgba(249,199,79,0.35);
+            backdrop-filter: blur(10px);
         }
-        .about-hero h1 { font-size: 2.8rem; font-weight: 900; margin: 0 0 1rem; line-height: 1.1; }
-        .about-hero h1 span { color: #f9c74f; }
-        .about-hero p { font-size: 1.15rem; color: #c0c8d0; margin: 0 0 2.5rem; line-height: 1.6; }
+        .about-hero h1 {
+            font-size: clamp(2rem, 4.5vw, 3.4rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin: 0 0 1.25rem;
+        }
+        .about-hero h1 .accent {
+            background: linear-gradient(120deg, var(--gold) 0%, #ffd87a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .about-hero p {
+            font-size: clamp(1rem, 1.4vw, 1.15rem);
+            color: #b8c2ce;
+            line-height: 1.7;
+            max-width: 640px;
+            margin: 0 auto 3rem;
+        }
         .about-hero-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1.5rem;
-            max-width: 720px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            max-width: 760px;
             margin: 0 auto;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
         .stat-item { text-align: center; }
         .stat-number {
             display: block;
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 3vw, 2rem);
             font-weight: 900;
-            color: #f9c74f;
+            color: var(--gold);
             line-height: 1;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
         }
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.72rem;
             color: #8896a8;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             font-weight: 600;
         }
 
-        .about-container { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
-        .about-section-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
+        /* ============ SHARED ============ */
+        .about-container { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+        .about-section-header { text-align: center; margin-bottom: 3.5rem; }
         .section-tag {
             display: inline-block;
-            color: #f9c74f;
-            background: #0d1b2a;
-            padding: 0.35rem 1rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
+            color: var(--gold);
+            background: var(--navy);
+            padding: 0.4rem 1.1rem;
+            border-radius: 30px;
+            font-size: 0.72rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 1.25rem;
         }
         .about-section-header h2 {
-            font-size: 2.2rem;
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
             font-weight: 800;
-            color: #0d1b2a;
-            margin: 0 0 0.75rem;
+            color: var(--navy);
+            margin: 0 0 0.85rem;
             line-height: 1.2;
+            letter-spacing: -0.5px;
         }
-        .about-section-header h2 span { color: #f9c74f; }
+        .about-section-header h2 span {
+            background: linear-gradient(120deg, var(--gold) 0%, var(--gold-dark) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         .about-section-header p {
-            color: #666;
-            font-size: 1.05rem;
-            max-width: 600px;
+            color: var(--muted);
+            font-size: 1.02rem;
+            max-width: 620px;
             margin: 0 auto;
+            line-height: 1.6;
         }
 
-        /* STORY */
-        .about-story { padding: 5rem 0; background: #f9fafb; }
+        /* ============ STORY ============ */
+        .about-story { padding: 6rem 0; background: var(--bg); }
         .about-story-grid {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 4rem;
+            grid-template-columns: 1fr 1.15fr;
+            gap: 4.5rem;
             align-items: center;
         }
         .about-story-image { position: relative; }
         .about-story-image img {
             width: 100%;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-radius: 20px;
+            box-shadow: 0 30px 60px rgba(13,27,42,0.18);
             display: block;
+            aspect-ratio: 4 / 5;
+            object-fit: cover;
         }
         .about-image-badge {
             position: absolute;
-            bottom: -20px;
-            right: -20px;
-            background: #0d1b2a;
+            bottom: -24px;
+            right: -24px;
+            background: var(--navy);
             color: white;
-            padding: 1rem 1.25rem;
-            border-radius: 12px;
+            padding: 1.1rem 1.4rem;
+            border-radius: 16px;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            gap: 0.9rem;
+            box-shadow: 0 20px 40px rgba(13,27,42,0.25);
+            border: 1px solid rgba(249,199,79,0.3);
         }
-        .about-image-badge i { color: #f9c74f; font-size: 1.5rem; }
-        .about-image-badge strong { display: block; font-size: 1rem; color: #f9c74f; }
+        .about-image-badge i { color: var(--gold); font-size: 1.6rem; }
+        .about-image-badge strong { display: block; font-size: 1rem; color: var(--gold); font-weight: 800; }
         .about-image-badge span { font-size: 0.8rem; color: #c0c8d0; }
 
         .about-story-text h2 {
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 2.6vw, 2rem);
             font-weight: 800;
-            color: #0d1b2a;
+            color: var(--navy);
             margin: 1rem 0 1.5rem;
             line-height: 1.25;
+            letter-spacing: -0.5px;
         }
-        .about-story-text p {
-            color: #555;
-            line-height: 1.75;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
+        .about-story-text p { color: #4b5563; line-height: 1.8; font-size: 1rem; margin-bottom: 1rem; }
         .about-story-features {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            gap: 0.85rem 1.5rem;
             margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--line);
         }
         .story-feature {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
             font-size: 0.9rem;
-            color: #0d1b2a;
+            color: var(--navy);
             font-weight: 600;
         }
-        .story-feature i { color: #4CAF50; }
+        .story-feature i { color: #22c55e; }
 
-        /* WHY US */
-        .about-why { padding: 5rem 0; background: white; }
-        .why-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
+        /* ============ WHY US ============ */
+        .about-why { padding: 6rem 0; background: #fff; }
+        .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
         .why-card {
-            background: #f9fafb;
-            border-radius: 14px;
-            padding: 2rem 1.5rem;
-            transition: transform 0.25s, box-shadow 0.25s;
-            border: 1px solid #eef1f4;
+            background: var(--bg);
+            border-radius: 18px;
+            padding: 2.25rem 1.75rem;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--line);
+            position: relative;
+            overflow: hidden;
+        }
+        .why-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
         }
         .why-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-            border-color: #f9c74f;
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(13,27,42,0.10);
+            border-color: transparent;
+            background: #fff;
         }
+        .why-card:hover::before { transform: scaleX(1); }
         .why-icon {
-            width: 60px;
-            height: 60px;
-            background: #0d1b2a;
-            color: #f9c74f;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 1.25rem;
-        }
-        .why-card h3 { font-size: 1.15rem; margin: 0 0 0.75rem; color: #0d1b2a; font-weight: 700; }
-        .why-card p { color: #666; font-size: 0.95rem; line-height: 1.6; margin: 0; }
-
-        /* MISSION / VISION / VALUES */
-        .about-mvv {
-            padding: 5rem 0;
-            background: linear-gradient(135deg, #0d1b2a 0%, #1a2a3a 100%);
-        }
-        .about-mvv .about-section-header h2 { color: white; }
-        .mvv-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .mvv-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(249,199,79,0.2);
+            width: 58px; height: 58px;
+            background: var(--navy);
+            color: var(--gold);
             border-radius: 16px;
-            padding: 2rem 1.75rem;
-            backdrop-filter: blur(10px);
-            transition: transform 0.25s, border-color 0.25s;
-        }
-        .mvv-card:hover {
-            transform: translateY(-4px);
-            border-color: #f9c74f;
-        }
-        .mvv-icon {
-            width: 56px;
-            height: 56px;
-            background: #f9c74f;
-            color: #0d1b2a;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.4rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.4rem;
+            transition: transform 0.35s ease;
         }
-        .mvv-card h3 {
-            font-size: 1.25rem;
-            color: #f9c74f;
-            margin: 0 0 1rem;
-            font-weight: 700;
-        }
-        .mvv-card p {
-            color: #c0c8d0;
-            line-height: 1.7;
-            font-size: 0.95rem;
-            margin: 0;
-        }
+        .why-card:hover .why-icon { transform: rotate(-6deg) scale(1.05); }
+        .why-card h3 { font-size: 1.1rem; margin: 0 0 0.75rem; color: var(--navy); font-weight: 700; letter-spacing: -0.2px; }
+        .why-card p { color: var(--muted); font-size: 0.92rem; line-height: 1.65; margin: 0; }
 
-        /* TEAM */
-        .about-team { padding: 5rem 0; background: #f9fafb; }
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 2rem;
+        /* ============ MVV ============ */
+        .about-mvv {
+            padding: 6rem 0;
+            background: radial-gradient(1000px 500px at 50% 0%, #1a2a3a 0%, var(--navy) 60%, #060d17 100%);
+            position: relative;
+            overflow: hidden;
         }
-        .team-card {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-            transition: transform 0.25s, box-shadow 0.25s;
-        }
-        .team-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
-        }
-        .team-avatar {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 1.25rem;
+        .about-mvv::before {
+            content: '';
+            position: absolute;
+            top: -100px; right: -100px;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(249,199,79,0.12) 0%, transparent 70%);
             border-radius: 50%;
-            background: linear-gradient(135deg, #0d1b2a 0%, #1a2a3a 100%);
-            color: #f9c74f;
+            pointer-events: none;
+        }
+        .about-mvv .about-section-header h2 { color: #fff; }
+        .about-mvv .about-section-header p { color: #b8c2ce; }
+        .mvv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; position: relative; z-index: 1; }
+        .mvv-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(249,199,79,0.2);
+            border-radius: 20px;
+            padding: 2.25rem 1.75rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mvv-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--gold);
+            background: rgba(255,255,255,0.06);
+            box-shadow: 0 20px 50px rgba(249,199,79,0.08);
+        }
+        .mvv-icon {
+            width: 56px; height: 56px;
+            background: var(--gold);
+            color: var(--navy);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            overflow: hidden;
-            border: 4px solid #f9c74f;
+            font-size: 1.35rem;
+            margin-bottom: 1.4rem;
+            box-shadow: 0 8px 20px rgba(249,199,79,0.3);
         }
-        .team-avatar img {
+        .mvv-card h3 { font-size: 1.2rem; color: var(--gold); margin: 0 0 0.9rem; font-weight: 800; letter-spacing: -0.2px; }
+        .mvv-card p { color: #c0c8d0; line-height: 1.7; font-size: 0.94rem; margin: 0; }
+        .mvv-card p strong { color: var(--gold); font-weight: 700; }
+
+        /* ============ TEAM ============ */
+        .about-team { padding: 6rem 0; background: var(--bg); }
+        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.75rem; }
+        .team-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 2.25rem 1.25rem 1.75rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(13,27,42,0.05);
+            border: 1px solid var(--line);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        .team-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 50px rgba(13,27,42,0.12);
+            border-color: transparent;
+        }
+        .team-card:hover::before { transform: scaleX(1); }
+
+        .team-photo-wrap {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1.35rem;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid #fff;
+            box-shadow: 0 10px 28px rgba(13,27,42,0.14);
+            transition: all 0.4s ease;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+        }
+        .team-card:hover .team-photo-wrap {
+            box-shadow: 0 14px 36px rgba(249,199,79,0.45);
+            border-color: var(--gold);
+            transform: scale(1.03);
+        }
+        .team-photo-wrap img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .team-card h4 {
-            font-size: 1.15rem;
-            color: #0d1b2a;
-            margin: 0 0 0.35rem;
-            font-weight: 700;
-        }
+        .team-card:hover .team-photo-wrap img { transform: scale(1.08); }
+
+        .team-card h4 { font-size: 1.12rem; color: var(--navy); margin: 0 0 0.5rem; font-weight: 800; letter-spacing: -0.3px; }
         .team-role {
             display: inline-block;
-            color: #f9c74f;
-            background: #0d1b2a;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
+            color: var(--navy);
+            background: rgba(249,199,79,0.22);
+            padding: 0.3rem 0.85rem;
+            border-radius: 30px;
+            font-size: 0.72rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.75rem;
+            letter-spacing: 0.8px;
+            margin-bottom: 1rem;
         }
-        .team-card p {
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.6;
-            margin: 0;
-        }
+        .team-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin: 0; }
 
-        /* TIMELINE */
-        .about-timeline { padding: 5rem 0; background: white; }
-        .timeline {
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
-            padding-left: 30px;
-        }
+        /* ============ TIMELINE ============ */
+        .about-timeline { padding: 6rem 0; background: #fff; }
+        .timeline { position: relative; max-width: 800px; margin: 0 auto; padding-left: 40px; }
         .timeline::before {
             content: '';
             position: absolute;
-            left: 8px;
-            top: 0;
-            bottom: 0;
+            left: 8px; top: 4px; bottom: 4px;
             width: 2px;
-            background: linear-gradient(to bottom, #f9c74f, #0d1b2a);
+            background: linear-gradient(to bottom, var(--gold), var(--navy));
+            border-radius: 2px;
         }
-        .timeline-item {
-            position: relative;
-            padding-bottom: 2.5rem;
-        }
+        .timeline-item { position: relative; padding-bottom: 2.75rem; }
         .timeline-item:last-child { padding-bottom: 0; }
         .timeline-dot {
             position: absolute;
-            left: -30px;
-            top: 4px;
-            width: 18px;
-            height: 18px;
+            left: -40px; top: 6px;
+            width: 18px; height: 18px;
             border-radius: 50%;
-            background: #f9c74f;
-            border: 4px solid white;
-            box-shadow: 0 0 0 2px #f9c74f;
+            background: var(--gold);
+            border: 4px solid #fff;
+            box-shadow: 0 0 0 2px var(--gold), 0 4px 12px rgba(249,199,79,0.4);
         }
-        .timeline-date {
-            color: #f9c74f;
-            font-weight: 700;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .timeline-title {
-            font-size: 1.15rem;
-            color: #0d1b2a;
-            margin: 0.35rem 0 0.5rem;
-            font-weight: 700;
-        }
-        .timeline-desc {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin: 0;
-        }
+        .timeline-date { color: var(--gold-dark); font-weight: 800; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1.2px; }
+        .timeline-title { font-size: 1.15rem; color: var(--navy); margin: 0.4rem 0 0.6rem; font-weight: 800; letter-spacing: -0.3px; }
+        .timeline-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.7; margin: 0; }
 
-        /* CTA */
+        /* ============ CTA ============ */
         .about-cta {
-            padding: 5rem 0;
-            background: linear-gradient(135deg, #f9c74f 0%, #f9a84f 100%);
+            padding: 5.5rem 0;
+            background: linear-gradient(135deg, var(--gold) 0%, #ffd87a 50%, var(--gold-dark) 100%);
+            position: relative;
+            overflow: hidden;
         }
-        .cta-content { text-align: center; max-width: 700px; margin: 0 auto; }
-        .cta-content h2 {
-            font-size: 2rem;
-            color: #0d1b2a;
-            margin: 0 0 1rem;
-            font-weight: 800;
+        .about-cta::before {
+            content: '';
+            position: absolute;
+            top: -100px; right: -100px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%);
+            border-radius: 50%;
         }
-        .cta-content p {
-            color: #0d1b2a;
-            font-size: 1.1rem;
-            margin: 0 0 2rem;
-        }
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+        .cta-content { text-align: center; max-width: 700px; margin: 0 auto; position: relative; z-index: 1; }
+        .cta-content h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); color: var(--navy); margin: 0 0 1rem; font-weight: 900; letter-spacing: -0.5px; }
+        .cta-content p { color: #3a4553; font-size: 1.05rem; margin: 0 0 2.25rem; line-height: 1.6; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
         .btn-cta-primary, .btn-cta-secondary {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
             padding: 1rem 2rem;
-            border-radius: 12px;
+            border-radius: 14px;
             font-weight: 700;
             text-decoration: none;
             font-size: 1rem;
-            transition: transform 0.15s;
+            transition: all 0.25s ease;
+            box-shadow: 0 10px 25px rgba(13,27,42,0.15);
         }
-        .btn-cta-primary { background: #0d1b2a; color: #f9c74f; }
-        .btn-cta-secondary { background: white; color: #0d1b2a; }
-        .btn-cta-primary:hover, .btn-cta-secondary:hover { transform: translateY(-2px); }
+        .btn-cta-primary { background: var(--navy); color: var(--gold); }
+        .btn-cta-secondary { background: #fff; color: var(--navy); }
+        .btn-cta-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 35px rgba(13,27,42,0.28); }
+        .btn-cta-secondary:hover { transform: translateY(-3px); box-shadow: 0 16px 35px rgba(13,27,42,0.18); }
 
-        @media (max-width: 768px) {
-            .about-hero h1 { font-size: 2rem; }
-            .about-story-grid { grid-template-columns: 1fr; gap: 3rem; }
-            .about-section-header h2 { font-size: 1.6rem; }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 1024px) {
+            .team-grid { grid-template-columns: repeat(2, 1fr); }
+            .why-grid, .mvv-grid { grid-template-columns: repeat(2, 1fr); }
+            .about-story-grid { grid-template-columns: 1fr; gap: 3.5rem; }
+            .about-image-badge { bottom: -16px; right: -16px; }
+        }
+        @media (max-width: 640px) {
+            .about-hero { padding: 4rem 1rem 3.5rem; }
+            .about-hero-stats { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+            .about-story, .about-why, .about-mvv, .about-team, .about-timeline { padding: 4rem 0; }
+            .about-container { padding: 0 1.1rem; }
+            .team-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .why-grid, .mvv-grid { grid-template-columns: 1fr; }
+            .about-story-features { grid-template-columns: 1fr; }
+            .about-image-badge { padding: 0.85rem 1rem; }
+            .timeline { padding-left: 30px; }
+            .timeline-dot { left: -30px; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .btn-cta-primary, .btn-cta-secondary { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
-    <!-- TOP BAR -->
-    <div class="top-bar">
-        <div class="top-bar-content">
-            <div class="top-bar-left">
-                <a href="#" class="top-link"><i class="fas fa-phone"></i> +234 811 480 8088</a>
-                <span class="divider">|</span>
-                <a href="#" class="top-link"><i class="fas fa-envelope"></i> info@ishop.com.ng</a>
-            </div>
-            <div class="top-bar-right">
-                <a href="signup.html" class="top-link"><i class="fas fa-user-plus"></i> Sign Up</a>
-                <a href="login.html" class="top-link"><i class="fas fa-sign-in-alt"></i> Login</a>
-                <a href="wishlist.html" class="top-link"><i class="fas fa-heart"></i> Wishlist</a>
-            </div>
-        </div>
-    </div>
+    <div id="site-header"></div>
 
-    <!-- HEADER -->
-    <header>
-        <div class="header-content">
-            <div class="logo">
-                <a href="index.html">
-                    <span class="logo-icon">🛍️</span><span class="logo-text">i<span class="logo-accent">Shop</span></span>
-                </a>
-            </div>
-            <div class="search-bar">
-                <div class="search-category-dropdown" onclick="toggleSearchDropdown()">
-                    <span id="selectedCategory">All Categories</span>
-                    <i class="fas fa-chevron-down" id="searchArrow"></i>
+    <main class="about-page">
+
+        <!-- HERO -->
+        <section class="about-hero">
+            <div class="about-hero-content">
+                <div class="about-hero-badge">
+                    <i class="fas fa-star"></i> Trusted by 500,000+ Nigerians
                 </div>
-                <div class="search-dropdown-menu" id="searchDropdown">
-                    <a href="#" onclick="selectCategory('All Categories')">All Categories</a>
-                    <a href="#" onclick="selectCategory('Electronics')">📱 Electronics</a>
-                    <a href="#" onclick="selectCategory('Fashion')">👗 Fashion</a>
-                    <a href="#" onclick="selectCategory('Beauty')">💄 Beauty</a>
-                    <a href="#" onclick="selectCategory('Digital')">💻 Digital</a>
-                </div>
-                <input type="text" id="mainSearch" placeholder="Search for products, brands and more..." />
-                <button onclick="performSearch()"><i class="fas fa-search"></i></button>
-            </div>
-            <div class="nav-icons">
-                <a href="about.html" class="nav-link active"><i class="fas fa-info-circle"></i> About</a>
-                <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
-                <div class="nav-icon-item">
-                    <a href="cart.html" class="cart-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="badge" id="cartCount">0</span>
-                    </a>
-                    <span class="icon-label">Cart</span>
-                </div>
-                <div class="nav-icon-item">
-                    <a href="login.html" class="auth-icon" id="authIcon">
-                        <i class="fas fa-user-circle"></i>
-                    </a>
-                    <span class="icon-label">Account</span>
+                <h1>We're Building the Future of<br><span class="accent">Nigerian Commerce</span></h1>
+                <p>From Lagos to Kano, iShop connects millions of Nigerians with authentic products, fast delivery, and a shopping experience they can trust.</p>
+                <div class="about-hero-stats">
+                    <div class="stat-item"><span class="stat-number">500K+</span><span class="stat-label">Happy Customers</span></div>
+                    <div class="stat-item"><span class="stat-number">100K+</span><span class="stat-label">Products</span></div>
+                    <div class="stat-item"><span class="stat-number">36</span><span class="stat-label">States Covered</span></div>
+                    <div class="stat-item"><span class="stat-number">4.8★</span><span class="stat-label">Rating</span></div>
                 </div>
             </div>
-        </div>
-    </header>
+        </section>
 
-    <!-- MEGA MENU -->
-    <nav class="mega-menu">
-        <div class="mega-menu-content">
-            <ul class="menu-links">
-                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
-                <li><a href="electronics.html"><i class="fas fa-mobile-alt"></i> Electronics</a></li>
-                <li><a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion</a></li>
-                <li><a href="beauty.html"><i class="fas fa-spa"></i> Beauty</a></li>
-                <li><a href="digital-products.html"><i class="fas fa-download"></i> Digital</a></li>
-            </ul>
-            <div class="menu-right">
-                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
-                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
-            </div>
-        </div>
-    </nav>
+        <!-- STORY -->
+        <section class="about-story">
+            <div class="about-container">
+                <div class="about-story-grid">
+                    <div class="about-story-image">
+                        <img src="team0-image.png" alt="The iShop Story" />
 
-    <!-- 1. HERO -->
-    <section class="about-hero">
-        <div class="about-hero-content">
-            <div class="about-hero-badge"><i class="fas fa-star"></i> Trusted by 500,000+ Nigerians</div>
-            <h1>We're Building the Future of<br/><span>Nigerian Commerce</span></h1>
-            <p>From Lagos to Kano, iShop connects millions of Nigerians with authentic products, fast delivery, and a shopping experience they can trust.</p>
-            <div class="about-hero-stats">
-                <div class="stat-item"><span class="stat-number">500K+</span><span class="stat-label">Happy Customers</span></div>
-                <div class="stat-item"><span class="stat-number">100K+</span><span class="stat-label">Products</span></div>
-                <div class="stat-item"><span class="stat-number">36</span><span class="stat-label">States Covered</span></div>
-                <div class="stat-item"><span class="stat-number">4.8★</span><span class="stat-label">Rating</span></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 2. OUR STORY -->
-    <section class="about-story">
-        <div class="about-container">
-            <div class="about-story-grid">
-                <div class="about-story-image">
-                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600" alt="iShop Story" />
-                    <div class="about-image-badge">
-                        <i class="fas fa-rocket"></i>
-                        <div>
-                            <strong>Since 2024</strong>
-                            <span>Disrupting commerce</span>
+                    </div>
+                    <div class="about-story-text">
+                        <span class="section-tag">Our Story</span>
+                        <h2>Born from a Simple Frustration</h2>
+                        <p>In 2024, our founders noticed a painful reality: millions of Nigerians wanted to shop online but were constantly let down; fake products, delayed deliveries, and payment issues. We knew it didn't have to be this way.</p>
+                        <p>So we built iShop; a marketplace where every product is verified, every delivery is tracked, and every customer is treated like family. Starting from a small office in Lagos, we've grown to serve hundreds of thousands of customers across all 36 states.</p>
+                        <p>Today, we're proud to be one of Nigeria's fastest-growing online marketplaces but we're just getting started.</p>
+                        <div class="about-story-features">
+                            <div class="story-feature"><i class="fas fa-check-circle"></i><span>100% Authentic</span></div>
+                            <div class="story-feature"><i class="fas fa-check-circle"></i><span>Nationwide Delivery</span></div>
+                            <div class="story-feature"><i class="fas fa-check-circle"></i><span>Secure Payments</span></div>
+                            <div class="story-feature"><i class="fas fa-check-circle"></i><span>24/7 Support</span></div>
                         </div>
                     </div>
                 </div>
-                <div class="about-story-text">
-                    <span class="section-tag">Our Story</span>
-                    <h2>Born from a Simple Frustration</h2>
-                    <p>In 2024, our founders noticed a painful reality: millions of Nigerians wanted to shop online but were constantly let down — fake products, delayed deliveries, and payment issues. We knew it didn't have to be this way.</p>
-                    <p>So we built iShop — a marketplace where every product is verified, every delivery is tracked, and every customer is treated like family. Starting from a small office in Lagos, we've grown to serve hundreds of thousands of customers across all 36 states.</p>
-                    <p>Today, we're proud to be one of Nigeria's fastest-growing online marketplaces — but we're just getting started.</p>
-                    <div class="about-story-features">
-                        <div class="story-feature"><i class="fas fa-check-circle"></i><span>100% Authentic</span></div>
-                        <div class="story-feature"><i class="fas fa-check-circle"></i><span>Nationwide Delivery</span></div>
-                        <div class="story-feature"><i class="fas fa-check-circle"></i><span>Secure Payments</span></div>
-                        <div class="story-feature"><i class="fas fa-check-circle"></i><span>24/7 Support</span></div>
+            </div>
+        </section>
+
+        <!-- WHY US -->
+        <section class="about-why">
+            <div class="about-container">
+                <div class="about-section-header">
+                    <span class="section-tag">Why iShop</span>
+                    <h2>Why Hundreds of Thousands<br>Choose <span>iShop</span></h2>
+                    <p>We've built every part of the experience around you — from product authenticity to delivery speed.</p>
+                </div>
+                <div class="why-grid">
+                    <div class="why-card">
+                        <div class="why-icon"><i class="fas fa-shield-alt"></i></div>
+                        <h3>Verified Products Only</h3>
+                        <p>Every item is sourced from trusted brands and authorized distributors. No counterfeits, ever.</p>
+                    </div>
+                    <div class="why-card">
+                        <div class="why-icon"><i class="fas fa-truck-fast"></i></div>
+                        <h3>Swift Nationwide Delivery</h3>
+                        <p>1–2 days in Lagos, 3–7 days elsewhere. Free shipping on orders over ₦100,000.</p>
+                    </div>
+                    <div class="why-card">
+                        <div class="why-icon"><i class="fas fa-lock"></i></div>
+                        <h3>Bank-Grade Security</h3>
+                        <p>Every transaction is secured by Paystack's 256-bit encryption. Your data stays safe.</p>
+                    </div>
+                    <div class="why-card">
+                        <div class="why-icon"><i class="fas fa-undo-alt"></i></div>
+                        <h3>Hassle-Free Returns</h3>
+                        <p>7-day returns and 3–14 day refunds. If you're not happy, we make it right.</p>
+                    </div>
+                    <div class="why-card">
+                        <div class="why-icon"><i class="fas fa-headset"></i></div>
+                        <h3>24/7 Human Support</h3>
+                        <p>Real people, ready to help via WhatsApp, email, or phone — any time, any day.</p>
+                    </div>
+                    <div class="why-card">
+                        <div class="why-icon"><i class="fas fa-tags"></i></div>
+                        <h3>Fair, Honest Pricing</h3>
+                        <p>Competitive prices with no hidden fees. What you see is what you pay.</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- 3. WHY CHOOSE US -->
-    <section class="about-why">
-        <div class="about-container">
-            <div class="about-section-header">
-                <span class="section-tag">Why iShop</span>
-                <h2>Why Hundreds of Thousands<br/>Choose <span>iShop</span></h2>
-                <p>We've built every part of the experience around you — from product authenticity to delivery speed.</p>
-            </div>
-            <div class="why-grid">
-                <div class="why-card">
-                    <div class="why-icon"><i class="fas fa-shield-alt"></i></div>
-                    <h3>Verified Products Only</h3>
-                    <p>Every item is sourced from trusted brands and authorized distributors. No counterfeits, ever.</p>
+        <!-- MVV -->
+        <section class="about-mvv">
+            <div class="about-container">
+                <div class="about-section-header">
+                    <span class="section-tag">Our Purpose</span>
+                    <h2>Mission, Vision & Values</h2>
                 </div>
-                <div class="why-card">
-                    <div class="why-icon"><i class="fas fa-truck-fast"></i></div>
-                    <h3>Swift Nationwide Delivery</h3>
-                    <p>1–2 days in Lagos, 3–7 days elsewhere. Free shipping on orders over ₦50,000.</p>
-                </div>
-                <div class="why-card">
-                    <div class="why-icon"><i class="fas fa-lock"></i></div>
-                    <h3>Bank-Grade Security</h3>
-                    <p>Every transaction is secured by Paystack's 256-bit encryption. Your data stays safe.</p>
-                </div>
-                <div class="why-card">
-                    <div class="why-icon"><i class="fas fa-undo-alt"></i></div>
-                    <h3>Hassle-Free Returns</h3>
-                    <p>7-day returns and 3–14 day refunds. If you're not happy, we make it right.</p>
-                </div>
-                <div class="why-card">
-                    <div class="why-icon"><i class="fas fa-headset"></i></div>
-                    <h3>24/7 Human Support</h3>
-                    <p>Real people, ready to help via WhatsApp, email, or phone — any time, any day.</p>
-                </div>
-                <div class="why-card">
-                    <div class="why-icon"><i class="fas fa-tags"></i></div>
-                    <h3>Fair, Honest Pricing</h3>
-                    <p>Competitive prices with no hidden fees. What you see is what you pay.</p>
+                <div class="mvv-grid">
+                    <div class="mvv-card">
+                        <div class="mvv-icon"><i class="fas fa-bullseye"></i></div>
+                        <h3>Our Mission</h3>
+                        <p>To make authentic, quality products accessible to every Nigerian — no matter where they live, and to deliver them with a level of trust and service they've never experienced before.</p>
+                    </div>
+                    <div class="mvv-card">
+                        <div class="mvv-icon"><i class="fas fa-eye"></i></div>
+                        <h3>Our Vision</h3>
+                        <p>To become Africa's most trusted digital marketplace — empowering millions of customers, uplifting thousands of sellers, and setting the standard for what e-commerce should feel like.</p>
+                    </div>
+                    <div class="mvv-card">
+                        <div class="mvv-icon"><i class="fas fa-heart"></i></div>
+                        <h3>Our Values</h3>
+                        <p><strong>Integrity</strong> — we do what we say. <strong>Customer-first</strong> — every decision starts with you. <strong>Innovation</strong> — always improving. <strong>Excellence</strong> — nothing less than our best.</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- 4. MISSION / VISION / VALUES -->
-    <section class="about-mvv">
-        <div class="about-container">
-            <div class="about-section-header">
-                <span class="section-tag">Our Purpose</span>
-                <h2>Mission, Vision & Values</h2>
-            </div>
-            <div class="mvv-grid">
-                <div class="mvv-card">
-                    <div class="mvv-icon"><i class="fas fa-bullseye"></i></div>
-                    <h3>Our Mission</h3>
-                    <p>To make authentic, quality products accessible to every Nigerian — no matter where they live, and to deliver them with a level of trust and service they've never experienced before.</p>
+        <!-- TEAM -->
+        <section class="about-team">
+            <div class="about-container">
+                <div class="about-section-header">
+                    <span class="section-tag">Our Team</span>
+                    <h2>The People Behind <span>iShop</span></h2>
+                    <p>A small, passionate team obsessed with delivering an exceptional experience to every Nigerian shopper.</p>
                 </div>
-                <div class="mvv-card">
-                    <div class="mvv-icon"><i class="fas fa-eye"></i></div>
-                    <h3>Our Vision</h3>
-                    <p>To become Africa's most trusted digital marketplace — empowering millions of customers, uplifting thousands of sellers, and setting the standard for what e-commerce should feel like.</p>
-                </div>
-                <div class="mvv-card">
-                    <div class="mvv-icon"><i class="fas fa-heart"></i></div>
-                    <h3>Our Values</h3>
-                    <p><strong>Integrity</strong> — we do what we say. <strong>Customer-first</strong> — every decision starts with you. <strong>Innovation</strong> — always improving. <strong>Excellence</strong> — nothing less than our best.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+                <div class="team-list">
 
-    <!-- 5. TEAM -->
-    <section class="about-team">
-        <div class="about-container">
-            <div class="about-section-header">
-                <span class="section-tag">Our Team</span>
-                <h2>The People Behind <span>iShop</span></h2>
-                <p>A small, passionate team obsessed with delivering an exceptional experience to every Nigerian shopper.</p>
-            </div>
-            <div class="team-grid">
-                <div class="team-card">
-                    <div class="team-avatar"><i class="fas fa-user-tie"></i></div>
-                    <h4>Agwu Mecha Kalu</h4>
-                    <span class="team-role">Founder & CEO</span>
-                    <p>Cybersecurity specialist and serial entrepreneur with a vision to transform Nigerian e-commerce.</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-avatar"><i class="fas fa-user-tie"></i></div>
-                    <h4>Kalu Mecha Kalu</h4>
-                    <span class="team-role">Head of Operations</span>
-                    <p>Ensuring every order flows smoothly from warehouse to your doorstep across all 36 states.</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-avatar"><i class="fas fa-user-cog"></i></div>
-                    <h4>Okwara Mecha Kalu</h4>
-                    <span class="team-role">Chief Technology Officer</span>
-                    <p>Architecting the technology platform that powers millions of transactions securely.</p>
-                </div>
-                <div class="team-card">
-                    <div class="team-avatar"><i class="fas fa-user-headset"></i></div>
-                    <h4>Chinonyerem Kalu Uduma</h4>
-                    <span class="team-role">Customer Care Representative</span>
-                    <p>Leading our 24/7 support team and ensuring every customer feels heard and valued.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+                    <article class="team-member">
+                        <div class="team-member-media">
+                            <div class="team-member-image-wrap">
+                                <img src="team1-image.png" alt="Agwu Mecha Kalu" loading="lazy">
+                            </div>
+                            <span class="team-member-index">01</span>
+                        </div>
+                        <div class="team-member-body">
+                            <h3 class="team-member-name">Agwu Mecha Kalu</h3>
+                            <p class="team-member-role">Founder &amp; Chief Executive Officer</p>
+                            <div class="team-member-bio">
+                                <p>Agwu is the Founder and CEO of iShop, driven by a single conviction: that Nigerians deserve a shopping experience they can genuinely trust. With a background in cybersecurity, he saw firsthand how many online platforms were failing customers: leaking data, selling counterfeits, and hiding behind slow support. He decided to build something different.</p>
+                                <p>Starting from a small office in Cross River State, Agwu has led iShop from an idea into one of Nigeria's fastest-growing online marketplaces. He is responsible for setting the company's vision, culture, and long-term strategy, while still staying close to the product and customer experience.</p>
+                                <p>Before founding iShop, Agwu spent years working across education,technology and security, advising businesses on how to protect their digital operations. He holds a degree in English Language and various certificates in technology ( e.g. Computer Applications and Troubleshooting, Cybersecurity) and remains a passionate advocate for building trusted digital infrastructure across Africa.</p>
+                            </div>
+                            <div class="team-member-socials">
+                                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="mailto:admin@ishop.com.ng" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </article>
 
-    <!-- 6. TIMELINE -->
-    <section class="about-timeline">
-        <div class="about-container">
-            <div class="about-section-header">
-                <span class="section-tag">Our Journey</span>
-                <h2>Milestones That Shaped Us</h2>
-            </div>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-date">Early 2024</div>
-                    <h3 class="timeline-title">The Idea is Born</h3>
-                    <p class="timeline-desc">Frustrated by the state of e-commerce in Nigeria, our founders set out to build something better.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-date">Mid 2024</div>
-                    <h3 class="timeline-title">iShop Goes Live</h3>
-                    <p class="timeline-desc">Our platform launches with a small but carefully curated catalog of electronics and fashion products.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-date">Late 2024</div>
-                    <h3 class="timeline-title">10,000 Customers</h3>
-                    <p class="timeline-desc">We cross our first major milestone — 10,000 happy customers across Nigeria in just 6 months.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-date">2025</div>
-                    <h3 class="timeline-title">Nationwide Expansion</h3>
-                    <p class="timeline-desc">Delivery now reaches all 36 states + FCT. We introduce digital products — e-books, courses, and software.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-date">2026 & Beyond</div>
-                    <h3 class="timeline-title">Building Africa's Best</h3>
-                    <p class="timeline-desc">500,000+ customers. Our eyes are set on becoming Africa's most trusted marketplace.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+                    <article class="team-member">
+                        <div class="team-member-media">
+                            <div class="team-member-image-wrap">
+                                <img src="team2-image.png" alt="Kalu Mecha Kalu" loading="lazy">
+                            </div>
+                            <span class="team-member-index">02</span>
+                        </div>
+                        <div class="team-member-body">
+                            <h3 class="team-member-name">Kalu Mecha Kalu</h3>
+                            <p class="team-member-role">Head of Operations</p>
+                            <div class="team-member-bio">
+                                <p>Kalu runs the operational engine behind every order on iShop. From inventory coordination and warehouse logistics to courier partnerships and last-mile delivery, he is the reason packages arrive on time across all 36 states.</p>
+                                <p>With a sharp eye for detail and a relentless focus on efficiency, Kalu has built delivery networks that reduced average shipping times by more than 40% in under a year. He works closely with both sellers and logistics partners to ensure nothing falls through the cracks; even during peak shopping seasons.</p>
+                                <p>Outside the warehouse, Kalu is passionate about developing local talent and building systems that scale. He believes great operations aren't just about speed; they're about consistency and trust. He holds a Bachelors degree in Accounting.</p>
+                            </div>
+                            <div class="team-member-socials">
+                                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="mailto:info@ishop.com.ng" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </article>
 
-    <!-- 7. CTA -->
-    <section class="about-cta">
-        <div class="about-container">
-            <div class="cta-content">
-                <h2>Ready to Experience iShop?</h2>
-                <p>Join over 500,000 Nigerians who shop smarter, safer, and faster with iShop.</p>
-                <div class="cta-buttons">
-                    <a href="shop.html" class="btn-cta-primary"><i class="fas fa-shopping-bag"></i> Start Shopping</a>
-                    <a href="contact.html" class="btn-cta-secondary"><i class="fas fa-envelope"></i> Contact Us</a>
+                    <article class="team-member">
+                        <div class="team-member-media">
+                            <div class="team-member-image-wrap">
+                                <img src="team3-image.png" alt="Okwara Mecha Kalu" loading="lazy">
+                            </div>
+                            <span class="team-member-index">03</span>
+                        </div>
+                        <div class="team-member-body">
+                            <h3 class="team-member-name">Okwara Mecha Kalu</h3>
+                            <p class="team-member-role">Chief Technology Officer</p>
+                            <div class="team-member-bio">
+                                <p>Okwara is one of the architect behind iShop's technology. He leads the engineering team responsible for the platform's performance, security, and scalability; the invisible machinery that powers every product listing, checkout, and order update.</p>
+                                <p>With a background in computer engineering and cloud infrastructure, Okwara has built systems that securely handle thousands of transactions daily. He is deeply involved in both frontend experience and backend reliability, ensuring the site stays fast and available even during high traffic.</p>
+                                <p>Beyond code, Okwara is an advocate for clean architecture and developer mentorship. He believes great technology should feel effortless to the people using it and that's exactly the standard he holds iShop to. He also works for other prestigious organizations like tenyne</p>
+                            </div>
+                            <div class="team-member-socials">
+                                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="mailto:info@ishop.com.ng" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="team-member">
+                        <div class="team-member-media">
+                            <div class="team-member-image-wrap">
+                                <img src="team4-image.png" alt="Chinonyerem Kalu Uduma" loading="lazy">
+                            </div>
+                            <span class="team-member-index">04</span>
+                        </div>
+                        <div class="team-member-body">
+                            <h3 class="team-member-name">Chinonyerem Kalu Uduma (AcArb)</h3>
+                            <p class="team-member-role">Customer Care Representative</p>
+                            <div class="team-member-bio">
+                                <p>Chinonyerem is the voice of iShop; leading the customer care team that answers questions, resolves issues, and makes sure every shopper feels heard. She is the first point of contact for customers across WhatsApp, email, and phone, and often the reason people come back.</p>
+                                <p>She has built a support playbook that balances empathy with efficiency: real answers, fast responses, and no scripts. Under her leadership, customer satisfaction has risen to over 96%; a number she's still working to improve.</p>
+                                <p>Outside of work, Chinonyerem is a law graduate with a growing interest in legal practice, alternative dispute resolution, and professional development. She is an Associate of the Nigerian Institute of Chartered Arbitrators (NICArb), with an interest in arbitration and dispute resolution She is committed to building a well-rounded professional career while continually expanding my knowledge, skills, and experience.</p>
+                            </div>
+                            <div class="team-member-socials">
+                                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="mailto:help@ishop.com.ng" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </article>
+
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- FOOTER -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-column">
-                <h4>🛍️ iShop</h4>
-                <p>Your trusted online store in Nigeria.</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
+
+        <!-- CTA -->
+        <section class="about-cta">
+            <div class="about-container">
+                <div class="cta-content">
+                    <h2>Ready to Experience iShop?</h2>
+                    <p>Join over 500,000 Nigerians who shop smarter, safer, and faster with iShop.</p>
+                    <div class="cta-buttons">
+                        <a href="shop.html" class="btn-cta-primary"><i class="fas fa-shopping-bag"></i> Start Shopping</a>
+                        <a href="contact.html" class="btn-cta-secondary"><i class="fas fa-envelope"></i> Contact Us</a>
+                    </div>
                 </div>
             </div>
-            <div class="footer-column">
-                <h4>Quick Links</h4>
-                <a href="index.html">Home</a>
-                <a href="shop.html">Shop</a>
-                <a href="digital-products.html">Digital</a>
-                <a href="about.html">About Us</a>
-                <a href="help.html">Help Center</a>
-            </div>
-            <div class="footer-column">
-                <h4>Categories</h4>
-                <a href="electronics.html">Electronics</a>
-                <a href="fashion.html">Fashion</a>
-                <a href="beauty.html">Beauty</a>
-                <a href="digital-products.html">Digital</a>
-            </div>
-            <div class="footer-column">
-                <h4>Contact Info</h4>
-                <p><i class="fas fa-map-marker-alt"></i> Lagos, Nigeria</p>
-                <p><i class="fas fa-phone"></i> +234 811 480 8088</p>
-                <p><i class="fas fa-envelope"></i> help@ishop.com.ng</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2026 iShop. All rights reserved.</p>
-        </div>
-    </footer>
+        </section>
 
-    <a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help" target="_blank" class="whatsapp-float">
-        <i class="fab fa-whatsapp"></i>
-    </a>
+    </main>
+
+    <div id="site-footer"></div>
 
     <script src="script.js"></script>
 </body>
