@@ -5991,3 +5991,746 @@ if (document.readyState === 'loading') {
 } else {
     initVendorEarningsPage();
 }
+/* ============================================ */
+/* ADMIN PANEL */
+/* ============================================ */
+
+const ADMIN_API_BASE = 'https://ishop-payments-production.up.railway.app';
+
+const adminState = {
+    key: '',
+    vendors: [],
+    pendingVendors: [],
+    products: [],
+    pendingProducts: [],
+    payouts: [],
+    orders: [],
+    stats: null,
+};
+
+// ---------- INIT ----------
+function initAdminPanel() {
+    const loginScreen = document.getElementById('adminLoginScreen');
+    if (!loginScreen) return; // not the admin page
+
+    const savedKey = sessionStorage.getItem('iShopAdminKey');
+    if (savedKey) {
+        adminState.key = savedKey;
+        adminShowMainScreen();
+    }
+
+    const form = document.getElementById('adminLoginForm');
+    if (form) form.addEventListener('submit', adminHandleLogin);
+}
+
+// ---------- LOGIN ----------
+async function adminHandleLogin(e) {
+    e.preventDefault();
+    const input = document.getElementById('adminKeyInput');
+    const btn = document.getElementById('adminLoginBtn');
+    const feedback = document.getElementById('adminLoginFeedback');
+    const key = input.value.trim();
+
+    if (!key) {
+        feedback.className = 'admin-feedback error';
+        feedback.textContent = 'Please enter your admin key.';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying…';
+    feedback.className = '';
+    feedback.textContent = '';
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/stats?key=${encodeURIComponent(key)}`);
+        if (res.status === 401) {
+            feedback.className = 'admin-feedback error';
+            feedback.textContent = '❌ Invalid admin key. Please try again.';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-unlock"></i> Log In';
+            return;
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        if (!data.status) throw new Error('Invalid response');
+
+        adminState.key = key;
+        adminState.stats = data.stats;
+        sessionStorage.setItem('iShopAdminKey', key);
+
+        feedback.className = 'admin-feedback success';
+        feedback.textContent = '✅ Access granted. Loading…';
+
+        setTimeout(adminShowMainScreen, 400);
+    } catch (err) {
+        console.error('Admin login error:', err);
+        feedback.className = 'admin-feedback error';
+        feedback.textContent = '❌ Could not connect. Please try again.';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-unlock"></i> Log In';
+    }
+}
+
+function adminLogout() {
+    sessionStorage.removeItem('iShopAdminKey');
+    adminState.key = '';
+    document.getElementById('adminMainScreen').style.display = 'none';
+    document.getElementById('adminLoginScreen').style.display = 'flex';
+    document.getElementById('adminKeyInput').value = '';
+    document.getElementById('adminLoginFeedback').textContent = '';
+    document.getElementById('adminLoginBtn').disabled = false;
+    document.getElementById('adminLoginBtn').innerHTML = '<i class="fas fa-unlock"></i> Log In';
+}
+
+// ---------- SHOW MAIN SCREEN ----------
+function adminShowMainScreen() {
+    document.getElementById('adminLoginScreen').style.display = 'none';
+    document.getElementById('adminMainScreen').style.display = 'block';
+
+    // Load overview first
+    adminRenderStats();
+    adminLoadPendingVendors();
+    adminLoadAllVendors();
+    adminLoadPendingProducts();
+    adminLoadAllProducts();
+    adminLoadPayouts();
+    adminLoadOrders();
+}
+
+// ---------- TAB SWITCHING ----------
+function adminSwitchTab(tabName) {
+    document.querySelectorAll('.admin-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tabName);
+    });
+    document.querySelectorAll('.admin-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'admin-panel-' + tabName);
+    });
+}
+
+// ---------- REFRESH ALL ----------
+function adminRefreshAll() {
+    adminToast('Refreshing all data…', 'default');
+    adminLoadStats();
+    adminLoadPendingVendors();
+    adminLoadAllVendors();
+    adminLoadPendingProducts();
+    adminLoadAllProducts();
+    adminLoadPayouts();
+    adminLoadOrders();
+}
+
+// ============================================
+// STATS / OVERVIEW
+// ============================================
+
+async function adminLoadStats() {
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/stats?key=${encodeURIComponent(adminState.key)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.status) {
+            adminState.stats = data.stats;
+            adminRenderStats();
+        }
+    } catch (err) {
+        console.error('Admin stats error:', err);
+    }
+}
+
+function adminRenderStats() {
+    const container = document.getElementById('adminStatsGrid');
+    if (!container || !adminState.stats) return;
+
+    const s = adminState.stats;
+    const fmt = (n) => Number(n || 0).toLocaleString();
+
+    container.innerHTML = `
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon"><i class="fas fa-store"></i></div>
+            <div class="admin-stat-label">Pending Vendors</div>
+            <div class="admin-stat-value">${fmt(s.pendingVendors)}</div>
+            <div class="admin-stat-hint">${fmt(s.approvedVendors)} approved · ${fmt(s.totalVendors)} total</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon green"><i class="fas fa-box"></i></div>
+            <div class="admin-stat-label">Live Products</div>
+            <div class="admin-stat-value">${fmt(s.liveProducts)}</div>
+            <div class="admin-stat-hint">${fmt(s.draftProducts)} awaiting review</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon blue"><i class="fas fa-shopping-bag"></i></div>
+            <div class="admin-stat-label">Total Orders</div>
+            <div class="admin-stat-value">${fmt(s.totalOrders)}</div>
+            <div class="admin-stat-hint">${fmt(s.ordersToday)} placed today</div>
+        </div>
+        <div class="admin-stat-card highlight">
+            <div class="admin-stat-icon purple"><i class="fas fa-naira-sign"></i></div>
+            <div class="admin-stat-label">Revenue</div>
+            <div class="admin-stat-value">₦${fmt(s.revenue)}</div>
+            <div class="admin-stat-hint">${fmt(s.paidOrders)} paid orders</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon red"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="admin-stat-label">Pending Payouts</div>
+            <div class="admin-stat-value">${fmt(s.pendingPayouts)}</div>
+            <div class="admin-stat-hint">Vendor requests waiting</div>
+        </div>
+    `;
+
+    // Update tab badges
+    adminUpdateBadge('adminBadgeVendors', s.pendingVendors);
+    adminUpdateBadge('adminBadgeProducts', s.draftProducts);
+    adminUpdateBadge('adminBadgePayouts', s.pendingPayouts);
+}
+
+function adminUpdateBadge(id, count) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (count && count > 0) {
+        el.textContent = count;
+        el.style.display = 'inline-flex';
+    } else {
+        el.style.display = 'none';
+    }
+}
+
+// ============================================
+// VENDORS
+// ============================================
+
+async function adminLoadPendingVendors() {
+    const container = document.getElementById('adminPendingVendorsList');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/vendors/pending?key=${encodeURIComponent(adminState.key)}`);
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+        adminState.pendingVendors = data.vendors || [];
+        adminRenderPendingVendors();
+    } catch (err) {
+        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load pending vendors.</div>`;
+    }
+}
+
+function adminRenderPendingVendors() {
+    const container = document.getElementById('adminPendingVendorsList');
+    if (!container) return;
+
+    if (adminState.pendingVendors.length === 0) {
+        container.innerHTML = `
+            <div class="admin-empty">
+                <i class="fas fa-check-circle"></i>
+                No pending vendor applications. You're all caught up.
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = adminState.pendingVendors.map(v => `
+        <div class="admin-card">
+            <div class="admin-card-media"><i class="fas fa-store"></i></div>
+            <div class="admin-card-body">
+                <h3 class="admin-card-title">${adminEscape(v.businessName || 'Unnamed')}</h3>
+                <p class="admin-card-meta"><strong>Owner:</strong> ${adminEscape(v.ownerName || '—')}</p>
+                <p class="admin-card-meta"><strong>Email:</strong> ${adminEscape(v.email || '—')}</p>
+                <p class="admin-card-meta"><strong>Phone:</strong> ${adminEscape(v.phone || '—')}</p>
+                <p class="admin-card-meta"><strong>Location:</strong> ${adminEscape(adminTitle(v.lga))}, ${adminEscape(adminTitle(v.state))}</p>
+                <p class="admin-card-meta"><strong>Categories:</strong> ${adminEscape((v.categories || []).join(', ') || '—')}</p>
+                <span class="admin-card-badge pending">Pending</span>
+            </div>
+            <div class="admin-card-actions">
+                <button class="admin-btn admin-btn-success" onclick="adminApproveVendor(${v.id})">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+                <button class="admin-btn admin-btn-danger" onclick="adminRejectVendor(${v.id}, '${adminEscape(v.businessName || '')}')">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function adminLoadAllVendors() {
+    const container = document.getElementById('adminAllVendorsList');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/vendors?key=${encodeURIComponent(adminState.key)}`);
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+        adminState.vendors = data.vendors || [];
+        adminRenderAllVendors();
+    } catch (err) {
+        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load vendors.</div>`;
+    }
+}
+
+function adminRenderAllVendors() {
+    const container = document.getElementById('adminAllVendorsList');
+    if (!container) return;
+
+    if (adminState.vendors.length === 0) {
+        container.innerHTML = `<div class="admin-empty"><i class="fas fa-store"></i>No vendors yet.</div>`;
+        return;
+    }
+
+    container.innerHTML = adminState.vendors.map(v => `
+        <div class="admin-card">
+            <div class="admin-card-media"><i class="fas fa-store"></i></div>
+            <div class="admin-card-body">
+                <h3 class="admin-card-title">${adminEscape(v.businessName || 'Unnamed')}</h3>
+                <p class="admin-card-meta">${adminEscape(v.email || '—')} · ${adminEscape(v.phone || '—')}</p>
+                <span class="admin-card-badge ${adminEscape(v.approvalStatus || 'pending')}">${adminEscape(v.approvalStatus || 'pending')}</span>
+            </div>
+            <div class="admin-card-actions">
+                ${v.approvalStatus === 'approved' ? `
+                    <button class="admin-btn admin-btn-secondary" onclick="adminRejectVendor(${v.id}, '${adminEscape(v.businessName || '')}')">
+                        <i class="fas fa-times"></i> Revoke
+                    </button>
+                ` : v.approvalStatus === 'pending' ? `
+                    <button class="admin-btn admin-btn-success" onclick="adminApproveVendor(${v.id})">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                    <button class="admin-btn admin-btn-secondary" onclick="adminRejectVendor(${v.id}, '${adminEscape(v.businessName || '')}')">
+                        <i class="fas fa-times"></i> Reject
+                    </button>
+                ` : `
+                    <button class="admin-btn admin-btn-success" onclick="adminApproveVendor(${v.id})">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                `}
+            </div>
+        </div>
+    `).join('');
+}
+
+function adminApproveVendor(vendorId) {
+    adminConfirm({
+        title: 'Approve Vendor?',
+        message: 'The vendor will be able to list products immediately. They\'ll receive an approval email.',
+        icon: 'success',
+        iconName: 'check',
+        btnText: 'Yes, Approve',
+        btnClass: 'admin-btn-success',
+        onConfirm: async () => {
+            try {
+                const res = await fetch(`${ADMIN_API_BASE}/api/admin/vendors/${vendorId}/approve?key=${encodeURIComponent(adminState.key)}`, {
+                    method: 'POST',
+                });
+                const data = await res.json();
+                if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+                adminToast('Vendor approved ✅', 'success');
+                adminLoadPendingVendors();
+                adminLoadAllVendors();
+                adminLoadStats();
+            } catch (err) {
+                adminToast('Could not approve vendor', 'error');
+            }
+        },
+    });
+}
+
+function adminRejectVendor(vendorId, businessName) {
+    adminConfirm({
+        title: 'Reject Vendor?',
+        message: `"${businessName}" will be marked as rejected. They'll receive a rejection email.`,
+        icon: 'danger',
+        iconName: 'times',
+        btnText: 'Yes, Reject',
+        btnClass: 'admin-btn-danger',
+        onConfirm: async () => {
+            try {
+                const res = await fetch(`${ADMIN_API_BASE}/api/admin/vendors/${vendorId}/reject?key=${encodeURIComponent(adminState.key)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason: '' }),
+                });
+                const data = await res.json();
+                if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+                adminToast('Vendor rejected', 'success');
+                adminLoadPendingVendors();
+                adminLoadAllVendors();
+                adminLoadStats();
+            } catch (err) {
+                adminToast('Could not reject vendor', 'error');
+            }
+        },
+    });
+}
+
+// ============================================
+// PRODUCTS
+// ============================================
+
+async function adminLoadPendingProducts() {
+    const container = document.getElementById('adminPendingProductsList');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/products/pending?key=${encodeURIComponent(adminState.key)}`);
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+        adminState.pendingProducts = data.products || [];
+        adminRenderPendingProducts();
+    } catch (err) {
+        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load products.</div>`;
+    }
+}
+
+function adminRenderPendingProducts() {
+    const container = document.getElementById('adminPendingProductsList');
+    if (!container) return;
+
+    if (adminState.pendingProducts.length === 0) {
+        container.innerHTML = `
+            <div class="admin-empty">
+                <i class="fas fa-check-circle"></i>
+                No draft products. Every submitted product is live.
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = adminState.pendingProducts.map(p => {
+        const img = p.Image && p.Image[0] && p.Image[0].url
+            ? (p.Image[0].url.startsWith('http') ? p.Image[0].url : 'https://ishop-cms-production.up.railway.app' + p.Image[0].url)
+            : null;
+        const vendorName = p.vendor ? p.vendor.businessName : 'Unknown vendor';
+        return `
+            <div class="admin-card">
+                <div class="admin-card-media">
+                    ${img ? `<img src="${img}" alt="" />` : `<i class="fas fa-box"></i>`}
+                </div>
+                <div class="admin-card-body">
+                    <h3 class="admin-card-title">${adminEscape(p.Product_Name || 'Untitled')}</h3>
+                    <p class="admin-card-meta"><strong>Vendor:</strong> ${adminEscape(vendorName)}</p>
+                    <p class="admin-card-meta"><strong>Category:</strong> ${adminEscape(p.Category || '—')}</p>
+                    <p class="admin-card-meta"><strong>Price:</strong> ₦${Number(p.Price || 0).toLocaleString()}</p>
+                    <span class="admin-card-badge draft">Draft</span>
+                </div>
+                <div class="admin-card-actions">
+                    <button class="admin-btn admin-btn-success" onclick="adminPublishProduct('${p.documentId}', '${adminEscape(p.Product_Name || '')}')">
+                        <i class="fas fa-rocket"></i> Publish
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function adminLoadAllProducts() {
+    const container = document.getElementById('adminAllProductsList');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/products?key=${encodeURIComponent(adminState.key)}`);
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+        adminState.products = data.products || [];
+        adminRenderAllProducts();
+    } catch (err) {
+        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load products.</div>`;
+    }
+}
+
+function adminRenderAllProducts() {
+    const container = document.getElementById('adminAllProductsList');
+    if (!container) return;
+
+    if (adminState.products.length === 0) {
+        container.innerHTML = `<div class="admin-empty"><i class="fas fa-box"></i>No products yet.</div>`;
+        return;
+    }
+
+    // Only show first 50 for performance
+    const list = adminState.products.slice(0, 50);
+
+    container.innerHTML = list.map(p => {
+        const img = p.Image && p.Image[0] && p.Image[0].url
+            ? (p.Image[0].url.startsWith('http') ? p.Image[0].url : 'https://ishop-cms-production.up.railway.app' + p.Image[0].url)
+            : null;
+        const isLive = !!p.publishedAt;
+        return `
+            <div class="admin-card">
+                <div class="admin-card-media">
+                    ${img ? `<img src="${img}" alt="" />` : `<i class="fas fa-box"></i>`}
+                </div>
+                <div class="admin-card-body">
+                    <h3 class="admin-card-title">${adminEscape(p.Product_Name || 'Untitled')}</h3>
+                    <p class="admin-card-meta">₦${Number(p.Price || 0).toLocaleString()} · ${adminEscape(p.Category || '—')}</p>
+                    <span class="admin-card-badge ${isLive ? 'live' : 'draft'}">${isLive ? 'Live' : 'Draft'}</span>
+                </div>
+                <div class="admin-card-actions">
+                    ${isLive ? `
+                        <button class="admin-btn admin-btn-secondary" onclick="adminUnpublishProduct('${p.documentId}', '${adminEscape(p.Product_Name || '')}')">
+                            <i class="fas fa-eye-slash"></i> Unpublish
+                        </button>
+                    ` : `
+                        <button class="admin-btn admin-btn-success" onclick="adminPublishProduct('${p.documentId}', '${adminEscape(p.Product_Name || '')}')">
+                            <i class="fas fa-rocket"></i> Publish
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('') + (adminState.products.length > 50 ? `<div class="admin-empty">Showing 50 of ${adminState.products.length}. Use the "Drafts" filter or search Strapi admin for the rest.</div>` : '');
+}
+
+function adminPublishProduct(documentId, productName) {
+    adminConfirm({
+        title: 'Publish Product?',
+        message: `"${productName}" will go live on the site. The vendor will receive an email.`,
+        icon: 'success',
+        iconName: 'rocket',
+        btnText: 'Yes, Publish',
+        btnClass: 'admin-btn-success',
+        onConfirm: async () => {
+            try {
+                const res = await fetch(`${ADMIN_API_BASE}/api/admin/products/${documentId}/publish?key=${encodeURIComponent(adminState.key)}`, {
+                    method: 'POST',
+                });
+                const data = await res.json();
+                if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+                adminToast('Product published 🚀', 'success');
+                adminLoadPendingProducts();
+                adminLoadAllProducts();
+                adminLoadStats();
+            } catch (err) {
+                adminToast('Could not publish product', 'error');
+            }
+        },
+    });
+}
+
+function adminUnpublishProduct(documentId, productName) {
+    adminConfirm({
+        title: 'Unpublish Product?',
+        message: `"${productName}" will be hidden from the site until you publish it again.`,
+        icon: 'danger',
+        iconName: 'eye-slash',
+        btnText: 'Yes, Unpublish',
+        btnClass: 'admin-btn-danger',
+        onConfirm: async () => {
+            try {
+                const res = await fetch(`${ADMIN_API_BASE}/api/admin/products/${documentId}/unpublish?key=${encodeURIComponent(adminState.key)}`, {
+                    method: 'POST',
+                });
+                const data = await res.json();
+                if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+                adminToast('Product unpublished', 'success');
+                adminLoadPendingProducts();
+                adminLoadAllProducts();
+                adminLoadStats();
+            } catch (err) {
+                adminToast('Could not unpublish product', 'error');
+            }
+        },
+    });
+}
+
+// ============================================
+// PAYOUTS
+// ============================================
+
+async function adminLoadPayouts() {
+    const container = document.getElementById('adminPayoutsList');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/payouts/pending?key=${encodeURIComponent(adminState.key)}`);
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+        adminState.payouts = data.payouts || [];
+        adminRenderPayouts();
+    } catch (err) {
+        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load payouts.</div>`;
+    }
+}
+
+function adminRenderPayouts() {
+    const container = document.getElementById('adminPayoutsList');
+    if (!container) return;
+
+    if (adminState.payouts.length === 0) {
+        container.innerHTML = `
+            <div class="admin-empty">
+                <i class="fas fa-check-circle"></i>
+                No pending payouts. All vendors are settled up.
+            </div>
+        `;
+        return;
+    }
+
+    const fmt = (n) => '₦' + Number(n || 0).toLocaleString();
+
+    container.innerHTML = adminState.payouts.map(p => `
+        <div class="admin-card">
+            <div class="admin-card-media"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="admin-card-body">
+                <h3 class="admin-card-title">${adminEscape(p.businessName || 'Vendor')}</h3>
+                <p class="admin-card-meta"><strong>Bank:</strong> ${adminEscape(p.bankName || '—')}</p>
+                <p class="admin-card-meta"><strong>Account Name:</strong> ${adminEscape(p.bankAccountName || '—')}</p>
+                <p class="admin-card-meta"><strong>Account Number:</strong> ${adminEscape(p.bankAccountNumber || '—')}</p>
+                <p class="admin-card-meta"><strong>Request ID:</strong> ${adminEscape(p.requestId || '—')}</p>
+                <p class="admin-card-meta" style="font-size:1.05rem;color:#0d1b2a;font-weight:700;margin-top:0.5rem;">
+                    ${fmt(p.amount)}
+                </p>
+            </div>
+            <div class="admin-card-actions">
+                <button class="admin-btn admin-btn-success" onclick="adminMarkPaid('${p.vendorId}', '${p.requestId}', '${adminEscape(p.businessName || '')}')">
+                    <i class="fas fa-check"></i> Mark Paid
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function adminMarkPaid(vendorId, requestId, businessName) {
+    adminConfirm({
+        title: 'Mark Payout as Paid?',
+        message: `Confirm that you've sent the money to ${businessName}'s bank account. This moves it to their payout history.`,
+        icon: 'success',
+        iconName: 'money-bill-wave',
+        btnText: 'Yes, Mark Paid',
+        btnClass: 'admin-btn-success',
+        onConfirm: async () => {
+            try {
+                const res = await fetch(`${ADMIN_API_BASE}/api/admin/payouts/${vendorId}/${requestId}/mark-paid?key=${encodeURIComponent(adminState.key)}`, {
+                    method: 'POST',
+                });
+                const data = await res.json();
+                if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+                adminToast('Payout marked as paid 💸', 'success');
+                adminLoadPayouts();
+                adminLoadStats();
+            } catch (err) {
+                adminToast('Could not mark payout as paid', 'error');
+            }
+        },
+    });
+}
+
+// ============================================
+// ORDERS
+// ============================================
+
+async function adminLoadOrders() {
+    const container = document.getElementById('adminOrdersList');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/orders?key=${encodeURIComponent(adminState.key)}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        adminState.orders = data.data || [];
+        adminRenderOrders();
+    } catch (err) {
+        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load orders.</div>`;
+    }
+}
+
+function adminRenderOrders() {
+    const container = document.getElementById('adminOrdersList');
+    if (!container) return;
+
+    if (adminState.orders.length === 0) {
+        container.innerHTML = `<div class="admin-empty"><i class="fas fa-shopping-bag"></i>No orders yet.</div>`;
+        return;
+    }
+
+    const list = adminState.orders.slice(0, 50);
+    const fmt = (n) => '₦' + Number(n || 0).toLocaleString();
+
+    container.innerHTML = list.map(o => {
+        const status = (o.orderStatus || 'pending').toLowerCase();
+        const date = new Date(o.createdAt).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' });
+        const itemsCount = Array.isArray(o.items) ? o.items.length : 0;
+        return `
+            <div class="admin-card">
+                <div class="admin-card-media"><i class="fas fa-receipt"></i></div>
+                <div class="admin-card-body">
+                    <h3 class="admin-card-title">${adminEscape(o.reference || '—')}</h3>
+                    <p class="admin-card-meta"><strong>${adminEscape(o.customerName || 'Customer')}</strong> · ${adminEscape(o.customerEmail || '')}</p>
+                    <p class="admin-card-meta">${itemsCount} item${itemsCount === 1 ? '' : 's'} · ${fmt(o.amount)} · ${date}</p>
+                    <span class="admin-card-badge ${status}">${status}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ============================================
+// HELPERS
+// ============================================
+
+function adminEscape(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+}
+
+function adminTitle(s) {
+    if (!s) return '';
+    return String(s).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function adminToast(message, type = 'default') {
+    const wrap = document.getElementById('adminToastWrap');
+    if (!wrap) return;
+    const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+    const toast = document.createElement('div');
+    toast.className = 'admin-toast ' + type;
+    toast.innerHTML = `<i class="fas fa-${icon}"></i><span>${adminEscape(message)}</span>`;
+    wrap.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+}
+
+let adminConfirmCallback = null;
+
+function adminConfirm({ title, message, icon, iconName, btnText, btnClass, onConfirm }) {
+    const modal = document.getElementById('adminConfirmModal');
+    const titleEl = document.getElementById('adminConfirmModalTitle');
+    const msgEl = document.getElementById('adminConfirmModalMessage');
+    const iconEl = document.getElementById('adminConfirmModalIcon');
+    const btnEl = document.getElementById('adminConfirmModalBtn');
+    if (!modal) return;
+
+    titleEl.textContent = title;
+    msgEl.textContent = message;
+    iconEl.className = 'admin-modal-icon ' + (icon || '');
+    iconEl.innerHTML = `<i class="fas fa-${iconName || 'question-circle'}"></i>`;
+    btnEl.textContent = btnText || 'Confirm';
+    btnEl.className = 'admin-btn ' + (btnClass || 'admin-btn-primary');
+
+    adminConfirmCallback = onConfirm;
+
+    btnEl.onclick = async () => {
+        adminCloseConfirm();
+        if (adminConfirmCallback) await adminConfirmCallback();
+    };
+
+    modal.style.display = 'flex';
+}
+
+function adminCloseConfirm() {
+    const modal = document.getElementById('adminConfirmModal');
+    if (modal) modal.style.display = 'none';
+    adminConfirmCallback = null;
+}
+
+// Close modal on overlay click
+document.addEventListener('click', function (e) {
+    const modal = document.getElementById('adminConfirmModal');
+    if (modal && e.target === modal) adminCloseConfirm();
+});
+
+// ---------- AUTO-INIT ----------
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAdminPanel);
+} else {
+    initAdminPanel();
+}
