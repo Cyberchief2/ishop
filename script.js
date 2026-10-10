@@ -4,7 +4,7 @@
 const SITE_CONFIG = {
     phone: '+234 811 480 8088',
     phoneLink: 'tel:+2348114808088',
-    whatsapp: 'https://wa.me/2348114808088',
+    whatsapp: 'https://wa.me/2348158339217',
     email: 'info@ishop.com.ng',
     emailLink: 'mailto:info@ishop.com.ng',
     address: 'Lagos, Nigeria',
@@ -3565,7 +3565,7 @@ async function iShopTrackOrder() {
                     ${err.message}
                     <p style="margin-top:0.6rem;font-size:0.85rem;color:#6b7280;">
                         If you believe this is an error, please
-                        <a href="https://wa.me/2348114808088?text=Hello%20iShop%2C%20I%20need%20help%20with%20order%20${encodeURIComponent(ref)}"
+                        <a href="https://wa.me/2348158339217?text=Hello%20iShop%2C%20I%20need%20help%20with%20order%20${encodeURIComponent(ref)}"
                            target="_blank" style="color:#25D366;font-weight:700;">chat with us on WhatsApp</a>.
                     </p>
                 </div>
@@ -3680,7 +3680,7 @@ function renderTrackResult(order) {
 
     // WhatsApp prefilled message
     const waMsg = `Hello iShop, I need help with order ${order.reference}.`;
-    const waLink = `https://wa.me/2348114808088?text=${encodeURIComponent(waMsg)}`;
+    const waLink = `https://wa.me/2348158339217?text=${encodeURIComponent(waMsg)}`;
 
     // Build final HTML
     result.innerHTML = `
@@ -4086,7 +4086,7 @@ function showVendorSuccessScreen(payload, vendorId) {
 
             <p style="margin-top:2rem;font-size:0.85rem;color:#8896a8;">
                 Questions? Email us at <a href="mailto:info@ishop.com.ng" style="color:#d4a017;font-weight:700;">info@ishop.com.ng</a>
-                or WhatsApp <a href="https://wa.me/2348114808088" target="_blank" style="color:#25D366;font-weight:700;">+234 811 480 8088</a>
+                or WhatsApp <a href="https://wa.me/2348158339217" target="_blank" style="color:#25D366;font-weight:700;">+234 811 480 8088</a>
             </p>
         </div>
     `;
@@ -4312,7 +4312,7 @@ function renderVendorDashboard(vendor) {
     let actionsHTML = '';
     if (status === 'pending') {
         actionsHTML = `
-            <a href="https://wa.me/2348114808088?text=Hi%20iShop%2C%20I%20applied%20to%20sell%20on%20iShop%20-%20${encodeURIComponent(vendor.businessName)}"
+            <a href="https://wa.me/2348158339217?text=Hi%20iShop%2C%20I%20applied%20to%20sell%20on%20iShop%20-%20${encodeURIComponent(vendor.businessName)}"
                target="_blank" class="whatsapp">
                 <i class="fab fa-whatsapp"></i> Ask About My Application
             </a>
@@ -4334,7 +4334,7 @@ function renderVendorDashboard(vendor) {
         `;
     } else {
         actionsHTML = `
-            <a href="https://wa.me/2348114808088?text=Hi%20iShop%2C%20I%20need%20help%20with%20my%20vendor%20account%20-%20${encodeURIComponent(vendor.businessName)}"
+            <a href="https://wa.me/2348158339217?text=Hi%20iShop%2C%20I%20need%20help%20with%20my%20vendor%20account%20-%20${encodeURIComponent(vendor.businessName)}"
                target="_blank" class="whatsapp">
                 <i class="fab fa-whatsapp"></i> Contact Support
             </a>
