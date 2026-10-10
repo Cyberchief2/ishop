@@ -6250,10 +6250,10 @@ function adminRenderPendingVendors() {
                 <span class="admin-card-badge pending">Pending</span>
             </div>
             <div class="admin-card-actions">
-                <button class="admin-btn admin-btn-success" onclick="adminApproveVendor(${v.id})">
+                <button class="admin-btn admin-btn-success" onclick="adminApproveVendor('${v.documentId}', '${adminEscape(v.businessName || '')}')">
                     <i class="fas fa-check"></i> Approve
                 </button>
-                <button class="admin-btn admin-btn-danger" onclick="adminRejectVendor(${v.id}, '${adminEscape(v.businessName || '')}')">
+                <button class="admin-btn admin-btn-danger" onclick="adminRejectVendor('${v.documentId}', '${adminEscape(v.businessName || '')}')">
                     <i class="fas fa-times"></i> Reject
                 </button>
             </div>
@@ -6295,18 +6295,18 @@ function adminRenderAllVendors() {
             </div>
             <div class="admin-card-actions">
                 ${v.approvalStatus === 'approved' ? `
-                    <button class="admin-btn admin-btn-secondary" onclick="adminRejectVendor(${v.id}, '${adminEscape(v.businessName || '')}')">
+                    <button class="admin-btn admin-btn-secondary" onclick="adminRejectVendor('${v.documentId}', '${adminEscape(v.businessName || '')}')">
                         <i class="fas fa-times"></i> Revoke
                     </button>
                 ` : v.approvalStatus === 'pending' ? `
-                    <button class="admin-btn admin-btn-success" onclick="adminApproveVendor(${v.id})">
+                    <button class="admin-btn admin-btn-success" onclick="adminApproveVendor('${v.documentId}', '${adminEscape(v.businessName || '')}')">
                         <i class="fas fa-check"></i> Approve
                     </button>
-                    <button class="admin-btn admin-btn-secondary" onclick="adminRejectVendor(${v.id}, '${adminEscape(v.businessName || '')}')">
+                    <button class="admin-btn admin-btn-secondary" onclick="adminRejectVendor('${v.documentId}', '${adminEscape(v.businessName || '')}')">
                         <i class="fas fa-times"></i> Reject
                     </button>
                 ` : `
-                    <button class="admin-btn admin-btn-success" onclick="adminApproveVendor(${v.id})">
+                    <button class="admin-btn admin-btn-success" onclick="adminApproveVendor('${v.documentId}', '${adminEscape(v.businessName || '')}')">
                         <i class="fas fa-check"></i> Approve
                     </button>
                 `}
@@ -6315,17 +6315,17 @@ function adminRenderAllVendors() {
     `).join('');
 }
 
-function adminApproveVendor(vendorId) {
+function adminApproveVendor(vendorDocumentId, businessName) {
     adminConfirm({
         title: 'Approve Vendor?',
-        message: 'The vendor will be able to list products immediately. They\'ll receive an approval email.',
+        message: `Approve "${businessName || 'this vendor'}"? They'll be able to list products immediately.`,
         icon: 'success',
         iconName: 'check',
         btnText: 'Yes, Approve',
         btnClass: 'admin-btn-success',
         onConfirm: async () => {
             try {
-                const res = await fetch(`${ADMIN_API_BASE}/api/admin/vendors/${vendorId}/approve?key=${encodeURIComponent(adminState.key)}`, {
+                const res = await fetch(`${ADMIN_API_BASE}/api/admin/vendors/${vendorDocumentId}/approve?key=${encodeURIComponent(adminState.key)}`, {
                     method: 'POST',
                 });
                 const data = await res.json();
@@ -6335,6 +6335,7 @@ function adminApproveVendor(vendorId) {
                 adminLoadAllVendors();
                 adminLoadStats();
             } catch (err) {
+                console.error('Approve error:', err);
                 adminToast('Could not approve vendor', 'error');
             }
         },
