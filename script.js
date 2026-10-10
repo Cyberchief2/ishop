@@ -422,6 +422,9 @@ function getHeaderHTML(activePage = '') {
                                     <i class="fas fa-store"></i> Vendor Tools
                                 </div>
                                 <a href="vendor-dashboard.html"><i class="fas fa-tachometer-alt"></i> Vendor Dashboard</a>
+                                <a href="admin.html" class="admin-only-link" id="adminPanelLink" style="display:none;">
+                                    <i class="fas fa-shield-halved"></i> Admin Panel
+                                </a>
                                 <a href="vendor-products.html"><i class="fas fa-boxes"></i> My Products</a>
                                 <a href="vendor-earnings.html"><i class="fas fa-wallet"></i> My Earnings</a>
 <a href="vendor-product-form.html"><i class="fas fa-plus-circle"></i> Add Product</a>
@@ -2130,6 +2133,17 @@ function updateAuthUI() {
         if (helloName) {
             const firstName = (user.fullName || user.username || 'Friend').split(' ')[0];
             helloName.textContent = 'Hello, ' + firstName;
+        }
+
+        // Show admin panel link only for the admin's email
+        const adminLink = document.getElementById('adminPanelLink');
+        if (adminLink) {
+            const adminEmail = 'agwusite@gmail.com';
+            if ((user.email || '').toLowerCase() === adminEmail.toLowerCase()) {
+                adminLink.style.display = 'flex';
+            } else {
+                adminLink.style.display = 'none';
+            }
         }
 
         // Show vendor links only if this user has a vendor account
