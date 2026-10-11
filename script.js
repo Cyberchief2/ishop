@@ -733,10 +733,7 @@ function getHeaderHTML(activePage = '') {
                     </div>
                 </li>
             </ul>
-            <div class="menu-right">
-                <a href="shop.html" class="hot-deal"><i class="fas fa-fire"></i> Hot Deals</a>
-                <a href="shop.html" class="flash-sale"><i class="fas fa-bolt"></i> Flash Sale</a>
-            </div>
+
         </div>
     </nav>
 
