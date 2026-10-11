@@ -1125,7 +1125,7 @@ function convertStrapiProduct(strapiProduct) {
         subType: (strapiProduct.Sub_Type || '').toLowerCase(),
         type: (strapiProduct.Type || 'physical').toLowerCase(),
         price: parseFloat(strapiProduct.Price || 0),
-        rating: parseFloat(strapiProduct.Rating || 4.0),
+        rating: parseFloat(strapiProduct.Rating || 4.2),
         images: imageUrls,
         image: imageUrl,
         description: description,
@@ -1266,7 +1266,7 @@ function renderProducts(containerId, productList, limit = null) {
                 <h3>${product.name}</h3>
                 <p class="product-category">${product.category}</p>
                 <p class="product-price">${isFreeDigital ? '<span style="color:#4CAF50;font-weight:700;">FREE</span>' : '₦' + product.price.toLocaleString()}</p>
-                <div class="product-rating">⭐ ${product.rating}</div>
+                <div class="product-rating">⭐ ${Number(product.rating).toFixed(1)}</div>
                 ${isFreeDigital
                     ? `<button onclick="event.stopPropagation(); downloadFreeProduct('${product.documentId}')" class="btn-add-cart" style="background:#4CAF50;">
                         📥 Download Free
