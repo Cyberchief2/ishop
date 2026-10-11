@@ -778,6 +778,11 @@ function getHeaderHTML(activePage = '') {
         <i class="fas fa-wallet"></i> My Earnings
     </a>
 </li>
+<li class="drawer-vendor-only" id="drawerVendorOrders" style="display:none;">
+                    <a href="vendor-orders.html" style="color:#d4a017;font-weight:700;">
+                        <i class="fas fa-truck"></i> My Orders
+                    </a>
+                </li>
 <li class="drawer-vendor-only" id="drawerVendorProducts" style="display:none;">
                     <a href="vendor-products.html" style="color:#d4a017;font-weight:700;">
                         <i class="fas fa-boxes"></i> My Products
@@ -2158,28 +2163,32 @@ function updateAuthUI() {
         }
         // Show vendor links in mobile drawer if user is a vendor
         const drawerVendorLinks = document.getElementById('drawerVendorLinks');
+        const drawerVendorOrders = document.getElementById('drawerVendorOrders');
         const drawerVendorProducts = document.getElementById('drawerVendorProducts');
-        if (drawerVendorLinks && drawerVendorProducts) {
-            if (user.isVendor) {
-                drawerVendorLinks.style.display = 'block';
-                drawerVendorProducts.style.display = 'block';
-                if (drawerVendorEarnings) drawerVendorEarnings.style.display = 'block';
-            } else {
-                drawerVendorLinks.style.display = 'none';
-                drawerVendorProducts.style.display = 'none';
-                if (drawerVendorEarnings) drawerVendorEarnings.style.display = 'none';
-            }
+        const drawerVendorEarnings = document.getElementById('drawerVendorEarnings');
+        if (user.isVendor) {
+            if (drawerVendorLinks) drawerVendorLinks.style.display = 'block';
+            if (drawerVendorOrders) drawerVendorOrders.style.display = 'block';
+            if (drawerVendorProducts) drawerVendorProducts.style.display = 'block';
+            if (drawerVendorEarnings) drawerVendorEarnings.style.display = 'block';
+        } else {
+            if (drawerVendorLinks) drawerVendorLinks.style.display = 'none';
+            if (drawerVendorOrders) drawerVendorOrders.style.display = 'none';
+            if (drawerVendorProducts) drawerVendorProducts.style.display = 'none';
+            if (drawerVendorEarnings) drawerVendorEarnings.style.display = 'none';
         }
     } else {
         if (guestPanel) guestPanel.style.display = 'block';
         if (userPanel) userPanel.style.display = 'none';
         if (vendorLinks) vendorLinks.style.display = 'none';
         const drawerVendorLinks = document.getElementById('drawerVendorLinks');
-        const drawerVendorEarnings = document.getElementById('drawerVendorEarnings');
+        const drawerVendorOrders = document.getElementById('drawerVendorOrders');
         const drawerVendorProducts = document.getElementById('drawerVendorProducts');
+        const drawerVendorEarnings = document.getElementById('drawerVendorEarnings');
         if (drawerVendorLinks) drawerVendorLinks.style.display = 'none';
-        if (drawerVendorEarnings) drawerVendorEarnings.style.display = 'none';
+        if (drawerVendorOrders) drawerVendorOrders.style.display = 'none';
         if (drawerVendorProducts) drawerVendorProducts.style.display = 'none';
+        if (drawerVendorEarnings) drawerVendorEarnings.style.display = 'none';
     }
 }
 
@@ -3486,6 +3495,18 @@ function initializeApp() {
         const subType = urlParams.get('subtype') || '';
         renderCategory(category, subType);
         setupSubcategoryButtons(category);
+    } else if (page === 'vendor-orders.html') {
+        initVendorOrdersPage();
+    } else if (page === 'vendor-products.html') {
+        initVendorProductsPage();
+    } else if (page === 'vendor-dashboard.html') {
+        initVendorDashboard();
+    } else if (page === 'vendor-earnings.html') {
+        initVendorEarningsPage();
+    } else if (page === 'vendor-apply.html') {
+        initVendorApplyPage();
+    } else if (page === 'vendor-product-form.html') {
+        initProductFormPage();
     }
 }
 
@@ -6549,6 +6570,8 @@ function adminPublishProduct(documentId, productName) {
 }
 
 function adminUnpublishProduct(documentId, productName) {
+    adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
+
     adminConfirm({
         title: 'Unpublish Product?',
         message: `"${productName}" will be hidden from the site until you publish it again.`,
@@ -6818,3 +6841,329 @@ document.addEventListener('click', function (e) {
 
 // ---------- AUTO-INIT ----------
 // Handled by initializeApp() above — no separate init needed for admin.
+
+/* ============================================ */
+/* VENDOR ORDERS — dedicated view */
+/* ============================================ */
+
+const VENDOR_ORDERS_API = 'https://ishop-payments-production.up.railway.app';
+
+const vendorOrdersState = {
+    all: [],
+    filtered: [],
+    currentFilter: 'all',
+    search: '',
+};
+
+// ---------- INITIALIZE ----------
+function initVendorOrdersPage() {
+    const container = document.getElementById('vendorOrdersContainer');
+    if (!container) return;
+
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) {
+        container.innerHTML = `
+            <div class="vendor-empty-state">
+                <div class="vendor-empty-icon"><i class="fas fa-user-lock"></i></div>
+                <h3>Please log in</h3>
+                <p>You need to be logged in to view your orders.</p>
+                <a href="login.html" class="vendor-add-btn" style="margin: 0 auto;">
+                    <i class="fas fa-sign-in-alt"></i> Log In
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    // Wire filter buttons
+    document.querySelectorAll('.vendor-order-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.vendor-order-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            vendorOrdersState.currentFilter = btn.dataset.filter;
+            applyVendorOrderFilters();
+        });
+    });
+
+    // Wire search
+    const search = document.getElementById('vendorOrdersSearch');
+    if (search) {
+        let debounce;
+        search.addEventListener('input', function () {
+            clearTimeout(debounce);
+            debounce = setTimeout(() => {
+                vendorOrdersState.search = this.value.trim().toLowerCase();
+                applyVendorOrderFilters();
+            }, 200);
+        });
+    }
+
+    loadVendorOrders(jwt);
+}
+
+// ---------- FETCH ----------
+async function loadVendorOrders(jwt) {
+    const container = document.getElementById('vendorOrdersContainer');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="vendor-loading-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading your orders…</p>
+        </div>
+    `;
+
+    try {
+        const res = await fetch(`${VENDOR_ORDERS_API}/api/vendors/orders`, {
+            headers: { 'Authorization': `Bearer ${jwt}` },
+        });
+
+        if (res.status === 403) {
+            container.innerHTML = `
+                <div class="vendor-empty-state">
+                    <div class="vendor-empty-icon"><i class="fas fa-hourglass-half"></i></div>
+                    <h3>Account pending approval</h3>
+                    <p>Your vendor account is still being reviewed. Orders will appear here once you're approved.</p>
+                    <a href="vendor-dashboard.html" class="vendor-add-btn" style="margin: 0 auto;">
+                        <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+                    </a>
+                </div>
+            `;
+            return;
+        }
+        if (res.status === 404) {
+            container.innerHTML = `
+                <div class="vendor-empty-state">
+                    <div class="vendor-empty-icon"><i class="fas fa-store"></i></div>
+                    <h3>Not a vendor yet</h3>
+                    <p>You need a vendor account to view orders.</p>
+                    <a href="become-a-vendor.html" class="vendor-add-btn" style="margin: 0 auto;">
+                        <i class="fas fa-rocket"></i> Become a Vendor
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        const data = await res.json();
+        if (!res.ok || !data.status) {
+            throw new Error(data.error || 'Could not load orders');
+        }
+
+        vendorOrdersState.all = data.orders || [];
+        updateVendorOrderStats();
+        applyVendorOrderFilters();
+    } catch (err) {
+        console.error('Vendor orders load error:', err);
+        container.innerHTML = `
+            <div class="vendor-error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>${escapeHtml(err.message)}</p>
+                <button class="vendor-btn-secondary" onclick="initVendorOrdersPage()" style="margin-top: 1rem;">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+        `;
+    }
+}
+
+// ---------- STATS ----------
+function updateVendorOrderStats() {
+    const orders = vendorOrdersState.all;
+    const el = (id) => document.getElementById(id);
+
+    const total = orders.length;
+    const processing = orders.filter(o => (o.orderStatus || '').toLowerCase() === 'processing').length;
+    const shipped = orders.filter(o => (o.orderStatus || '').toLowerCase() === 'shipped').length;
+    const delivered = orders.filter(o => (o.orderStatus || '').toLowerCase() === 'delivered').length;
+
+    if (el('vendorOrdersTotal')) el('vendorOrdersTotal').textContent = total;
+    if (el('vendorOrdersProcessing')) el('vendorOrdersProcessing').textContent = processing;
+    if (el('vendorOrdersShipped')) el('vendorOrdersShipped').textContent = shipped;
+    if (el('vendorOrdersDelivered')) el('vendorOrdersDelivered').textContent = delivered;
+}
+
+// ---------- FILTERS ----------
+function applyVendorOrderFilters() {
+    const { all, currentFilter, search } = vendorOrdersState;
+    let filtered = [...all];
+
+    if (currentFilter !== 'all') {
+        filtered = filtered.filter(o => (o.orderStatus || '').toLowerCase() === currentFilter);
+    }
+
+    if (search) {
+        filtered = filtered.filter(o =>
+            (o.reference || '').toLowerCase().includes(search) ||
+            (o.customerName || '').toLowerCase().includes(search) ||
+            (o.shippingName || '').toLowerCase().includes(search) ||
+            (o.address || '').toLowerCase().includes(search)
+        );
+    }
+
+    vendorOrdersState.filtered = filtered;
+    renderVendorOrders(filtered);
+}
+
+// ---------- RENDER ----------
+function renderVendorOrders(orders) {
+    const container = document.getElementById('vendorOrdersContainer');
+    if (!container) return;
+
+    if (vendorOrdersState.all.length === 0) {
+        container.innerHTML = `
+            <div class="vendor-empty-state">
+                <div class="vendor-empty-icon"><i class="fas fa-shopping-bag"></i></div>
+                <h3>No orders yet</h3>
+                <p>Once customers buy your products, their orders will show up here with shipping details.</p>
+                <a href="vendor-products.html" class="vendor-add-btn" style="margin: 0 auto;">
+                    <i class="fas fa-box"></i> Manage My Products
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    if (orders.length === 0) {
+        container.innerHTML = `
+            <div class="vendor-empty-state">
+                <div class="vendor-empty-icon"><i class="fas fa-search"></i></div>
+                <h3>No orders match your filter</h3>
+                <p>Try a different filter or clear your search.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const fmt = (n) => '₦' + Number(n || 0).toLocaleString();
+    const titleCase = (s) => (s || '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+    const cardsHTML = orders.map(o => {
+        const status = (o.orderStatus || 'paid').toLowerCase();
+        const itemsHTML = (o.items || []).map(item => `
+            <div class="vo-item-row">
+                <span class="vo-item-name">${escapeHtml(item.name)} × ${item.quantity}</span>
+                <span class="vo-item-price">${fmt(item.price * item.quantity)}</span>
+            </div>
+        `).join('');
+
+        const location = [titleCase(o.shippingLga), titleCase(o.shippingState)].filter(Boolean).join(', ');
+
+        // Action button changes based on status
+        let actionHTML = '';
+        if (status === 'paid') {
+            actionHTML = `
+                <button class="vo-action-btn primary" onclick="updateVendorOrderStatus('${o.documentId}', 'processing')">
+                    <i class="fas fa-box-open"></i> Start Processing
+                </button>
+            `;
+        } else if (status === 'processing') {
+            actionHTML = `
+                <button class="vo-action-btn primary" onclick="updateVendorOrderStatus('${o.documentId}', 'shipped')">
+                    <i class="fas fa-truck"></i> Mark as Shipped
+                </button>
+            `;
+        } else if (status === 'shipped') {
+            actionHTML = `
+                <button class="vo-action-btn secondary" onclick="updateVendorOrderStatus('${o.documentId}', 'delivered')">
+                    <i class="fas fa-check-double"></i> Mark as Delivered
+                </button>
+            `;
+        } else if (status === 'delivered') {
+            actionHTML = `<span class="vo-done-badge"><i class="fas fa-check-circle"></i> Fulfilled</span>`;
+        }
+
+        const customerPhone = o.shippingPhone || '';
+        const waLink = customerPhone
+            ? `https://wa.me/234${customerPhone.replace(/^0/, '')}?text=${encodeURIComponent(`Hello ${o.shippingName || o.customerName || 'customer'}, regarding your iShop order ${o.reference}`)}`
+            : '';
+
+        return `
+            <div class="vendor-order-card">
+                <div class="vo-header">
+                    <div class="vo-header-left">
+                        <div class="vo-ref">${escapeHtml(o.reference || '')}</div>
+                        <div class="vo-date">${new Date(o.createdAt).toLocaleDateString('en-NG', {
+                            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                        })}</div>
+                    </div>
+                    <span class="vo-status ${status}">${status}</span>
+                </div>
+
+                <div class="vo-grid">
+                    <div class="vo-block">
+                        <h4><i class="fas fa-map-marker-alt"></i> Ship To</h4>
+                        <p><strong>${escapeHtml(o.shippingName || o.customerName || 'Customer')}</strong></p>
+                        ${customerPhone ? `<p><i class="fas fa-phone" style="color:#8896a8;width:14px;"></i> ${escapeHtml(customerPhone)}</p>` : ''}
+                        ${location ? `<p>${escapeHtml(location)}</p>` : ''}
+                        <p>${escapeHtml(o.address || '')}</p>
+                        ${o.shippingNotes ? `<p class="vo-notes"><em>Note:</em> ${escapeHtml(o.shippingNotes)}</p>` : ''}
+                    </div>
+                    <div class="vo-block">
+                        <h4><i class="fas fa-receipt"></i> Your Items</h4>
+                        ${itemsHTML}
+                        <div class="vo-total-row">
+                            <span>You earn</span>
+                            <span class="vo-total-value">${fmt(o.vendorGross)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vo-actions">
+                    ${actionHTML}
+                    ${waLink ? `
+                        <a href="${waLink}" target="_blank" class="vo-action-btn whatsapp">
+                            <i class="fab fa-whatsapp"></i> Contact Buyer
+                        </a>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = `<div class="vendor-orders-list">${cardsHTML}</div>`;
+}
+
+// ---------- UPDATE STATUS ----------
+async function updateVendorOrderStatus(orderDocumentId, newStatus) {
+    const labels = { processing: 'start processing', shipped: 'mark as shipped', delivered: 'mark as delivered' };
+    if (!window.confirm(`Are you sure you want to ${labels[newStatus] || 'update'} this order?`)) return;
+
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) { alert('Please log in again.'); return; }
+
+    // Optimistic UI: update local state immediately
+    const order = vendorOrdersState.all.find(o => o.documentId === orderDocumentId);
+    if (order) order.orderStatus = newStatus;
+    updateVendorOrderStats();
+    applyVendorOrderFilters();
+    showVendorProductsToast('Order status updated', 'success');
+
+    try {
+        const res = await fetch(`${VENDOR_ORDERS_API}/api/vendors/orders/${orderDocumentId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({ status: newStatus }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.status) {
+            throw new Error(data.error || 'Update failed');
+        }
+    } catch (err) {
+        console.error('Order status update error:', err);
+        showVendorProductsToast(err.message || 'Could not update order', 'error');
+        // Reload to get real state
+        loadVendorOrders(jwt);
+    }
+}
+
+// ---------- AUTO-INIT ----------
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVendorOrdersPage);
+} else {
+    initVendorOrdersPage();
+}

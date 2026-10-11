@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Orders – iShop Vendor</title>
+    <meta name="description" content="View and fulfill your iShop orders." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+</head>
+<body class="vendor-products-page">
+    <div id="site-header"></div>
+
+    <!-- HEADER -->
+    <section class="vendor-products-header">
+        <div class="vendor-container">
+            <div class="vendor-products-header-top">
+                <div>
+                    <a href="vendor-dashboard.html" class="vendor-back-link-light">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <h1>My Orders</h1>
+                    <p>Every order that includes your products — fulfill them here.</p>
+                </div>
+                <a href="vendor-products.html" class="vendor-add-btn">
+                    <i class="fas fa-box"></i>
+                    <span>Manage Products</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="vendor-products-stats">
+        <div class="vendor-container">
+            <div class="vendor-stats-row">
+                <div class="vendor-stat-item">
+                    <span class="vendor-stat-value" id="vendorOrdersTotal">—</span>
+                    <span class="vendor-stat-label">Total Orders</span>
+                </div>
+                <div class="vendor-stat-item">
+                    <span class="vendor-stat-value" id="vendorOrdersProcessing">—</span>
+                    <span class="vendor-stat-label">Processing</span>
+                </div>
+                <div class="vendor-stat-item">
+                    <span class="vendor-stat-value" id="vendorOrdersShipped">—</span>
+                    <span class="vendor-stat-label">Shipped</span>
+                </div>
+                <div class="vendor-stat-item">
+                    <span class="vendor-stat-value" id="vendorOrdersDelivered">—</span>
+                    <span class="vendor-stat-label">Delivered</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FILTERS -->
+    <section class="vendor-products-filters">
+        <div class="vendor-container">
+            <div class="vendor-filter-row">
+                <button class="vendor-order-filter-btn vendor-filter-btn active" data-filter="all">
+                    <i class="fas fa-th-large"></i> All
+                </button>
+                <button class="vendor-order-filter-btn vendor-filter-btn" data-filter="paid">
+                    <i class="fas fa-check-circle"></i> Paid
+                </button>
+                <button class="vendor-order-filter-btn vendor-filter-btn" data-filter="processing">
+                    <i class="fas fa-box-open"></i> Processing
+                </button>
+                <button class="vendor-order-filter-btn vendor-filter-btn" data-filter="shipped">
+                    <i class="fas fa-truck"></i> Shipped
+                </button>
+                <button class="vendor-order-filter-btn vendor-filter-btn" data-filter="delivered">
+                    <i class="fas fa-check-double"></i> Delivered
+                </button>
+
+                <div class="vendor-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="vendorOrdersSearch" placeholder="Search by ref, name, address..." />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ORDERS LIST -->
+    <section class="vendor-products-list">
+        <div class="vendor-container">
+            <div id="vendorOrdersContainer">
+                <div class="vendor-loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading your orders…</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="site-footer"></div>
+
+    <script src="shipping.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
