@@ -2641,12 +2641,19 @@ footer {
     top: 100%;
     left: 0;
     min-width: 900px;
+    max-width: calc(100vw - 2rem);
     background: white;
     border-radius: 0 0 16px 16px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.15);
     padding: 1.5rem 2rem;
     z-index: 1000;
     border-top: 3px solid #f9c74f;
+}
+
+/* Flip dropdown to the right edge when there's not enough space on the right */
+.menu-links > li:nth-last-child(-n+3) .mega-dropdown {
+    left: auto;
+    right: 0;
 }
 
 /* Show dropdown on hover */
