@@ -4467,7 +4467,7 @@ function renderVendorDashboard(vendor) {
     } else if (status === 'approved') {
         actionsHTML = `
             <a href="vendor-product-form.html" class="primary">
-                <i class="fas fa-plus-circle"></i> Add Your First Product
+                <i class="fas fa-plus-circle"></i> Add Your Product
             </a>
             <a href="vendor-products.html" class="secondary">
                 <i class="fas fa-boxes"></i> My Products
@@ -4765,9 +4765,9 @@ function renderVendorProducts(products) {
             <div class="vendor-empty-state">
                 <div class="vendor-empty-icon"><i class="fas fa-box-open"></i></div>
                 <h3>You haven't listed any products yet</h3>
-                <p>Add your first product to start selling on iShop. Our team reviews every listing before it goes live.</p>
+                <p>Add Your Product to start selling on iShop. Our team reviews every listing before it goes live.</p>
                 <a href="vendor-product-form.html" class="vendor-add-btn" style="margin: 0 auto;">
-                    <i class="fas fa-plus-circle"></i> Add Your First Product
+                    <i class="fas fa-plus-circle"></i> Add Your Product
                 </a>
             </div>
         `;
