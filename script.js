@@ -1125,7 +1125,7 @@ function convertStrapiProduct(strapiProduct) {
         subType: (strapiProduct.Sub_Type || '').toLowerCase(),
         type: (strapiProduct.Type || 'physical').toLowerCase(),
         price: parseFloat(strapiProduct.Price || 0),
-        rating: parseFloat(strapiProduct.Rating || 4.5),
+        rating: parseFloat(strapiProduct.Rating || 4.0),
         images: imageUrls,
         image: imageUrl,
         description: description,
