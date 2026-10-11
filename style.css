@@ -1223,7 +1223,8 @@ footer {
 /* ============================================ */
 
 .dropdown-hover {
-    position: relative;
+    position: relative !important;
+    display: inline-block;
 }
 
 .dropdown-hover .dropdown-menu {
