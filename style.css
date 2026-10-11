@@ -2640,12 +2640,12 @@ footer {
     position: absolute;
     top: 100%;
     left: 0;
-    min-width: 850px;
+    min-width: 640px;
     max-width: calc(100vw - 2rem);
     background: white;
     border-radius: 0 0 16px 16px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-    padding: 1.5rem 2rem;
+    padding: 1.5rem 1.75rem;
     z-index: 1000;
     border-top: 3px solid #f9c74f;
 }
@@ -2663,7 +2663,7 @@ footer {
 
 .mega-dropdown-content {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
 }
 
