@@ -425,6 +425,7 @@ function getHeaderHTML(activePage = '') {
                                     <i class="fas fa-store"></i> Vendor Tools
                                 </div>
                                 <a href="vendor-dashboard.html"><i class="fas fa-tachometer-alt"></i> Vendor Dashboard</a>
+                                <a href="vendor-orders.html"><i class="fas fa-truck"></i> My Orders</a>
                                 <a href="vendor-products.html"><i class="fas fa-boxes"></i> My Products</a>
                                 <a href="vendor-earnings.html"><i class="fas fa-wallet"></i> My Earnings</a>
 <a href="vendor-product-form.html"><i class="fas fa-plus-circle"></i> Add Product</a>
