@@ -11,6 +11,71 @@ const SITE_CONFIG = {
 };
 
 // ============================================
+// PRODUCT CACHE — 5 minute TTL, version-invalidated
+// ============================================
+const PRODUCT_CACHE_KEY = 'iShopProductsCache';
+const PRODUCT_CACHE_VERSION_KEY = 'iShopProductsCacheVersion';
+const PRODUCT_CACHE_TTL_MS = 5 * 60 * 1000;
+
+function getProductCacheVersion() {
+    return localStorage.getItem(PRODUCT_CACHE_VERSION_KEY) || '1';
+}
+
+function bumpProductCacheVersion() {
+    localStorage.setItem(PRODUCT_CACHE_VERSION_KEY, String(Date.now()));
+}
+
+function readProductCache() {
+    try {
+        const raw = localStorage.getItem(PRODUCT_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.data)) return null;
+        if (parsed.version !== getProductCacheVersion()) return null;
+        if (Date.now() - parsed.savedAt > PRODUCT_CACHE_TTL_MS) return null;
+        return parsed.data;
+    } catch {
+        return null;
+    }
+}
+
+function writeProductCache(data) {
+    try {
+        localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify({
+            version: getProductCacheVersion(),
+            savedAt: Date.now(),
+            data,
+        }));
+    } catch (err) {
+        console.warn('Could not write product cache:', err.message);
+    }
+}
+
+function invalidateProductCache() {
+    bumpProductCacheVersion();
+    localStorage.removeItem(PRODUCT_CACHE_KEY);
+    console.log('🔄 Product cache invalidated');
+}
+
+// ============================================
+// SKELETON LOADERS
+// ============================================
+function renderProductSkeletons(containerId, count = 10) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const cards = Array.from({ length: count }).map(() => `
+        <div class="skeleton-card">
+            <div class="skeleton-block skeleton-image"></div>
+            <div class="skeleton-block skeleton-line short"></div>
+            <div class="skeleton-block skeleton-line medium"></div>
+            <div class="skeleton-block skeleton-line short"></div>
+            <div class="skeleton-block skeleton-button"></div>
+        </div>
+    `).join('');
+    container.innerHTML = cards;
+}
+
+// ============================================
 // SHIPPING CALCULATOR (LGA-based) — uses shipping.js
 // ============================================
 
@@ -925,18 +990,34 @@ const GOOGLE_CLIENT_ID = '1095016186699-sp0adum1qn7urnq8ka87mvjglmhoqu6o.apps.go
 // ============================================
 // FETCH PRODUCTS FROM STRAPI
 // ============================================
-async function fetchProducts() {
+async function fetchProducts({ force = false, silent = false } = {}) {
+    if (!force) {
+        const cached = readProductCache();
+        if (cached) {
+            console.log('⚡ Products loaded from cache:', cached.length);
+            fetchProducts({ force: true, silent: true }).catch(() => {});
+            return cached;
+        }
+    }
+
     try {
         const response = await fetch(API_URL);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         const products = data.data || [];
         console.log('✅ Products fetched from Strapi:', products.length);
+        writeProductCache(products);
         return products;
     } catch (error) {
         console.error('❌ Error fetching products:', error);
+        try {
+            const raw = localStorage.getItem(PRODUCT_CACHE_KEY);
+            const stale = raw ? JSON.parse(raw).data : null;
+            if (stale) {
+                console.log('♻️ Using stale cache after network failure');
+                return stale;
+            }
+        } catch {}
         return [];
     }
 }
@@ -1522,6 +1603,14 @@ function startFlashCountdown() {
 async function renderHomepage() {
     console.log('🏠 Rendering homepage...');
 
+    renderProductSkeletons('flashSalesGrid', 4);
+    renderProductSkeletons('featuredProducts', 10);
+    renderProductSkeletons('freshElectronics', 10);
+    renderProductSkeletons('fashionPicks', 10);
+    renderProductSkeletons('homePicks', 10);
+    renderProductSkeletons('traditionalPicks', 10);
+    renderProductSkeletons('featuredDigitalProducts', 10);
+
     try {
         const productData = await fetchProducts();
         console.log('📦 Products fetched from Strapi:', productData.length);
@@ -1660,6 +1749,7 @@ function shuffleArray(array) {
 // ============================================
 async function renderShopPage(filter = 'all', search = '', subType = '') {
     console.log('🛒 Rendering shop page...', { filter, search, subType });
+    renderProductSkeletons('allProductsGrid', 15);
 
     try {
         const productData = await fetchProducts();
@@ -1693,6 +1783,18 @@ async function renderShopPage(filter = 'all', search = '', subType = '') {
 // RENDER CATEGORY
 // ============================================
 async function renderCategory(category, subType = '') {
+    const containerMap = {
+        digital: 'digitalProductsGrid',
+        electronics: 'electronicsProducts',
+        fashion: 'fashionProducts',
+        beauty: 'beautyProducts',
+        home: 'homeProducts',
+        traditional: 'traditionalProducts',
+    };
+    if (containerMap[category]) {
+        renderProductSkeletons(containerMap[category], 12);
+    }
+
     try {
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct).filter(p => p.category === category);
@@ -2217,6 +2319,7 @@ async function detectVendorAndUpdateUI(user) {
 
 function logoutUser() {
     clearAuthSession();
+    localStorage.removeItem(PRODUCT_CACHE_KEY);
     updateAuthUI();
     window.location.href = 'index.html';
 }
@@ -5622,6 +5725,7 @@ async function handleProductFormSubmit(e) {
         }
 
         // Success — show success screen
+        invalidateProductCache();
         showProductSuccessScreen(isEdit, payload);
 
     } catch (err) {
