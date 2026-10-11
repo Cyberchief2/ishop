@@ -2640,7 +2640,7 @@ footer {
     position: absolute;
     top: 100%;
     left: 0;
-    min-width: 900px;
+    min-width: 850px;
     max-width: calc(100vw - 2rem);
     background: white;
     border-radius: 0 0 16px 16px;
