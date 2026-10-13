@@ -15738,3 +15738,48 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     .price-quick-chip { font-size: 0.68rem; padding: 0.3rem 0.6rem; }
     .filter-chip-clear { margin-left: 0; }
 }
+/* ============================================ */
+/* VENDOR NAME ON PRODUCT CARDS + DETAIL */
+/* ============================================ */
+.product-vendor {
+    font-size: 0.72rem;
+    color: #8896a8;
+    font-weight: 600;
+    margin: 0 0 0.15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.product-vendor i {
+    color: #d4a017;
+    font-size: 0.62rem;
+    flex-shrink: 0;
+}
+
+.product-detail-vendor {
+    font-size: 0.88rem;
+    color: #4a5b6a;
+    background: #f8fafc;
+    border: 1px solid #eef1f4;
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0 0.75rem;
+    width: fit-content;
+}
+
+.product-detail-vendor i {
+    color: #d4a017;
+    font-size: 0.95rem;
+}
+
+.product-detail-vendor strong {
+    color: #0d1b2a;
+    font-weight: 700;
+}

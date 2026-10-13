@@ -7,14 +7,14 @@ const SITE_CONFIG = {
     whatsapp: 'https://wa.me/2348158339217',
     email: 'info@ishop.com.ng',
     emailLink: 'mailto:info@ishop.com.ng',
-    address: 'Lagos, Nigeria',
+    address: 'No. 21 Ezera Rd, Lagos Nigeria',
 };
 
 // ============================================
 // PRODUCT CACHE — 5 minute TTL, version-invalidated
 // ============================================
 const PRODUCT_CACHE_KEY = 'iShopProductsCache';
-const PRODUCT_CACHE_VERSION_KEY = 'iShopProductsCacheVersion';
+const PRODUCT_CACHE_VERSION_KEY = 'iShopProductsCacheVersion-v2';
 const PRODUCT_CACHE_TTL_MS = 5 * 60 * 1000;
 
 function getProductCacheVersion() {
@@ -971,7 +971,7 @@ function toggleDrawerDropdown(linkEl) {
 // ============================================
 // iShop API CONFIGURATION
 // ============================================
-const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications&pagination[pageSize]=100';
+const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications&populate[2]=vendor&pagination[pageSize]=100';
 const IMAGE_BASE_URL = 'https://ishop-cms-production.up.railway.app';
 const PAYMENT_API = 'https://ishop-payments-production.up.railway.app/api/orders/initialize';
 const FREE_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/free-download';
@@ -1121,6 +1121,7 @@ function convertStrapiProduct(strapiProduct) {
         id: strapiProduct.id,
         documentId: strapiProduct.documentId || String(strapiProduct.id),
         name: strapiProduct.Product_Name || 'Unnamed Product',
+        vendorName: (strapiProduct.vendor && strapiProduct.vendor.businessName) ? strapiProduct.vendor.businessName : '',
         category: (function(raw){if(!raw)return 'uncategorized';var c=String(raw).toLowerCase().trim();if(c.indexOf('electronic')===0)return 'electronics';if(c.indexOf('fashion')===0)return 'fashion';if(c.indexOf('beauty')===0)return 'beauty';if(c.indexOf('digital')===0)return 'digital';if(c.indexOf('home')===0)return 'home';if(c.indexOf('traditional')===0)return 'traditional';return c;})(strapiProduct.Category),
         subType: (strapiProduct.Sub_Type || '').toLowerCase(),
         type: (strapiProduct.Type || 'physical').toLowerCase(),
@@ -1264,6 +1265,7 @@ function renderProducts(containerId, productList, limit = null) {
             </div>
             <div class="product-info">
                 <h3>${product.name}</h3>
+                ${product.vendorName ? `<p class="product-vendor"><i class="fas fa-store"></i> ${escapeHtml(product.vendorName)}</p>` : ''}
                 <p class="product-category">${product.category}</p>
                 <p class="product-price">${isFreeDigital ? '<span style="color:#4CAF50;font-weight:700;">FREE</span>' : '₦' + product.price.toLocaleString()}</p>
                 <div class="product-rating">⭐ ${Number(product.rating).toFixed(1)}</div>
@@ -2213,6 +2215,7 @@ async function renderProductDetail() {
 
                     <div class="product-detail-info">
                         <h1 class="product-title">${product.name}</h1>
+                        ${product.vendorName ? `<div class="product-detail-vendor"><i class="fas fa-store"></i> Sold by <strong>${escapeHtml(product.vendorName)}</strong></div>` : ''}
                         <div class="product-code">Product Code: SN-${String(product.id).padStart(6, '0')}</div>
 
                         <div class="product-rating-section">
