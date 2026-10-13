@@ -59,6 +59,49 @@
         </div>
     </div>
 
+    <!-- FILTER TOOLBAR -->
+    <section class="shop-filter-toolbar">
+        <div class="shop-filter-toolbar-inner">
+            <div class="shop-filter-group">
+                <label for="shopSortSelect">Sort by</label>
+                <select id="shopSortSelect">
+                    <option value="newest">Newest</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="rating">Top Rated</option>
+                    <option value="name">Name: A → Z</option>
+                </select>
+            </div>
+
+            <div class="shop-filter-group">
+                <label>Price range</label>
+                <div class="shop-price-inputs">
+                    <input type="number" id="shopPriceMin" placeholder="Min ₦" min="0" />
+                    <span>–</span>
+                    <input type="number" id="shopPriceMax" placeholder="Max ₦" min="0" />
+                </div>
+                <div class="shop-price-quick">
+                    <button class="price-quick-chip" data-min="" data-max="10000">Under ₦10k</button>
+                    <button class="price-quick-chip" data-min="10000" data-max="50000">₦10k–50k</button>
+                    <button class="price-quick-chip" data-min="50000" data-max="200000">₦50k–200k</button>
+                    <button class="price-quick-chip" data-min="200000" data-max="">Over ₦200k</button>
+                </div>
+            </div>
+
+            <div class="shop-filter-group">
+                <label for="shopRatingSelect">Rating</label>
+                <select id="shopRatingSelect">
+                    <option value="0">Any rating</option>
+                    <option value="4">4★ &amp; up</option>
+                    <option value="3">3★ &amp; up</option>
+                    <option value="2">2★ &amp; up</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="activeFilterChips"></div>
+    </section>
+
     <!-- PRODUCT GRID — populated by script.js -->
     <section class="featured-products">
         <div class="product-grid" id="allProductsGrid"></div>

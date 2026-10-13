@@ -1744,36 +1744,324 @@ function shuffleArray(array) {
 // ============================================
 // RENDER SHOP PAGE
 // ============================================
-async function renderShopPage(filter = 'all', search = '', subType = '') {
-    console.log('🛒 Rendering shop page...', { filter, search, subType });
+// ============================================
+// SHOP PAGE — filters, sort, price range
+// ============================================
+
+const shopFilterState = {
+    category: 'all',
+    subType: '',
+    search: '',
+    sort: 'newest',
+    priceMin: null,
+    priceMax: null,
+    minRating: 0,
+    allProducts: [],
+};
+
+// Read filter values from URL query string on page load
+function readShopFiltersFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        category: params.get('filter') || 'all',
+        subType: params.get('subtype') || '',
+        search: params.get('q') || params.get('search') || '',
+        sort: params.get('sort') || 'newest',
+        priceMin: params.get('min') !== null ? Number(params.get('min')) : null,
+        priceMax: params.get('max') !== null ? Number(params.get('max')) : null,
+        minRating: params.get('rating') !== null ? Number(params.get('rating')) : 0,
+    };
+}
+
+// Write current filters to URL — for shareable links
+function writeShopFiltersToUrl() {
+    const s = shopFilterState;
+    const params = new URLSearchParams();
+    if (s.category && s.category !== 'all') params.set('filter', s.category);
+    if (s.subType) params.set('subtype', s.subType);
+    if (s.search) params.set('q', s.search);
+    if (s.sort && s.sort !== 'newest') params.set('sort', s.sort);
+    if (s.priceMin !== null && !isNaN(s.priceMin)) params.set('min', s.priceMin);
+    if (s.priceMax !== null && !isNaN(s.priceMax)) params.set('max', s.priceMax);
+    if (s.minRating > 0) params.set('rating', s.minRating);
+
+    const qs = params.toString();
+    const newUrl = window.location.pathname + (qs ? '?' + qs : '');
+    window.history.replaceState({}, '', newUrl);
+}
+
+// Apply all filters + sort to the product list
+function applyShopFilters(products) {
+    const s = shopFilterState;
+    let out = [...products];
+
+    // Category
+    if (s.category && s.category !== 'all') {
+        out = out.filter(p => p.category === s.category);
+    }
+
+    // Sub-type
+    if (s.subType) {
+        out = out.filter(p => p.subType === s.subType);
+    }
+
+    // Search (name, category, subType — case-insensitive)
+    if (s.search) {
+        const q = s.search.toLowerCase();
+        out = out.filter(p =>
+            (p.name || '').toLowerCase().includes(q) ||
+            (p.category || '').toLowerCase().includes(q) ||
+            (p.subType || '').toLowerCase().includes(q)
+        );
+    }
+
+    // Price range
+    if (s.priceMin !== null && !isNaN(s.priceMin)) {
+        out = out.filter(p => Number(p.price) >= s.priceMin);
+    }
+    if (s.priceMax !== null && !isNaN(s.priceMax)) {
+        out = out.filter(p => Number(p.price) <= s.priceMax);
+    }
+
+    // Rating
+    if (s.minRating > 0) {
+        out = out.filter(p => Number(p.rating) >= s.minRating);
+    }
+
+    // Sort
+    switch (s.sort) {
+        case 'price-asc':
+            out.sort((a, b) => a.price - b.price);
+            break;
+        case 'price-desc':
+            out.sort((a, b) => b.price - a.price);
+            break;
+        case 'rating':
+            out.sort((a, b) => b.rating - a.rating);
+            break;
+        case 'name':
+            out.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            break;
+        case 'newest':
+        default:
+            // Products come from Strapi newest-first by default;
+            // we preserve the incoming order
+            break;
+    }
+
+    return out;
+}
+
+async function renderShopPage() {
+    console.log('🛒 Rendering shop page with filters:', shopFilterState);
+
+    const container = document.getElementById('allProductsGrid');
+    if (!container) return;
+
     renderProductSkeletons('allProductsGrid', 15);
 
     try {
+        // Load all products (cached)
         const productData = await fetchProducts();
-        let products = productData.map(convertStrapiProduct);
+        shopFilterState.allProducts = productData.map(convertStrapiProduct);
 
-        if (filter !== 'all') {
-            products = products.filter(p => p.category === filter);
-        }
-        if (subType) {
-            products = products.filter(p => p.subType === subType);
-        }
-        if (search) {
-            products = products.filter(p =>
-                p.name.toLowerCase().includes(search.toLowerCase()) ||
-                p.category.toLowerCase().includes(search.toLowerCase())
-            );
-        }
+        // Apply filters
+        const filtered = applyShopFilters(shopFilterState.allProducts);
 
-        renderProducts('allProductsGrid', products);
+        // Render
+        renderProducts('allProductsGrid', filtered);
 
+        // Update result count
         const resultsCount = document.getElementById('resultsCount');
-        if (resultsCount) resultsCount.textContent = products.length;
+        if (resultsCount) resultsCount.textContent = filtered.length;
 
-        console.log('✅ Shop page rendered with', products.length, 'products');
+        // Update active filter chips
+        renderActiveFilterChips();
+
+        // Write to URL for shareable links
+        writeShopFiltersToUrl();
+
+        console.log('✅ Shop page rendered with', filtered.length, 'products');
     } catch (error) {
         console.error('❌ Error rendering shop page:', error);
+        container.innerHTML = `
+            <div style="text-align:center;padding:3rem 1rem;color:#888;grid-column:1/-1;">
+                <i class="fas fa-exclamation-triangle" style="font-size:2.5rem;display:block;margin-bottom:0.5rem;color:#e74c3c;"></i>
+                <p>Could not load products. Please try again.</p>
+            </div>
+        `;
     }
+}
+
+// Build and display "active filter" chips with X-to-remove
+function renderActiveFilterChips() {
+    const wrap = document.getElementById('activeFilterChips');
+    if (!wrap) return;
+
+    const s = shopFilterState;
+    const chips = [];
+
+    if (s.search) {
+        chips.push({ label: `Search: "${s.search}"`, key: 'search' });
+    }
+    if (s.category && s.category !== 'all') {
+        chips.push({ label: `Category: ${s.category}`, key: 'category' });
+    }
+    if (s.subType) {
+        chips.push({ label: `Sub-type: ${s.subType}`, key: 'subType' });
+    }
+    if (s.priceMin !== null && !isNaN(s.priceMin)) {
+        chips.push({ label: `Min: ₦${Number(s.priceMin).toLocaleString()}`, key: 'priceMin' });
+    }
+    if (s.priceMax !== null && !isNaN(s.priceMax)) {
+        chips.push({ label: `Max: ₦${Number(s.priceMax).toLocaleString()}`, key: 'priceMax' });
+    }
+    if (s.minRating > 0) {
+        chips.push({ label: `${s.minRating}★ & up`, key: 'minRating' });
+    }
+
+    if (chips.length === 0) {
+        wrap.innerHTML = '';
+        return;
+    }
+
+    wrap.innerHTML = `
+        <div class="filter-chips-row">
+            <span class="filter-chips-label">Active filters:</span>
+            ${chips.map(c => `
+                <button class="filter-chip" onclick="removeShopFilter('${c.key}')">
+                    ${escapeHtml(c.label)}
+                    <i class="fas fa-times"></i>
+                </button>
+            `).join('')}
+            <button class="filter-chip-clear" onclick="clearAllShopFilters()">
+                Clear all
+            </button>
+        </div>
+    `;
+}
+
+function removeShopFilter(key) {
+    const s = shopFilterState;
+    switch (key) {
+        case 'search': s.search = ''; break;
+        case 'category': s.category = 'all'; break;
+        case 'subType': s.subType = ''; break;
+        case 'priceMin': s.priceMin = null; break;
+        case 'priceMax': s.priceMax = null; break;
+        case 'minRating': s.minRating = 0; break;
+    }
+    // Sync the UI controls too
+    syncFilterControlsToState();
+    renderShopPage();
+}
+
+function clearAllShopFilters() {
+    shopFilterState.category = 'all';
+    shopFilterState.subType = '';
+    shopFilterState.search = '';
+    shopFilterState.sort = 'newest';
+    shopFilterState.priceMin = null;
+    shopFilterState.priceMax = null;
+    shopFilterState.minRating = 0;
+    syncFilterControlsToState();
+    renderShopPage();
+}
+
+// Push the current filter state into the actual input/select elements
+function syncFilterControlsToState() {
+    const s = shopFilterState;
+
+    const sortSel = document.getElementById('shopSortSelect');
+    if (sortSel) sortSel.value = s.sort;
+
+    const minInput = document.getElementById('shopPriceMin');
+    if (minInput) minInput.value = s.priceMin !== null && !isNaN(s.priceMin) ? s.priceMin : '';
+
+    const maxInput = document.getElementById('shopPriceMax');
+    if (maxInput) maxInput.value = s.priceMax !== null && !isNaN(s.priceMax) ? s.priceMax : '';
+
+    const ratingSel = document.getElementById('shopRatingSelect');
+    if (ratingSel) ratingSel.value = String(s.minRating);
+
+    const searchInput = document.getElementById('shopSearch');
+    if (searchInput) searchInput.value = s.search;
+}
+
+// Wire up all the filter controls after page render
+function setupShopFilters() {
+    // Sort dropdown
+    const sortSel = document.getElementById('shopSortSelect');
+    if (sortSel) {
+        sortSel.value = shopFilterState.sort;
+        sortSel.addEventListener('change', function () {
+            shopFilterState.sort = this.value;
+            renderShopPage();
+        });
+    }
+
+    // Rating dropdown
+    const ratingSel = document.getElementById('shopRatingSelect');
+    if (ratingSel) {
+        ratingSel.value = String(shopFilterState.minRating);
+        ratingSel.addEventListener('change', function () {
+            shopFilterState.minRating = Number(this.value) || 0;
+            renderShopPage();
+        });
+    }
+
+    // Price min / max with debounce
+    let priceTimer;
+    const minInput = document.getElementById('shopPriceMin');
+    const maxInput = document.getElementById('shopPriceMax');
+    const applyPrice = () => {
+        clearTimeout(priceTimer);
+        priceTimer = setTimeout(() => {
+            shopFilterState.priceMin = minInput?.value !== '' ? Number(minInput.value) : null;
+            shopFilterState.priceMax = maxInput?.value !== '' ? Number(maxInput.value) : null;
+            renderShopPage();
+        }, 300);
+    };
+    if (minInput) minInput.addEventListener('input', applyPrice);
+    if (maxInput) maxInput.addEventListener('input', applyPrice);
+
+    // Quick price chips
+    document.querySelectorAll('.price-quick-chip').forEach(chip => {
+        chip.addEventListener('click', function () {
+            const min = this.dataset.min !== '' ? Number(this.dataset.min) : null;
+            const max = this.dataset.max !== '' ? Number(this.dataset.max) : null;
+            shopFilterState.priceMin = min;
+            shopFilterState.priceMax = max;
+            syncFilterControlsToState();
+            renderShopPage();
+        });
+    });
+
+    // Search box (already exists, but we keep its value in sync)
+    const searchInput = document.getElementById('shopSearch');
+    if (searchInput) {
+        searchInput.value = shopFilterState.search;
+        let searchTimer;
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                shopFilterState.search = this.value.trim();
+                renderShopPage();
+            }, 250);
+        });
+    }
+}
+
+// Bootstrap on page load — read filters from URL, then run
+async function initShopPage() {
+    const fromUrl = readShopFiltersFromUrl();
+    Object.assign(shopFilterState, fromUrl);
+
+    // Wire the controls first, so their values are ready
+    setupShopFilters();
+
+    // Initial render
+    await renderShopPage();
 }
 
 // ============================================
@@ -2390,10 +2678,10 @@ function setupFilters() {
 
 function filterBySearch() {
     const searchInput = document.getElementById('shopSearch');
-    const search = searchInput ? searchInput.value.trim() : '';
-    const activeBtn = document.querySelector('.digital-tabs .tab-btn.active');
-    const filter = activeBtn ? activeBtn.dataset.type : 'all';
-    renderShopPage(filter, search);
+    if (searchInput) {
+        shopFilterState.search = searchInput.value.trim();
+    }
+    renderShopPage();
 }
 
 function setupSubcategoryButtons(category) {
@@ -3559,17 +3847,7 @@ function initializeApp() {
     if (page === 'index.html' || page === '') {
         renderHomepage();
     } else if (page === 'shop.html') {
-        const urlParams = new URLSearchParams(window.location.search);
-        const filter = urlParams.get('filter') || 'all';
-        const search = urlParams.get('q') || urlParams.get('search') || '';
-        const subType = urlParams.get('subtype') || '';
-
-        if (search) {
-            renderShopPage('all', search);
-        } else {
-            renderShopPage(filter, '', subType);
-        }
-        setupFilters();
+        initShopPage();
     } else if (page === 'digital-products.html') {
         renderCategory('digital');
         setupSubcategoryButtons('digital');
