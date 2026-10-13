@@ -15741,21 +15741,36 @@ html body .hero-slide[data-theme="home"] .hero-cta {
 /* ============================================ */
 /* VENDOR NAME ON PRODUCT CARDS + DETAIL */
 /* ============================================ */
-.product-vendor {
-    font-size: 0.72rem;
-    color: #8896a8;
-    font-weight: 600;
-    margin: 0 0 0.15rem;
+.product-meta-row {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin: 0 0 0.25rem;
+    font-size: 0.72rem;
+    line-height: 1.3;
+}
+
+.product-meta-row .product-vendor,
+.product-meta-row .product-category {
+    margin: 0;
+    font-size: 0.72rem;
+}
+
+.product-vendor {
+    color: #f9a83b;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    max-width: 100%;
 }
 
 .product-vendor i {
-    color: #d4a017;
+    color: #f9a83b;
     font-size: 0.62rem;
     flex-shrink: 0;
 }

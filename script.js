@@ -1265,8 +1265,10 @@ function renderProducts(containerId, productList, limit = null) {
             </div>
             <div class="product-info">
                 <h3>${product.name}</h3>
-                ${product.vendorName ? `<p class="product-vendor"><i class="fas fa-store"></i> ${escapeHtml(product.vendorName)}</p>` : ''}
-                <p class="product-category">${product.category}</p>
+                <p class="product-meta-row">
+                    ${product.vendorName ? `<span class="product-vendor"><i class="fas fa-store"></i> ${escapeHtml(product.vendorName)}</span>` : ''}
+                    <span class="product-category">${product.category}</span>
+                </p>
                 <p class="product-price">${isFreeDigital ? '<span style="color:#4CAF50;font-weight:700;">FREE</span>' : '₦' + product.price.toLocaleString()}</p>
                 <div class="product-rating">⭐ ${Number(product.rating).toFixed(1)}</div>
                 ${isFreeDigital
