@@ -1143,6 +1143,43 @@ let cart = JSON.parse(localStorage.getItem('iShopCart')) || [];
 function saveCart() {
     localStorage.setItem('iShopCart', JSON.stringify(cart));
     updateCartCount();
+    // Mirror to server for recovery tracking (silent, logged-in only)
+    syncCartToServer().catch(() => {});
+}
+
+// ============================================
+// CART SYNC — mirror localStorage cart to server
+// ============================================
+async function syncCartToServer() {
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) return; // guest users are not tracked in v1
+
+    try {
+        const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+        const items = cart.map(item => ({
+            id: item.id,
+            documentId: item.documentId,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            type: item.type,
+            image: item.image,
+        }));
+
+        await fetch(`${ORDERS_API_BASE}/api/carts/sync`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({ items, subtotal, itemCount }),
+        });
+    } catch (err) {
+        // Silent fail — never break the user's flow because of a sync error
+        console.warn('Cart sync failed (non-critical):', err.message);
+    }
 }
 
 function updateCartCount() {
@@ -3260,6 +3297,11 @@ async function handleLogin(e) {
         });
 
         updateAuthUI();
+
+        // Sync existing cart to server now that we have a JWT
+        if (cart.length > 0) {
+            syncCartToServer().catch(() => {});
+        }
 
         // Check if this user is a vendor and redirect accordingly
         let redirectUrl = 'profile.html';
