@@ -2919,8 +2919,23 @@ function setupCheckoutForm() {
             const popup = new PaystackPop();
             popup.resumeTransaction(data.access_code, {
                 onSuccess: (transaction) => {
+                    // Clear the local cart first
                     cart = [];
                     saveCart();
+
+                    // Mark the server-side cart as recovered (silent, non-blocking)
+                    const jwt = localStorage.getItem('iShopJwt');
+                    if (jwt) {
+                        fetch(`${ORDERS_API_BASE}/api/carts/mark-recovered`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${jwt}`,
+                            },
+                            body: JSON.stringify({ orderReference: transaction.reference }),
+                        }).catch(() => {});
+                    }
+
                     window.location.href = 'order-confirmed.html?reference=' + transaction.reference;
                 },
                 onCancel: () => {
