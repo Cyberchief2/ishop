@@ -16138,3 +16138,47 @@ html body .hero-slide[data-theme="home"] .hero-cta {
         width: 100%;
     }
 }
+/* ============================================ */
+/* CART CHECKOUT BUTTON — ALWAYS VISIBLE */
+/* ============================================ */
+.checkout-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: #f9c74f;
+    color: #0d1b2a;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 1rem;
+    text-decoration: none;
+    margin-top: 1rem;
+    box-shadow: 0 6px 18px rgba(249, 199, 79, 0.35);
+    transition: all 0.2s ease;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.checkout-btn:hover {
+    background: #f5b82e;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(249, 199, 79, 0.45);
+}
+
+/* Mobile cart layout — stack items then summary */
+@media (max-width: 992px) {
+    .cart-layout {
+        display: block !important;
+    }
+    .cart-summary {
+        margin-top: 2rem;
+        position: static !important;
+        display: block !important;
+        visibility: visible !important;
+    }
+    .cart-items {
+        margin-bottom: 1rem;
+    }
+}

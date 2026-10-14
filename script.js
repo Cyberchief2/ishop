@@ -1455,8 +1455,8 @@ function renderCart() {
                 <span>Total</span>
                 <span>₦${total.toLocaleString()}</span>
             </div>
-            <a href="checkout.html" class="btn-primary" style="width:100%;text-align:center;display:block;">
-                Proceed to Checkout
+            <a href="checkout.html" class="btn-primary checkout-btn" style="width:100%;text-align:center;display:block;">
+                <i class="fas fa-lock"></i> Proceed to Checkout
             </a>
             <button onclick="clearCart()" style="width:100%;margin-top:0.5rem;padding:0.8rem;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;">
                 Clear Cart
@@ -3115,11 +3115,32 @@ function switchTab(tab) {
     if (buttons[buttonMap[tab]]) buttons[buttonMap[tab]].classList.add('active');
 }
 
-function buyNow(productId) {
-    addToCart(productId);
-    setTimeout(() => {
-        window.location.href = 'checkout.html';
-    }, 500);
+async function buyNow(productId) {
+    // Look for the product in the already-fetched product list first
+    let product = cart.find(i => i.id === productId);
+
+    if (!product) {
+        // Fetch the product from Strapi
+        const fetched = await fetchProductById(productId);
+        if (!fetched) {
+            alert('Could not load this product. Please try again.');
+            return;
+        }
+        const existing = cart.find(i => i.id === productId);
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            cart.push({ ...fetched, quantity: 1 });
+        }
+        saveCart();
+    } else {
+        // Already in cart — bump quantity
+        product.quantity += 1;
+        saveCart();
+    }
+
+    // Now redirect — cart is guaranteed populated
+    window.location.href = 'checkout.html';
 }
 
 // ============================================
