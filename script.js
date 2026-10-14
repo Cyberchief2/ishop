@@ -1140,6 +1140,16 @@ function convertStrapiProduct(strapiProduct) {
 // ============================================
 let cart = JSON.parse(localStorage.getItem('iShopCart')) || [];
 
+// ============================================
+// COUPON STATE
+// ============================================
+let appliedCoupon = {
+    code: '',
+    discount: 0,
+    documentId: '',
+    description: '',
+};
+
 function saveCart() {
     localStorage.setItem('iShopCart', JSON.stringify(cart));
     updateCartCount();
@@ -1422,7 +1432,7 @@ function renderCart() {
         const subtotal = getCartTotal();
         const hasPhysical = cart.some(item => item.type === 'physical' || item.type === '');
         const delivery = 0;
-        const total = subtotal + delivery;
+        const total = Math.max(0, subtotal + delivery - discount);
 
         summary.innerHTML = `
             <h3>Order Summary</h3>
@@ -2396,6 +2406,7 @@ function renderCheckoutSummary() {
     const hasPhysical = cartHasPhysical();
     const stateSelected = getSelectedState();
     const lgaSelected = getSelectedLga();
+    const discount = appliedCoupon.discount || 0;
 
     let delivery = 0;
     let deliveryLabel = '';
@@ -2436,6 +2447,12 @@ function renderCheckoutSummary() {
             <span>Delivery</span>
             <span>${deliveryLabel}</span>
         </div>
+        ${discount > 0 ? `
+        <div class="summary-row discount">
+            <span><i class="fas fa-tag"></i> ${escapeHtml(appliedCoupon.code)}</span>
+            <span>− ₦${discount.toLocaleString()}</span>
+        </div>
+        ` : ''}
         <div class="summary-row total">
             <span>Total</span>
             <span>₦${total.toLocaleString()}</span>
@@ -2798,6 +2815,21 @@ function setupCheckoutForm() {
         if (addressInput && !addressInput.value) addressInput.value = currentUser.address || '';
     }
 
+    // Wire coupon apply button + Enter key
+    const couponApplyBtn = document.getElementById('couponApplyBtn');
+    const couponInput = document.getElementById('couponInput');
+    if (couponApplyBtn) {
+        couponApplyBtn.addEventListener('click', applyCoupon);
+    }
+    if (couponInput) {
+        couponInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyCoupon();
+            }
+        });
+    }
+
     const paymentSelect = document.getElementById('payment');
     const paymentInfo = document.getElementById('paymentInfo');
     if (paymentSelect && paymentInfo) {
@@ -2906,7 +2938,9 @@ function setupCheckoutForm() {
                     dhlProductCode: selectedShippingMethod.startsWith('dhl-')
                         ? selectedShippingMethod.replace(/^dhl-/, '')
                         : null,
-                    userJwt: getJwt()
+                    userJwt: getJwt(),
+                    couponCode: appliedCoupon.code || null,
+                    couponDiscount: appliedCoupon.discount || 0
                 })
             });
 
@@ -2934,6 +2968,19 @@ function setupCheckoutForm() {
                             },
                             body: JSON.stringify({ orderReference: transaction.reference }),
                         }).catch(() => {});
+                    }
+
+                    // Consume the coupon if one was applied (silent, non-blocking)
+                    if (appliedCoupon.code) {
+                        fetch(`${ORDERS_API_BASE}/api/coupons/consume`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                code: appliedCoupon.code,
+                                orderReference: transaction.reference,
+                            }),
+                        }).catch(() => {});
+                        appliedCoupon = { code: '', discount: 0, documentId: '', description: '' };
                     }
 
                     window.location.href = 'order-confirmed.html?reference=' + transaction.reference;
@@ -7608,4 +7655,97 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initVendorOrdersPage);
 } else {
     initVendorOrdersPage();
+}
+/* ============================================ */
+/* COUPONS — apply, remove, and integrate with checkout */
+/* ============================================ */
+
+const COUPONS_API = 'https://ishop-payments-production.up.railway.app';
+
+async function applyCoupon() {
+    const input = document.getElementById('couponInput');
+    const btn = document.getElementById('couponApplyBtn');
+    const feedback = document.getElementById('couponFeedback');
+    if (!input || !btn || !feedback) return;
+
+    const code = input.value.trim().toUpperCase();
+    if (!code) {
+        feedback.className = 'coupon-feedback error';
+        feedback.innerHTML = '⚠️ Please enter a coupon code.';
+        return;
+    }
+
+    const subtotal = getCartTotal();
+    if (subtotal <= 0) {
+        feedback.className = 'coupon-feedback error';
+        feedback.innerHTML = '⚠️ Your cart is empty.';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    feedback.className = 'coupon-feedback';
+    feedback.innerHTML = '';
+
+    try {
+        const res = await fetch(`${COUPONS_API}/api/coupons/validate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, subtotal }),
+        });
+
+        const data = await res.json();
+
+        // Note: invalid coupons return 404 with valid: false, so we check data.valid
+        if (!data.valid) {
+            feedback.className = 'coupon-feedback error';
+            feedback.innerHTML = `❌ ${escapeHtml(data.error || 'Coupon not valid')}`;
+            appliedCoupon = { code: '', discount: 0, documentId: '', description: '' };
+            renderCheckoutSummary();
+            return;
+        }
+
+        // Success
+        appliedCoupon = {
+            code: data.coupon.code,
+            discount: Number(data.discount) || 0,
+            documentId: data.coupon.documentId,
+            description: data.coupon.description || '',
+        };
+
+        feedback.className = 'coupon-feedback success';
+        feedback.innerHTML = `
+            ✅ <strong>${escapeHtml(data.coupon.code)}</strong> applied — you save ₦${Number(data.discount).toLocaleString()}
+            <button type="button" class="coupon-remove" onclick="removeCoupon()">Remove</button>
+        `;
+
+        input.value = '';
+        input.disabled = true;
+        btn.style.display = 'none';
+
+        renderCheckoutSummary();
+    } catch (err) {
+        console.error('Coupon apply error:', err);
+        feedback.className = 'coupon-feedback error';
+        feedback.innerHTML = '❌ Could not reach the server. Please try again.';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Apply';
+    }
+}
+
+function removeCoupon() {
+    appliedCoupon = { code: '', discount: 0, documentId: '', description: '' };
+
+    const input = document.getElementById('couponInput');
+    const btn = document.getElementById('couponApplyBtn');
+    const feedback = document.getElementById('couponFeedback');
+    if (input) { input.value = ''; input.disabled = false; }
+    if (btn) btn.style.display = '';
+    if (feedback) {
+        feedback.className = 'coupon-feedback';
+        feedback.innerHTML = '';
+    }
+
+    renderCheckoutSummary();
 }
