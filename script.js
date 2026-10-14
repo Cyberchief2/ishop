@@ -1432,7 +1432,7 @@ function renderCart() {
         const subtotal = getCartTotal();
         const hasPhysical = cart.some(item => item.type === 'physical' || item.type === '');
         const delivery = 0;
-        const total = Math.max(0, subtotal + delivery - discount);
+        const total = subtotal + delivery;
 
         summary.innerHTML = `
             <h3>Order Summary</h3>
@@ -3116,27 +3116,28 @@ function switchTab(tab) {
 }
 
 async function buyNow(productId) {
-    // Look for the product in the already-fetched product list first
-    let product = cart.find(i => i.id === productId);
+    // Normalize id comparison to avoid string/number mismatches
+    const numericId = Number(productId);
+    const existing = cart.find(i => Number(i.id) === numericId);
 
-    if (!product) {
+    if (existing) {
+        existing.quantity += 1;
+        saveCart();
+    } else {
         // Fetch the product from Strapi
         const fetched = await fetchProductById(productId);
         if (!fetched) {
             alert('Could not load this product. Please try again.');
             return;
         }
-        const existing = cart.find(i => i.id === productId);
-        if (existing) {
-            existing.quantity += 1;
-        } else {
-            cart.push({ ...fetched, quantity: 1 });
-        }
+        cart.push({ ...fetched, quantity: 1 });
         saveCart();
-    } else {
-        // Already in cart — bump quantity
-        product.quantity += 1;
-        saveCart();
+    }
+
+    // Guard: if somehow the cart is still empty, don't redirect to an empty checkout
+    if (cart.length === 0) {
+        alert('Could not add this product to your cart. Please try again.');
+        return;
     }
 
     // Now redirect — cart is guaranteed populated
