@@ -16486,3 +16486,20 @@ html body .hero-slide[data-theme="home"] .hero-cta {
         font-size: 0.75rem;
     }
 }
+/* ============================================ */
+/* VERIFICATION SECTION — SIT BELOW STATUS CARD */
+/* ============================================ */
+.vendor-verification-section {
+    padding: 1.25rem 0 3rem;
+    background: transparent;   /* was #f8fafc — remove the grey band */
+}
+
+.vendor-dashboard-content .vendor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.vendor-verification-section .vendor-container {
+    padding: 0;
+}

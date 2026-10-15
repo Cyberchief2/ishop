@@ -4926,14 +4926,19 @@ function renderVendorDashboard(vendor) {
 
     // Show/hide verification section
     const verificationSection = document.getElementById('vendorVerificationSection');
+    const fullyVerified = !!vendor.identityVerifiedAt && !!vendor.bankVerifiedAt;
     if (verificationSection) {
-        if (status === 'approved') {
+        if (status === 'approved' && !fullyVerified) {
             verificationSection.style.display = 'block';
             renderVerificationChecklist(vendor);
         } else {
             verificationSection.style.display = 'none';
         }
     }
+
+    // Business info grid — hidden during verification, shown once verified
+    const infoGridHidden = (status === 'approved' && !fullyVerified);
+    const infoGridStyle = infoGridHidden ? 'style="display:none;"' : '';
 
     // Render
     container.innerHTML = `
@@ -4960,7 +4965,7 @@ function renderVendorDashboard(vendor) {
             </div>
 
             <!-- Business info cards -->
-            <div class="vendor-info-grid">
+            <div class="vendor-info-grid" ${infoGridStyle}>
                 <div class="vendor-info-card">
                     <div class="vendor-info-card-icon"><i class="fas fa-store"></i></div>
                     <h3>Business Name</h3>
