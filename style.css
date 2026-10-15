@@ -16182,3 +16182,55 @@ html body .hero-slide[data-theme="home"] .hero-cta {
         margin-bottom: 1rem;
     }
 }
+/* ============================================ */
+/* ADMIN VERIFICATION DOC LINKS */
+/* ============================================ */
+.admin-verification-card .admin-card-body {
+    padding-bottom: 0.5rem;
+}
+
+.admin-verification-docs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+}
+
+.admin-doc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.9rem;
+    background: #f8fafc;
+    border: 1.5px solid #e5e9ef;
+    border-radius: 10px;
+    color: #0d1b2a;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.admin-doc-link:hover {
+    background: #fef9e7;
+    border-color: #f9c74f;
+    color: #d4a017;
+    transform: translateY(-1px);
+}
+
+.admin-doc-link i {
+    color: #d4a017;
+    font-size: 0.9rem;
+}
+
+.admin-doc-missing {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.9rem;
+    background: #fef2f2;
+    border: 1px dashed #fecaca;
+    border-radius: 10px;
+    color: #991b1b;
+    font-size: 0.78rem;
+    font-weight: 600;
+}

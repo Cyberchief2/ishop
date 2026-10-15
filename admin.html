@@ -62,7 +62,10 @@
             <button class="admin-tab" data-tab="vendors" onclick="adminSwitchTab('vendors')">
                 <i class="fas fa-store"></i> Vendors <span class="admin-tab-badge" id="adminBadgeVendors" style="display:none;">0</span>
             </button>
-            <button class="admin-tab" data-tab="products" onclick="adminSwitchTab('products')">
+            <button class="admin-tab" data-tab="verifications" onclick="adminSwitchTab('verifications')">
+    <i class="fas fa-id-card"></i> Verifications <span class="admin-tab-badge" id="adminBadgeVerifications" style="display:none;">0</span>
+</button>
+<button class="admin-tab" data-tab="products" onclick="adminSwitchTab('products')">
                 <i class="fas fa-box"></i> Products <span class="admin-tab-badge" id="adminBadgeProducts" style="display:none;">0</span>
             </button>
             <button class="admin-tab" data-tab="payouts" onclick="adminSwitchTab('payouts')">
@@ -105,6 +108,19 @@
                     <p>Every vendor in the system</p>
                 </div>
                 <div id="adminAllVendorsList" class="admin-list">
+                    <div class="admin-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading…
+                    </div>
+                </div>
+            </section>
+
+            <!-- VERIFICATIONS TAB -->
+            <section class="admin-panel" id="admin-panel-verifications">
+                <div class="admin-section-header">
+                    <h2>Pending Identity Verifications</h2>
+                    <p>Review the documents submitted by vendors for approval.</p>
+                </div>
+                <div id="adminPendingVerificationsList" class="admin-list">
                     <div class="admin-loading">
                         <i class="fas fa-spinner fa-spin"></i> Loading…
                     </div>

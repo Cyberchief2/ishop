@@ -6648,6 +6648,7 @@ function adminShowMainScreen() {
     // Load stats first (async) then render
     adminLoadStats();
     adminLoadPendingVendors();
+    adminLoadPendingVerifications();
     adminLoadAllVendors();
     adminLoadPendingProducts();
     adminLoadAllProducts();
@@ -6670,6 +6671,7 @@ function adminRefreshAll() {
     adminToast('Refreshing all data…', 'default');
     adminLoadStats();
     adminLoadPendingVendors();
+    adminLoadPendingVerifications();
     adminLoadAllVendors();
     adminLoadPendingProducts();
     adminLoadAllProducts();
@@ -7770,4 +7772,142 @@ function removeCoupon() {
     }
 
     renderCheckoutSummary();
+}
+/* ============================================ */
+/* ADMIN: VENDOR IDENTITY VERIFICATION REVIEW */
+/* ============================================ */
+
+async function adminLoadPendingVerifications() {
+    const container = document.getElementById('adminPendingVerificationsList');
+    if (!container) return;
+
+    // Guard: don't reload if we're not on admin page
+    const savedKey = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey');
+    if (!adminState.key && !savedKey) return;
+    if (!adminState.key) adminState.key = savedKey;
+
+    try {
+        const res = await fetch(
+            `${ADMIN_API_BASE}/api/admin/vendors/pending-verifications?key=${encodeURIComponent(adminState.key)}`
+        );
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed to load');
+        adminRenderPendingVerifications(data.vendors || []);
+        adminUpdateBadge('adminBadgeVerifications', (data.vendors || []).length);
+    } catch (err) {
+        console.error('Admin pending verifications error:', err);
+        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load pending verifications.</div>`;
+    }
+}
+
+function adminRenderPendingVerifications(vendors) {
+    const container = document.getElementById('adminPendingVerificationsList');
+    if (!container) return;
+
+    if (vendors.length === 0) {
+        container.innerHTML = `
+            <div class="admin-empty">
+                <i class="fas fa-check-circle"></i>
+                No pending verifications. All caught up.
+            </div>
+        `;
+        return;
+    }
+
+    const strapiBase = 'https://ishop-cms-production.up.railway.app';
+
+    container.innerHTML = vendors.map(v => {
+        const idDocUrl = v.idDocument?.url ? `${strapiBase}${v.idDocument.url}` : null;
+        const passportUrl = v.passportPhoto?.url ? `${strapiBase}${v.passportPhoto.url}` : null;
+        const billUrl = v.utilityBill?.url ? `${strapiBase}${v.utilityBill.url}` : null;
+        const billDate = v.utilityBillDate
+            ? new Date(v.utilityBillDate).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' })
+            : '—';
+
+        return `
+            <div class="admin-card admin-verification-card">
+                <div class="admin-card-media"><i class="fas fa-id-card"></i></div>
+                <div class="admin-card-body">
+                    <h3 class="admin-card-title">${adminEscape(v.businessName || 'Unnamed Vendor')}</h3>
+                    <p class="admin-card-meta"><strong>Owner:</strong> ${adminEscape(v.ownerName || '—')}</p>
+                    <p class="admin-card-meta"><strong>Email:</strong> ${adminEscape(v.email || '—')}</p>
+                    <p class="admin-card-meta"><strong>ID Type:</strong> ${adminEscape((v.idDocumentType || '—').toUpperCase())}</p>
+                    <p class="admin-card-meta"><strong>Bill Date:</strong> ${billDate}</p>
+
+                    <div class="admin-verification-docs">
+                        ${idDocUrl ? `<a href="${idDocUrl}" target="_blank" rel="noopener" class="admin-doc-link"><i class="fas fa-id-card"></i> View ID</a>` : '<span class="admin-doc-missing">ID missing</span>'}
+                        ${passportUrl ? `<a href="${passportUrl}" target="_blank" rel="noopener" class="admin-doc-link"><i class="fas fa-user-circle"></i> View Passport</a>` : '<span class="admin-doc-missing">Passport missing</span>'}
+                        ${billUrl ? `<a href="${billUrl}" target="_blank" rel="noopener" class="admin-doc-link"><i class="fas fa-file-invoice"></i> View Utility Bill</a>` : '<span class="admin-doc-missing">Bill missing</span>'}
+                    </div>
+
+                    <span class="admin-card-badge pending">Awaiting Review</span>
+                </div>
+                <div class="admin-card-actions">
+                    <button class="admin-btn admin-btn-success" onclick="adminApproveIdentity('${v.documentId}', '${adminEscape(v.businessName || '')}')">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                    <button class="admin-btn admin-btn-danger" onclick="adminRejectIdentity('${v.documentId}', '${adminEscape(v.businessName || '')}')">
+                        <i class="fas fa-times"></i> Reject
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function adminApproveIdentity(documentId, businessName) {
+    adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
+
+    adminConfirm({
+        title: 'Approve Identity?',
+        message: `Approve the identity documents for "${businessName}"? The vendor will be able to move to bank verification.`,
+        icon: 'success',
+        iconName: 'check-circle',
+        btnText: 'Yes, Approve',
+        btnClass: 'admin-btn-success',
+        onConfirm: async () => {
+            try {
+                const res = await fetch(
+                    `${ADMIN_API_BASE}/api/admin/vendors/${documentId}/approve-identity?key=${encodeURIComponent(adminState.key)}`,
+                    { method: 'POST' }
+                );
+                const data = await res.json();
+                if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+                adminToast('Identity approved ✅', 'success');
+                adminLoadPendingVerifications();
+                adminLoadStats();
+            } catch (err) {
+                console.error('[approve-identity] error:', err);
+                adminToast('Could not approve identity', 'error');
+            }
+        },
+    });
+}
+
+function adminRejectIdentity(documentId, businessName) {
+    const reason = prompt(`Reason for rejecting ${businessName}'s documents?\n\nThe vendor will see this message and can re-submit.`);
+    if (reason === null) return;
+    if (reason.trim().length < 5) {
+        alert('A reason is required (at least 5 characters).');
+        return;
+    }
+
+    adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
+
+    fetch(`${ADMIN_API_BASE}/api/admin/vendors/${documentId}/reject-identity?key=${encodeURIComponent(adminState.key)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason.trim() }),
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.status) throw new Error(data.error || 'Failed');
+            adminToast('Identity rejected', 'success');
+            adminLoadPendingVerifications();
+            adminLoadStats();
+        })
+        .catch(err => {
+            console.error('[reject-identity] error:', err);
+            adminToast('Could not reject identity', 'error');
+        });
 }
