@@ -16420,3 +16420,69 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     .vendor-vstep-body p { font-size: 0.75rem; }
     .vendor-vstep-badge { font-size: 0.65rem; padding: 0.25rem 0.6rem; }
 }
+/* ============================================ */
+/* MOBILE POLISH — VERIFICATION + STATUS ACTIONS */
+/* ============================================ */
+@media (max-width: 640px) {
+    /* Stack status action buttons so "Complete Your Verification" gets full width */
+    .vendor-status-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vendor-status-actions a,
+    .vendor-status-actions button {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* Tighten verification section spacing on small screens */
+    .vendor-verification-section {
+        padding: 1.5rem 0 2rem;
+    }
+
+    .vendor-verification-card {
+        padding: 1.25rem;
+        margin: 0 0.75rem;
+        border-radius: 14px;
+    }
+
+    /* Progress text + steps align nicely */
+    .vendor-verification-progress-text {
+        text-align: center;
+    }
+
+    .vendor-verification-step {
+        flex-wrap: nowrap;
+    }
+
+    /* Ensure badges don't wrap awkwardly */
+    .vendor-vstep-badge {
+        white-space: nowrap;
+        font-size: 0.62rem;
+        padding: 0.25rem 0.55rem;
+    }
+
+    /* When the checklist is scroll-target, leave breathing room below the top of viewport */
+    #vendorVerificationSection {
+        scroll-margin-top: 80px;
+    }
+}
+
+/* Slightly smaller on very narrow phones */
+@media (max-width: 380px) {
+    .vendor-vstep-body h4 {
+        font-size: 0.82rem;
+    }
+
+    .vendor-vstep-body p {
+        font-size: 0.72rem;
+    }
+
+    .vendor-vstep-number {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+}
