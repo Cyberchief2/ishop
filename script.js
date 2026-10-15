@@ -4803,7 +4803,7 @@ function renderVendorDashboard(vendor) {
             title: 'You\'re Approved! 🎉',
             icon: 'check-circle',
             badge: 'Approved Vendor',
-            message: 'Welcome aboard! Before you can start listing products, complete the 4-step verification below. This protects both you and your customers, and unlocks payouts.',
+            message: 'Welcome aboard! Complete the 3-step verification below to unlock product listings and payouts on iShop.',
         },
         rejected: {
             title: 'Application Not Approved',
@@ -7993,8 +7993,21 @@ function renderVerificationChecklist(vendor) {
     const bankStep = document.querySelector('.vendor-verification-step[data-step="bank"]');
     if (bankStep) {
         const statusEl = bankStep.querySelector('.vendor-vstep-status');
-        if (statusEl && identityDone) {
-            statusEl.innerHTML = `<span class="vendor-vstep-badge soon">Coming soon</span>`;
+        if (statusEl) {
+            if (bankDone) {
+                statusEl.innerHTML = `<span class="vendor-vstep-badge done"><i class="fas fa-check"></i> Verified</span>`;
+                bankStep.classList.remove('disabled');
+                bankStep.setAttribute('onclick', "window.location.href='vendor-bank.html'");
+                bankStep.style.cursor = 'pointer';
+            } else if (identityDone) {
+                // Identity approved → bank step unlocks
+                statusEl.innerHTML = `<span class="vendor-vstep-badge pending">Start</span>`;
+                bankStep.classList.remove('disabled');
+                bankStep.setAttribute('onclick', "window.location.href='vendor-bank.html'");
+                bankStep.style.cursor = 'pointer';
+            } else {
+                statusEl.innerHTML = `<span class="vendor-vstep-badge soon">Complete step 2 first</span>`;
+            }
         }
     }
 
