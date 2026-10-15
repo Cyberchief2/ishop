@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Bank Verification – iShop Vendor</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body class="vendor-apply-page">
+    <div id="site-header"></div>
+
+    <section class="vendor-apply-header">
+        <a href="vendor-dashboard.html" class="vendor-back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <h1>Bank Verification</h1>
+        <p>Confirm your payout bank account. This takes less than a minute.</p>
+    </section>
+
+    <section class="vendor-apply-container" style="max-width: 640px;">
+        <div id="bankContent" style="background:#fff;border-radius:18px;padding:2.5rem;box-shadow:0 4px 24px rgba(13,27,42,0.06);border:1px solid #eef1f4;">
+            <div style="text-align:center;padding:2rem 0;">
+                <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#f9c74f;"></i>
+                <p style="color:#8896a8;margin-top:1rem;">Loading…</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="site-footer"></div>
+
+    <script src="shipping.js"></script>
+    <script src="script.js"></script>
+    <script>
+        (function() {
+            const jwt = localStorage.getItem('iShopJwt');
+            if (!jwt) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const API = 'https://ishop-payments-production.up.railway.app';
+
+            // Nigerian banks with Paystack codes
+            const BANKS = [
+                { name: 'Access Bank', code: '044' },
+                { name: 'Access Bank (Diamond)', code: '063' },
+                { name: 'ALAT by WEMA', code: '035A' },
+                { name: 'Citibank Nigeria', code: '023' },
+                { name: 'Ecobank Nigeria', code: '050' },
+                { name: 'Fidelity Bank', code: '070' },
+                { name: 'First Bank of Nigeria', code: '011' },
+                { name: 'First City Monument Bank (FCMB)', code: '214' },
+                { name: 'Guaranty Trust Bank (GTBank)', code: '058' },
+                { name: 'Heritage Bank', code: '030' },
+                { name: 'Keystone Bank', code: '082' },
+                { name: 'Kuda Bank', code: '50211' },
+                { name: 'OPay', code: '999992' },
+                { name: 'PalmPay', code: '999991' },
+                { name: 'Parallex Bank', code: '104' },
+                { name: 'Polaris Bank', code: '076' },
+                { name: 'Providus Bank', code: '101' },
+                { name: 'Stanbic IBTC Bank', code: '221' },
+                { name: 'Standard Chartered Bank', code: '068' },
+                { name: 'Sterling Bank', code: '232' },
+                { name: 'SunTrust Bank', code: '100' },
+                { name: 'Union Bank of Nigeria', code: '032' },
+                { name: 'United Bank for Africa (UBA)', code: '033' },
+                { name: 'Unity Bank', code: '215' },
+                { name: 'Wema Bank', code: '035' },
+                { name: 'Zenith Bank', code: '057' },
+            ];
+
+            const state = {
+                bankCode: '',
+                bankName: '',
+                accountNumber: '',
+                resolvedName: '',
+                step: 'form',   // 'form' | 'confirm' | 'done'
+            };
+
+            function render() {
+                const c = document.getElementById('bankContent');
+
+                // ---------- SUCCESS ----------
+                if (state.step === 'done') {
+                    c.innerHTML = `
+                        <div style="text-align:center;padding:1.5rem 1rem;">
+                            <div style="width:90px;height:90px;background:#d4edda;color:#155724;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:1.5rem;">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <h2 style="font-size:1.5rem;font-weight:800;color:#0d1b2a;margin:0 0 0.75rem;">Bank Verified! 🎉</h2>
+                            <p style="color:#4a5b6a;font-size:1rem;line-height:1.6;margin:0 0 1.5rem;">
+                                Your bank account <strong>${escapeHtml(state.accountNumber)}</strong>
+                                (<strong>${escapeHtml(state.resolvedName)}</strong>) is confirmed.
+                            </p>
+                            <p style="color:#8896a8;font-size:0.9rem;margin:0 0 2rem;">
+                                Payouts will be sent to this account. If you ever need to change it, contact support.
+                            </p>
+                            <a href="vendor-dashboard.html" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.9rem 2rem;background:#f9c74f;color:#0d1b2a;border-radius:30px;font-weight:700;text-decoration:none;">
+                                <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // ---------- CONFIRM ----------
+                if (state.step === 'confirm') {
+                    c.innerHTML = `
+                        <div class="vendor-step-header" style="margin-bottom:1.5rem;">
+                            <h2 style="font-size:1.25rem;font-weight:800;color:#0d1b2a;margin:0 0 0.4rem;">
+                                <i class="fas fa-check-circle" style="color:#4ade80;margin-right:0.5rem;"></i>
+                                Confirm Account Details
+                            </h2>
+                            <p style="color:#6b7280;font-size:0.9rem;margin:0;">
+                                Paystack found this account. Make sure it's correct.
+                            </p>
+                        </div>
+
+                        <div style="background:#f0fdf4;border:2px solid #bbf7d0;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;text-align:center;">
+                            <div style="font-size:0.72rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#15803d;margin-bottom:0.6rem;">Account Holder</div>
+                            <div style="font-size:1.3rem;font-weight:800;color:#0d1b2a;margin-bottom:1rem;letter-spacing:-0.3px;">
+                                ${escapeHtml(state.resolvedName)}
+                            </div>
+                            <div style="font-size:0.82rem;color:#4a5b6a;line-height:1.6;">
+                                <div><strong>Bank:</strong> ${escapeHtml(state.bankName)}</div>
+                                <div><strong>Account Number:</strong> ${escapeHtml(state.accountNumber)}</div>
+                            </div>
+                        </div>
+
+                        <div id="confirmFeedback" style="margin-bottom:1rem;"></div>
+
+                        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                            <button type="button" id="confirmBankBtn" style="flex:1;min-width:180px;padding:0.9rem 1.5rem;background:#f9c74f;color:#0d1b2a;border:none;border-radius:30px;font-weight:700;font-size:0.95rem;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
+                                <i class="fas fa-check"></i> Yes, this is my account
+                            </button>
+                            <button type="button" id="editBankBtn" style="flex:1;min-width:180px;padding:0.9rem 1.5rem;background:#fff;color:#0d1b2a;border:2px solid #e5e9ef;border-radius:30px;font-weight:700;font-size:0.95rem;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
+                                <i class="fas fa-pen"></i> Use a different account
+                            </button>
+                        </div>
+                    `;
+
+                    document.getElementById('confirmBankBtn').addEventListener('click', confirmBank);
+                    document.getElementById('editBankBtn').addEventListener('click', () => {
+                        state.step = 'form';
+                        state.resolvedName = '';
+                        render();
+                    });
+                    return;
+                }
+
+                // ---------- FORM ----------
+                c.innerHTML = `
+                    <div class="vendor-step-header" style="margin-bottom:2rem;">
+                        <h2 style="font-size:1.35rem;font-weight:800;color:#0d1b2a;margin:0 0 0.5rem;">
+                            <i class="fas fa-university" style="color:#f9c74f;margin-right:0.5rem;"></i>
+                            Bank Account Details
+                        </h2>
+                        <p style="color:#6b7280;font-size:0.92rem;margin:0;">
+                            Enter the bank account where you'd like to receive payouts. We'll verify the account holder name with your bank.
+                        </p>
+                    </div>
+
+                    <div class="vendor-form-group">
+                        <label for="bankSelect">Bank <span class="req" style="color:#e74c3c;">*</span></label>
+                        <select id="bankSelect" style="width:100%;padding:0.85rem 1rem;border:2px solid #e5e9ef;border-radius:10px;font-family:inherit;font-size:0.95rem;color:#0d1b2a;background:#fafbfc;">
+                            <option value="">Select your bank</option>
+                            ${BANKS.map(b => `<option value="${b.code}">${b.name}</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <div class="vendor-form-group">
+                        <label for="accountNumberInput">Account Number <span class="req" style="color:#e74c3c;">*</span></label>
+                        <input
+                            type="text"
+                            id="accountNumberInput"
+                            inputmode="numeric"
+                            maxlength="10"
+                            placeholder="10-digit NUBAN account number"
+                            style="width:100%;padding:0.85rem 1rem;border:2px solid #e5e9ef;border-radius:10px;font-family:inherit;font-size:0.95rem;color:#0d1b2a;background:#fafbfc;"
+                        />
+                        <small class="vendor-form-hint">Digits only, exactly 10 numbers</small>
+                    </div>
+
+                    <div id="bankFeedback" style="margin-top:0.5rem;"></div>
+
+                    <div class="vendor-apply-actions" style="margin-top:2rem;">
+                        <button type="button" id="verifyBankBtn" class="vendor-btn-primary" style="margin-left:auto;">
+                            <i class="fas fa-search"></i> Verify Account
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById('accountNumberInput').addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                });
+
+                document.getElementById('verifyBankBtn').addEventListener('click', verifyBank);
+            }
+
+            async function verifyBank() {
+                const bankSelect = document.getElementById('bankSelect');
+                const accountInput = document.getElementById('accountNumberInput');
+                const btn = document.getElementById('verifyBankBtn');
+                const feedback = document.getElementById('bankFeedback');
+
+                const bankCode = bankSelect.value;
+                const accountNumber = accountInput.value.trim();
+
+                if (!bankCode) {
+                    feedback.className = 'error';
+                    feedback.innerHTML = '⚠️ Please select your bank.';
+                    return;
+                }
+                if (!/^\d{10}$/.test(accountNumber)) {
+                    feedback.className = 'error';
+                    feedback.innerHTML = '⚠️ Account number must be exactly 10 digits.';
+                    return;
+                }
+
+                const bankName = bankSelect.options[bankSelect.selectedIndex].text;
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying…';
+                feedback.className = '';
+                feedback.innerHTML = '';
+
+                try {
+                    const res = await fetch(`${API}/api/vendors/verify-bank`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${jwt}`,
+                        },
+                        body: JSON.stringify({ accountNumber, bankCode }),
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || !data.status || !data.accountName) {
+                        throw new Error(data.error || 'Could not verify this account');
+                    }
+
+                    state.bankCode = bankCode;
+                    state.bankName = bankName;
+                    state.accountNumber = accountNumber;
+                    state.resolvedName = data.accountName;
+                    state.step = 'confirm';
+                    render();
+                } catch (err) {
+                    console.error('Bank verify error:', err);
+                    feedback.className = 'error';
+                    feedback.innerHTML = `❌ ${escapeHtml(err.message || 'Something went wrong. Please check your details and try again.')}`;
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-search"></i> Verify Account';
+                }
+            }
+
+            async function confirmBank() {
+                const btn = document.getElementById('confirmBankBtn');
+                const feedback = document.getElementById('confirmFeedback');
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+                feedback.className = '';
+                feedback.innerHTML = '';
+
+                try {
+                    const res = await fetch(`${API}/api/vendors/confirm-bank`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${jwt}`,
+                        },
+                        body: JSON.stringify({
+                            accountNumber: state.accountNumber,
+                            bankCode: state.bankCode,
+                            bankName: state.bankName,
+                            accountName: state.resolvedName,
+                        }),
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || !data.status) {
+                        throw new Error(data.error || 'Could not save bank details');
+                    }
+
+                    state.step = 'done';
+                    render();
+                } catch (err) {
+                    console.error('Bank confirm error:', err);
+                    feedback.className = 'error';
+                    feedback.innerHTML = `❌ ${escapeHtml(err.message || 'Something went wrong. Please try again.')}`;
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Yes, this is my account';
+                }
+            }
+
+            render();
+        })();
+    </script>
+</body>
+</html>
