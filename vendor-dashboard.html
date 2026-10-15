@@ -46,6 +46,76 @@
         </div>
     </section>
 
+    <!-- VERIFICATION PROGRESS SECTION -->
+    <section class="vendor-verification-section" id="vendorVerificationSection" style="display:none;">
+        <div class="vendor-container">
+            <div class="vendor-verification-card">
+                <div class="vendor-verification-header">
+                    <div class="vendor-verification-icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h2>Complete Your Verification</h2>
+                        <p>Complete these steps to unlock full selling on iShop.</p>
+                    </div>
+                </div>
+
+                <div class="vendor-verification-progress">
+                    <div class="vendor-verification-bar" id="verificationProgressBar" style="width:0%;"></div>
+                </div>
+                <div class="vendor-verification-progress-text">
+                    <span id="verificationProgressText">0 of 4 steps complete</span>
+                </div>
+
+                <div class="vendor-verification-steps">
+                    <a href="terms-vendor.html" class="vendor-verification-step" data-step="terms">
+                        <div class="vendor-vstep-number">1</div>
+                        <div class="vendor-vstep-body">
+                            <h4>Accept Merchant Agreement</h4>
+                            <p>Review and accept our terms of service.</p>
+                        </div>
+                        <div class="vendor-vstep-status" id="vstepTermsStatus">
+                            <span class="vendor-vstep-badge pending">Pending</span>
+                        </div>
+                    </a>
+
+                    <div class="vendor-verification-step disabled" data-step="identity">
+                        <div class="vendor-vstep-number">2</div>
+                        <div class="vendor-vstep-body">
+                            <h4>Identity Verification</h4>
+                            <p>Upload a valid ID and passport photograph.</p>
+                        </div>
+                        <div class="vendor-vstep-status">
+                            <span class="vendor-vstep-badge soon">Coming soon</span>
+                        </div>
+                    </div>
+
+                    <div class="vendor-verification-step disabled" data-step="address">
+                        <div class="vendor-vstep-number">3</div>
+                        <div class="vendor-vstep-body">
+                            <h4>Address Verification</h4>
+                            <p>Upload a recent utility bill.</p>
+                        </div>
+                        <div class="vendor-vstep-status">
+                            <span class="vendor-vstep-badge soon">Coming soon</span>
+                        </div>
+                    </div>
+
+                    <div class="vendor-verification-step disabled" data-step="bank">
+                        <div class="vendor-vstep-number">4</div>
+                        <div class="vendor-vstep-body">
+                            <h4>Bank Verification</h4>
+                            <p>Confirm your payout bank account.</p>
+                        </div>
+                        <div class="vendor-vstep-status">
+                            <span class="vendor-vstep-badge soon">Coming soon</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <div id="site-footer"></div>
 
     <script src="shipping.js"></script>

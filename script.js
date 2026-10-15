@@ -4912,6 +4912,17 @@ function renderVendorDashboard(vendor) {
     // No placeholder — product management is live
     const phase2HTML = '';
 
+    // Show/hide verification section
+    const verificationSection = document.getElementById('vendorVerificationSection');
+    if (verificationSection) {
+        if (status === 'approved') {
+            verificationSection.style.display = 'block';
+            renderVerificationChecklist(vendor);
+        } else {
+            verificationSection.style.display = 'none';
+        }
+    }
+
     // Render
     container.innerHTML = `
         <div class="vendor-container">
@@ -7910,4 +7921,64 @@ function adminRejectIdentity(documentId, businessName) {
             console.error('[reject-identity] error:', err);
             adminToast('Could not reject identity', 'error');
         });
+}
+/* ============================================ */
+/* VENDOR VERIFICATION CHECKLIST */
+/* ============================================ */
+function renderVerificationChecklist(vendor) {
+    const stepTerms = document.getElementById('vstepTermsStatus');
+    const progressBar = document.getElementById('verificationProgressBar');
+    const progressText = document.getElementById('verificationProgressText');
+
+    if (!stepTerms || !progressBar || !progressText) return;
+
+    const termsDone = !!vendor.termsAcceptedAt;
+    const identityDone = !!vendor.identityVerifiedAt;
+    const identityPending = !identityDone && !!vendor.identitySubmittedAt;
+    const addressDone = identityDone;
+    const bankDone = false;
+
+    if (termsDone) {
+        stepTerms.innerHTML = `<span class="vendor-vstep-badge done"><i class="fas fa-check"></i> Done</span>`;
+    } else {
+        stepTerms.innerHTML = `<span class="vendor-vstep-badge pending">Start</span>`;
+    }
+
+    const identityStep = document.querySelector('.vendor-verification-step[data-step="identity"]');
+    if (identityStep) {
+        const statusEl = identityStep.querySelector('.vendor-vstep-status');
+        if (statusEl) {
+            if (identityDone) {
+                statusEl.innerHTML = `<span class="vendor-vstep-badge done"><i class="fas fa-check"></i> Verified</span>`;
+            } else if (identityPending) {
+                statusEl.innerHTML = `<span class="vendor-vstep-badge pending">In Review</span>`;
+            } else if (termsDone) {
+                statusEl.innerHTML = `<span class="vendor-vstep-badge pending">Start</span>`;
+                identityStep.classList.remove('disabled');
+                identityStep.setAttribute('onclick', "window.location.href='vendor-verification.html'");
+                identityStep.style.cursor = 'pointer';
+            } else {
+                statusEl.innerHTML = `<span class="vendor-vstep-badge soon">Complete step 1 first</span>`;
+            }
+        }
+        const bodyP = identityStep.querySelector('.vendor-vstep-body p');
+        if (bodyP && termsDone && !identityDone) {
+            bodyP.textContent = 'Upload your ID, passport photo, and utility bill.';
+        }
+    }
+
+    const addressStep = document.querySelector('.vendor-verification-step[data-step="address"]');
+    if (addressStep) {
+        const statusEl = addressStep.querySelector('.vendor-vstep-status');
+        if (statusEl && identityDone) {
+            statusEl.innerHTML = `<span class="vendor-vstep-badge done"><i class="fas fa-check"></i> Verified</span>`;
+        }
+    }
+
+    const completed = [termsDone, identityDone, addressDone, bankDone].filter(Boolean).length;
+    const total = 4;
+    const percent = Math.round((completed / total) * 100);
+
+    progressBar.style.width = percent + '%';
+    progressText.textContent = `${completed} of ${total} steps complete`;
 }
