@@ -7952,8 +7952,7 @@ function renderVerificationChecklist(vendor) {
     const termsDone = !!vendor.termsAcceptedAt;
     const identityDone = !!vendor.identityVerifiedAt;
     const identityPending = !identityDone && !!vendor.identitySubmittedAt;
-    const addressDone = identityDone;
-    const bankDone = false;
+    const bankDone = !!vendor.bankVerifiedAt;
 
     if (termsDone) {
         stepTerms.innerHTML = `<span class="vendor-vstep-badge done"><i class="fas fa-check"></i> Done</span>`;
@@ -7984,16 +7983,16 @@ function renderVerificationChecklist(vendor) {
         }
     }
 
-    const addressStep = document.querySelector('.vendor-verification-step[data-step="address"]');
-    if (addressStep) {
-        const statusEl = addressStep.querySelector('.vendor-vstep-status');
+    const bankStep = document.querySelector('.vendor-verification-step[data-step="bank"]');
+    if (bankStep) {
+        const statusEl = bankStep.querySelector('.vendor-vstep-status');
         if (statusEl && identityDone) {
-            statusEl.innerHTML = `<span class="vendor-vstep-badge done"><i class="fas fa-check"></i> Verified</span>`;
+            statusEl.innerHTML = `<span class="vendor-vstep-badge soon">Coming soon</span>`;
         }
     }
 
-    const completed = [termsDone, identityDone, addressDone, bankDone].filter(Boolean).length;
-    const total = 4;
+    const completed = [termsDone, identityDone, bankDone].filter(Boolean).length;
+    const total = 3;
     const percent = Math.round((completed / total) * 100);
 
     progressBar.style.width = percent + '%';
