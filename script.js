@@ -2422,7 +2422,7 @@ function renderCheckoutSummary() {
         deliveryLabel = '₦' + delivery.toLocaleString();
     }
 
-    const total = subtotal + delivery;
+    const total = Math.max(0, subtotal + delivery - discount);
     const itemsCount = cart.reduce((s, i) => s + i.quantity, 0);
 
     const itemsHTML = cart.map(item => `
