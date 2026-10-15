@@ -4803,7 +4803,7 @@ function renderVendorDashboard(vendor) {
             title: 'You\'re Approved! 🎉',
             icon: 'check-circle',
             badge: 'Approved Vendor',
-            message: 'Welcome aboard! You can now start listing products on iShop. Our team has set up your vendor account with the right commission rates for your categories.',
+            message: 'Welcome aboard! Before you can start listing products, complete the 4-step verification below. This protects both you and your customers, and unlocks payouts.',
         },
         rejected: {
             title: 'Application Not Approved',
@@ -4874,17 +4874,29 @@ function renderVendorDashboard(vendor) {
             </a>
         `;
     } else if (status === 'approved') {
-        actionsHTML = `
-            <a href="vendor-product-form.html" class="primary">
-                <i class="fas fa-plus-circle"></i> Add Your Product
-            </a>
-            <a href="vendor-products.html" class="secondary">
-                <i class="fas fa-boxes"></i> My Products
-            </a>
-            <a href="shop.html" class="secondary">
-                <i class="fas fa-store"></i> View iShop Storefront
-            </a>
-        `;
+        const fullyVerified = !!vendor.identityVerifiedAt && !!vendor.bankVerifiedAt;
+        if (!fullyVerified) {
+            actionsHTML = `
+                <a href="javascript:void(0)" onclick="document.getElementById('vendorVerificationSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' })" class="primary">
+                    <i class="fas fa-shield-halved"></i> Complete Your Verification
+                </a>
+                <a href="vendor-products.html" class="secondary">
+                    <i class="fas fa-boxes"></i> Preview My Products Page
+                </a>
+            `;
+        } else {
+            actionsHTML = `
+                <a href="vendor-product-form.html" class="primary">
+                    <i class="fas fa-plus-circle"></i> Add Your Product
+                </a>
+                <a href="vendor-products.html" class="secondary">
+                    <i class="fas fa-boxes"></i> My Products
+                </a>
+                <a href="shop.html" class="secondary">
+                    <i class="fas fa-store"></i> View iShop Storefront
+                </a>
+            `;
+        }
     } else {
         actionsHTML = `
             <a href="https://wa.me/2348158339217?text=Hi%20iShop%2C%20I%20need%20help%20with%20my%20vendor%20account%20-%20${encodeURIComponent(vendor.businessName)}"
