@@ -7843,11 +7843,18 @@ function adminRenderPendingVerifications(vendors) {
     }
 
     const strapiBase = 'https://ishop-cms-production.up.railway.app';
+    const buildDocUrl = (media) => {
+        if (!media?.url) return null;
+        // If the URL is already absolute (Cloudinary, S3, etc.), use it as-is.
+        if (/^https?:\/\//i.test(media.url)) return media.url;
+        // Otherwise, prefix with Strapi base for relative /uploads/ paths.
+        return `${strapiBase}${media.url}`;
+    };
 
     container.innerHTML = vendors.map(v => {
-        const idDocUrl = v.idDocument?.url ? `${strapiBase}${v.idDocument.url}` : null;
-        const passportUrl = v.passportPhoto?.url ? `${strapiBase}${v.passportPhoto.url}` : null;
-        const billUrl = v.utilityBill?.url ? `${strapiBase}${v.utilityBill.url}` : null;
+        const idDocUrl = buildDocUrl(v.idDocument);
+        const passportUrl = buildDocUrl(v.passportPhoto);
+        const billUrl = buildDocUrl(v.utilityBill);
         const billDate = v.utilityBillDate
             ? new Date(v.utilityBillDate).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' })
             : '—';
