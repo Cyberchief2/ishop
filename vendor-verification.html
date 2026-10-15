@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Identity Verification – iShop Vendor</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body class="vendor-apply-page">
+    <div id="site-header"></div>
+
+    <section class="vendor-apply-header">
+        <a href="vendor-dashboard.html" class="vendor-back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <h1>Identity Verification</h1>
+        <p>Upload the documents below. This usually takes less than 3 minutes.</p>
+    </section>
+
+    <section class="vendor-apply-container" style="max-width: 780px;">
+        <div id="verificationContent" style="background:#fff;border-radius:18px;padding:2.5rem;box-shadow:0 4px 24px rgba(13,27,42,0.06);border:1px solid #eef1f4;">
+            <div style="text-align:center;padding:2rem 0;">
+                <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#f9c74f;"></i>
+                <p style="color:#8896a8;margin-top:1rem;">Loading…</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="site-footer"></div>
+
+    <script src="shipping.js"></script>
+    <script src="script.js"></script>
+    <script>
+        (function() {
+            const jwt = localStorage.getItem('iShopJwt');
+            if (!jwt) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const API = 'https://ishop-payments-production.up.railway.app';
+            const STRAPI_UPLOAD = 'https://ishop-cms-production.up.railway.app/api/upload';
+
+            const state = {
+                idDocumentId: null,
+                idDocumentType: '',
+                passportPhotoId: null,
+                utilityBillId: null,
+                utilityBillDate: '',
+                uploading: { id: false, passport: false, bill: false },
+                alreadySubmitted: false,
+            };
+
+            function render() {
+                const c = document.getElementById('verificationContent');
+
+                if (state.alreadySubmitted) {
+                    c.innerHTML = `
+                        <div class="vendor-apply-success" style="padding:2rem 1rem;">
+                            <div class="vendor-apply-success-icon" style="background:#fef9e7;color:#d4a017;">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <h2>Verification Under Review</h2>
+                            <p>We've received your documents. Our team will review them within 24 hours. You'll get an email when the review is done.</p>
+                            <div class="vendor-apply-success-actions">
+                                <a href="vendor-dashboard.html" class="primary">
+                                    <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                c.innerHTML = `
+                    <div class="vendor-step-header" style="margin-bottom:2rem;">
+                        <h2 style="font-size:1.35rem;font-weight:800;color:#0d1b2a;margin:0 0 0.5rem;">
+                            <i class="fas fa-id-card" style="color:#f9c74f;margin-right:0.5rem;"></i> Upload Verification Documents
+                        </h2>
+                        <p style="color:#6b7280;font-size:0.92rem;margin:0;">All three documents are required. Your data is encrypted and only seen by our verification team.</p>
+                    </div>
+
+                    <!-- 1. ID DOCUMENT -->
+                    <div class="vendor-form-group">
+                        <label>1. Valid Government ID <span class="req">*</span></label>
+                        <select id="idTypeSelect" style="width:100%;padding:0.85rem 1rem;border:2px solid #e5e9ef;border-radius:10px;font-family:inherit;font-size:0.95rem;color:#0d1b2a;background:#fafbfc;margin-bottom:0.75rem;">
+                            <option value="">Select ID type</option>
+                            <option value="nin">National Identity Number (NIN) Slip</option>
+                            <option value="voters">Voter's Card</option>
+                            <option value="drivers_license">Driver's License</option>
+                            <option value="passport">International Passport</option>
+                        </select>
+
+                        <input type="file" id="idInput" accept="image/*,application/pdf" class="vendor-hidden-file-input" />
+                        <label for="idInput" class="vendor-file-upload-box" id="idDropZone">
+                            <i class="fas fa-id-card"></i>
+                            <strong>Click to upload your ID</strong>
+                            <span>Front side, clear and legible. JPG, PNG, or PDF.</span>
+                        </label>
+                        <div id="idPreview" class="vendor-file-preview"></div>
+                    </div>
+
+                    <!-- 2. PASSPORT PHOTO -->
+                    <div class="vendor-form-group">
+                        <label>2. Passport Photograph <span class="req">*</span></label>
+                        <small class="vendor-form-hint" style="display:block;margin-bottom:0.75rem;">A recent, clear photo of your face. Plain background preferred.</small>
+
+                        <input type="file" id="passportInput" accept="image/*" class="vendor-hidden-file-input" />
+                        <label for="passportInput" class="vendor-file-upload-box" id="passportDropZone">
+                            <i class="fas fa-user-circle"></i>
+                            <strong>Click to upload your passport photo</strong>
+                            <span>JPG or PNG. Max 5MB.</span>
+                        </label>
+                        <div id="passportPreview" class="vendor-file-preview"></div>
+                    </div>
+
+                    <!-- 3. UTILITY BILL -->
+                    <div class="vendor-form-group">
+                        <label>3. Utility Bill <span class="req">*</span></label>
+                        <small class="vendor-form-hint" style="display:block;margin-bottom:0.75rem;">Recent bill (issued in the last 3 months) showing your business address. Electricity, water, or internet bill accepted.</small>
+
+                        <input type="file" id="billInput" accept="image/*,application/pdf" class="vendor-hidden-file-input" />
+                        <label for="billInput" class="vendor-file-upload-box" id="billDropZone">
+                            <i class="fas fa-file-invoice"></i>
+                            <strong>Click to upload your utility bill</strong>
+                            <span>JPG, PNG, or PDF. Max 10MB.</span>
+                        </label>
+                        <div id="billPreview" class="vendor-file-preview"></div>
+
+                        <div style="margin-top:1rem;">
+                            <label for="billDate" style="display:block;font-weight:600;font-size:0.88rem;color:#0d1b2a;margin-bottom:0.4rem;">Bill Date <span class="req" style="color:#e74c3c;">*</span></label>
+                            <input type="date" id="billDate" style="width:100%;padding:0.85rem 1rem;border:2px solid #e5e9ef;border-radius:10px;font-family:inherit;font-size:0.95rem;color:#0d1b2a;background:#fafbfc;" />
+                        </div>
+                    </div>
+
+                    <div id="verificationFeedback" style="margin-top:1rem;"></div>
+
+                    <div class="vendor-apply-actions" style="margin-top:2rem;">
+                        <button type="button" class="vendor-btn-primary" id="submitVerificationBtn" style="margin-left:auto;">
+                            <i class="fas fa-paper-plane"></i> Submit for Review
+                        </button>
+                    </div>
+                `;
+
+                wire();
+            }
+
+            function wire() {
+                const idInput = document.getElementById('idInput');
+                const passportInput = document.getElementById('passportInput');
+                const billInput = document.getElementById('billInput');
+                const billDate = document.getElementById('billDate');
+                const idTypeSelect = document.getElementById('idTypeSelect');
+
+                idTypeSelect.addEventListener('change', () => { state.idDocumentType = idTypeSelect.value; });
+                billDate.addEventListener('change', () => { state.utilityBillDate = billDate.value; });
+
+                idInput.addEventListener('change', (e) => {
+                    const f = e.target.files?.[0]; if (!f) return;
+                    uploadFile(f, 'id', 'idDocumentId', 'idPreview', 'idDropZone');
+                });
+                passportInput.addEventListener('change', (e) => {
+                    const f = e.target.files?.[0]; if (!f) return;
+                    uploadFile(f, 'passport', 'passportPhotoId', 'passportPreview', 'passportDropZone');
+                });
+                billInput.addEventListener('change', (e) => {
+                    const f = e.target.files?.[0]; if (!f) return;
+                    uploadFile(f, 'bill', 'utilityBillId', 'billPreview', 'billDropZone');
+                });
+
+                document.getElementById('submitVerificationBtn').addEventListener('click', submitVerification);
+            }
+
+            async function uploadFile(file, key, idKey, previewId, dropId) {
+                const preview = document.getElementById(previewId);
+                const drop = document.getElementById(dropId);
+
+                // Size cap
+                const maxMb = key === 'bill' ? 10 : 5;
+                if (file.size > maxMb * 1024 * 1024) {
+                    alert(`${file.name} is too large. Max ${maxMb}MB.`);
+                    return;
+                }
+
+                state.uploading[key] = true;
+                preview.innerHTML = `
+                    <div class="vendor-file-preview-item" style="background:#fef9e7;border-color:#f9c74f;">
+                        <i class="fas fa-spinner fa-spin file-icon" style="color:#d4a017;"></i>
+                        <div class="file-info">
+                            <strong>Uploading ${file.name}…</strong>
+                            <span>Please wait</span>
+                        </div>
+                    </div>
+                `;
+
+                try {
+                    const fd = new FormData();
+                    fd.append('files', file);
+
+                    const res = await fetch(STRAPI_UPLOAD, {
+                        method: 'POST',
+                        headers: { Authorization: `Bearer ${jwt}` },
+                        body: fd,
+                    });
+
+                    if (!res.ok) throw new Error('Upload failed');
+                    const data = await res.json();
+                    const media = Array.isArray(data) ? data[0] : null;
+                    if (!media?.id) throw new Error('Invalid response');
+
+                    state[idKey] = media.id;
+                    state.uploading[key] = false;
+
+                    preview.innerHTML = `
+                        <div class="vendor-file-preview-item">
+                            <i class="fas fa-check-circle file-icon" style="color:#15803d;"></i>
+                            <div class="file-info">
+                                <strong>${media.name || file.name}</strong>
+                                <span>Ready</span>
+                            </div>
+                            <button type="button" class="file-remove" onclick="window.__clearFile('${key}','${previewId}')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                } catch (err) {
+                    console.error('Upload error:', err);
+                    state.uploading[key] = false;
+                    state[idKey] = null;
+                    preview.innerHTML = `
+                        <div class="vendor-file-preview-item" style="background:#fef2f2;border-color:#fecaca;">
+                            <i class="fas fa-exclamation-triangle file-icon" style="color:#e74c3c;"></i>
+                            <div class="file-info">
+                                <strong style="color:#991b1b;">Upload failed</strong>
+                                <span>${err.message}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // Expose for the inline remove button
+            window.__clearFile = function(key, previewId) {
+                const idKey = key === 'id' ? 'idDocumentId' : key === 'passport' ? 'passportPhotoId' : 'utilityBillId';
+                state[idKey] = null;
+                document.getElementById(previewId).innerHTML = '';
+            };
+
+            async function submitVerification() {
+                const feedback = document.getElementById('verificationFeedback');
+                const btn = document.getElementById('submitVerificationBtn');
+
+                // Validate
+                if (!state.idDocumentType) {
+                    feedback.className = 'error';
+                    feedback.innerHTML = '⚠️ Please select your ID type.';
+                    return;
+                }
+                if (!state.idDocumentId) {
+                    feedback.className = 'error';
+                    feedback.innerHTML = '⚠️ Please upload your ID document.';
+                    return;
+                }
+                if (!state.passportPhotoId) {
+                    feedback.className = 'error';
+                    feedback.innerHTML = '⚠️ Please upload your passport photograph.';
+                    return;
+                }
+                if (!state.utilityBillId) {
+                    feedback.className = 'error';
+                    feedback.innerHTML = '⚠️ Please upload your utility bill.';
+                    return;
+                }
+                if (!state.utilityBillDate) {
+                    feedback.className = 'error';
+                    feedback.innerHTML = '⚠️ Please enter the bill date.';
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting…';
+                feedback.className = '';
+                feedback.innerHTML = '';
+
+                try {
+                    const res = await fetch(`${API}/api/vendors/submit-verification`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${jwt}`,
+                        },
+                        body: JSON.stringify({
+                            idDocumentId: state.idDocumentId,
+                            idDocumentType: state.idDocumentType,
+                            passportPhotoId: state.passportPhotoId,
+                            utilityBillId: state.utilityBillId,
+                            utilityBillDate: state.utilityBillDate,
+                        }),
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok || !data.status) throw new Error(data.error || 'Submission failed');
+
+                    state.alreadySubmitted = true;
+                    render();
+                } catch (err) {
+                    console.error('Submit error:', err);
+                    feedback.className = 'error';
+                    feedback.innerHTML = `❌ ${err.message}`;
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Review';
+                }
+            }
+
+            render();
+        })();
+    </script>
+</body>
+</html>
