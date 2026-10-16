@@ -8294,7 +8294,7 @@ function adminRenderAnalytics(a) {
             <div class="admin-analytics-card green">
                 <div class="admin-analytics-card-label">Revenue · Last 7 Days</div>
                 <div class="admin-analytics-card-value">${fmtN(a.revenue.thisWeek)}</div>
-                <div class="admin-analytics-card-hint">${fmt(a.orders.thisWeek)} orders</div>
+                <div class="admin-analytics-card-hint">${fmt(a.orders.thisWeek)} order${a.orders.thisWeek === 1 ? '' : 's'}</div>
             </div>
             <div class="admin-analytics-card blue">
                 <div class="admin-analytics-card-label">Average Order Value</div>
