@@ -4111,12 +4111,6 @@ function initializeApp() {
         const subType = urlParams.get('subtype') || '';
         renderCategory(category, subType);
         setupSubcategoryButtons(category);
-    }
-        const category = page.replace('.html', '');
-        const urlParams = new URLSearchParams(window.location.search);
-        const subType = urlParams.get('subtype') || '';
-        renderCategory(category, subType);
-        setupSubcategoryButtons(category);
     } else if (page === 'vendor-orders.html') {
         initVendorOrdersPage();
     } else if (page === 'vendor-products.html') {
