@@ -16621,3 +16621,37 @@ html body .mega-menu::after {
         width: 45px !important;
     }
 }
+/* ============================================ */
+/* FIX: dropdown clipped by overflow-x on menu-links */
+/* ============================================ */
+
+/* Remove the horizontal scroll wrapper entirely.
+   Menu items wrap if needed instead. Dropdowns then work. */
+html body .mega-menu .menu-links {
+    overflow: visible !important;
+    flex-wrap: wrap !important;
+    padding: 0 !important;
+}
+
+/* Kill the fade gradient too — no scrolling = no fade needed */
+html body .mega-menu .mega-menu-content::after {
+    display: none !important;
+}
+
+/* Hide the chevron — no scroll = no chevron needed */
+html body .mega-menu .mega-menu-scroll-hint {
+    display: none !important;
+}
+
+/* Give the dropdown the highest possible z-index so it lands over the hero */
+html body .mega-menu .menu-links > li:hover > .mega-dropdown,
+html body .mega-menu .menu-links > li > .mega-dropdown {
+    z-index: 99999 !important;
+}
+
+/* Force dropdown to display on hover — belt and braces */
+html body .mega-menu .menu-links > li:hover > .mega-dropdown {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
