@@ -8732,3 +8732,82 @@ function adminRenderAnalytics(a) {
         setTimeout(tryInject, 400);
     });
 })();
+
+/* ============================================ */
+/* MEGA MENU — dropdown positioning + scroll hint */
+/* ============================================ */
+(function megaMenuFinal() {
+    function positionDropdown(li) {
+        const dd = li.querySelector('.mega-dropdown');
+        if (!dd) return;
+        const rect = li.getBoundingClientRect();
+        const ddWidth = dd.offsetWidth || 460;
+        const vw = window.innerWidth;
+        const gutter = 8;
+
+        let left = rect.left;
+        if (left + ddWidth + gutter > vw) {
+            left = rect.right - ddWidth;
+        }
+        if (left < gutter) left = gutter;
+
+        dd.style.top = (rect.bottom) + 'px';
+        dd.style.left = left + 'px';
+    }
+
+    function attachDropdownPositioning() {
+        const items = document.querySelectorAll('.mega-menu .menu-links > li');
+        items.forEach(li => {
+            if (li.dataset.mmBound === '1') return;
+            li.dataset.mmBound = '1';
+            const onEnter = () => positionDropdown(li);
+            li.addEventListener('mouseenter', onEnter);
+            li.addEventListener('focusin', onEnter);
+            window.addEventListener('resize', () => { if (li.matches(':hover')) positionDropdown(li); });
+            window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
+        });
+    }
+
+    function attachChevron() {
+        const menu = document.querySelector('.mega-menu');
+        const scroller = document.querySelector('.mega-menu .menu-links');
+        const content = document.querySelector('.mega-menu .mega-menu-content');
+        if (!menu || !scroller) return;
+
+        menu.querySelectorAll('.mega-menu-scroll-hint').forEach(el => el.remove());
+
+        const chevron = document.createElement('button');
+        chevron.className = 'mega-menu-scroll-hint';
+        chevron.setAttribute('aria-label', 'Scroll categories right');
+        chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        chevron.addEventListener('click', e => {
+            e.preventDefault(); e.stopPropagation();
+            scroller.scrollBy({ left: 260, behavior: 'smooth' });
+        });
+        menu.appendChild(chevron);
+
+        function update() {
+            const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+            const atEnd = maxScroll <= 4 || scroller.scrollLeft >= maxScroll - 8;
+            chevron.classList.toggle('hidden', atEnd);
+            if (content) content.classList.toggle('scrolled-end', atEnd);
+        }
+        scroller.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        setTimeout(update, 250);
+    }
+
+    function run() {
+        attachDropdownPositioning();
+        attachChevron();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', run);
+    } else {
+        run();
+    }
+    setTimeout(run, 400);
+    setTimeout(run, 1000);
+    window.addEventListener('load', () => setTimeout(run, 300));
+})();
