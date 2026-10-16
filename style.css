@@ -17194,3 +17194,42 @@ html body .hero-slide[data-theme="home"] .hero-cta {
         font-size: 0.68rem !important;
     }
 }
+/* ============================================ */
+/* MEGA MENU — DROPDOWN ESCAPE OVERFLOW (FIX) */
+/* ============================================ */
+
+@media (min-width: 769px) {
+    /* Outer menu: allow dropdowns to extend downward without clipping */
+    .mega-menu {
+        overflow: visible !important;
+    }
+
+    /* The scroll container gets a fallback clip on Y so it stays on one line */
+    .mega-menu-content {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+    }
+
+    /* Each LI: anchor for the dropdown */
+    .menu-links > li {
+        position: relative !important;
+    }
+
+    /* Show dropdown on hover — use fixed positioning so the scroll
+       container's clipping can't touch it. JS repositions on hover. */
+    .menu-links > li > .mega-dropdown {
+        display: none !important;
+        position: fixed !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        margin-top: 0 !important;
+        z-index: 3000 !important;
+        pointer-events: auto !important;
+    }
+
+    .menu-links > li.dropdown-hover:hover > .mega-dropdown,
+    .menu-links > li.dropdown-hover:focus-within > .mega-dropdown {
+        display: grid !important;
+    }
+}
