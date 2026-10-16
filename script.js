@@ -8751,8 +8751,8 @@ function adminRenderAnalytics(a) {
         }
         if (left < gutter) left = gutter;
 
-        dd.style.top = (rect.bottom) + 'px';
-        dd.style.left = left + 'px';
+        dd.style.setProperty('top', rect.bottom + 'px', 'important');
+        dd.style.setProperty('left', left + 'px', 'important');
     }
 
     function attachDropdownPositioning() {
