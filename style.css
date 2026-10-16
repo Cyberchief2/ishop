@@ -16691,3 +16691,66 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     .admin-funnel { grid-template-columns: 1fr 1fr; }
     .admin-bar-chart { height: 100px; }
 }
+/* ============================================ */
+/* MEGA MENU — 10 ITEMS FIT */
+/* ============================================ */
+.mega-menu-content {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: 48px !important;
+    gap: 0 !important;
+}
+
+.menu-links {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 0 !important;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.menu-links > li {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.menu-links > li > a {
+    padding: 0.5rem 0.55rem !important;
+    font-size: 0.8rem !important;
+    gap: 0.25rem !important;
+}
+
+.menu-links > li > a i:first-child {
+    font-size: 0.75rem;
+}
+
+.menu-links > li > a .fa-chevron-down {
+    font-size: 0.55rem;
+}
+
+/* Dropdowns near the right edge flip left instead of overflowing */
+.menu-links > li:nth-last-child(-n+4) .mega-dropdown {
+    left: auto !important;
+    right: 0 !important;
+}
+
+/* Wider viewports: give a bit more breathing room */
+@media (min-width: 1200px) {
+    .menu-links > li > a {
+        padding: 0.5rem 0.7rem !important;
+        font-size: 0.83rem !important;
+    }
+}
+
+/* Tablets: shrink labels */
+@media (max-width: 1100px) {
+    .menu-links > li > a {
+        padding: 0.5rem 0.45rem !important;
+        font-size: 0.74rem !important;
+    }
+    .menu-links > li > a .fa-chevron-down {
+        display: none;
+    }
+}
