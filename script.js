@@ -6692,6 +6692,11 @@ function adminSwitchTab(tabName) {
     document.querySelectorAll('.admin-panel').forEach(p => {
         p.classList.toggle('active', p.id === 'admin-panel-' + tabName);
     });
+
+    // Lazy-load data for tabs that don't load on boot
+    if (tabName === 'coupons' && typeof adminLoadCoupons === 'function') {
+        adminLoadCoupons();
+    }
 }
 
 // ---------- REFRESH ALL ----------
@@ -6705,6 +6710,7 @@ function adminRefreshAll() {
     adminLoadAllProducts();
     adminLoadPayouts();
     adminLoadOrders();
+    adminLoadCoupons();
 }
 
 // ============================================
@@ -8017,4 +8023,223 @@ function renderVerificationChecklist(vendor) {
 
     progressBar.style.width = percent + '%';
     progressText.textContent = `${completed} of ${total} steps complete`;
+}
+
+/* ============================================ */
+/* ADMIN: COUPONS */
+/* ============================================ */
+
+const adminCouponsState = {
+    coupons: [],
+};
+
+function adminToggleCouponForm() {
+    const wrap = document.getElementById('adminCouponFormWrap');
+    if (!wrap) return;
+    const isHidden = wrap.style.display === 'none' || !wrap.style.display;
+    wrap.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) {
+        ['cCode','cDescription','cDiscountValue','cMinOrder','cMaxDiscount','cUsageLimit','cStartsAt','cExpiresAt'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        const typeEl = document.getElementById('cDiscountType');
+        if (typeEl) typeEl.value = 'percent';
+        const fb = document.getElementById('cFormFeedback');
+        if (fb) { fb.innerHTML = ''; fb.className = ''; fb.style.cssText = ''; }
+    }
+}
+
+async function adminLoadCoupons() {
+    const container = document.getElementById('adminCouponsList');
+    if (!container) return;
+
+    const savedKey = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey');
+    if (!adminState.key && !savedKey) return;
+    if (!adminState.key) adminState.key = savedKey;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/coupons?key=${encodeURIComponent(adminState.key)}`);
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed to load');
+        adminCouponsState.coupons = data.coupons || [];
+        adminRenderCoupons();
+    } catch (err) {
+        console.error('Admin coupons error:', err);
+        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load coupons.</div>`;
+    }
+}
+
+function adminRenderCoupons() {
+    const container = document.getElementById('adminCouponsList');
+    if (!container) return;
+
+    const coupons = adminCouponsState.coupons;
+
+    if (!coupons || coupons.length === 0) {
+        container.innerHTML = `
+            <div class="admin-empty">
+                <i class="fas fa-tag"></i>
+                No coupons yet. Click "Create Coupon" to make your first promo code.
+            </div>
+        `;
+        return;
+    }
+
+    const now = new Date();
+
+    container.innerHTML = coupons.map(c => {
+        const isExpired = c.expiresAt && new Date(c.expiresAt) < now;
+        const isExhausted = c.usageLimit > 0 && c.usageCount >= c.usageLimit;
+
+        let statusClass = 'live';
+        let statusText = 'Live';
+        if (!c.active) { statusClass = 'rejected'; statusText = 'Inactive'; }
+        else if (isExpired) { statusClass = 'rejected'; statusText = 'Expired'; }
+        else if (isExhausted) { statusClass = 'rejected'; statusText = 'Used Up'; }
+
+        const discountDisplay = c.discountType === 'percent'
+            ? `${c.discountValue}% off`
+            : `₦${Number(c.discountValue).toLocaleString()} off`;
+
+        const usageDisplay = c.usageLimit > 0
+            ? `${c.usageCount || 0} / ${c.usageLimit}`
+            : `${c.usageCount || 0} used`;
+
+        const expiresDisplay = c.expiresAt
+            ? new Date(c.expiresAt).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' })
+            : 'No expiry';
+
+        const minOrderDisplay = c.minOrderAmount > 0
+            ? ` · Min ₦${Number(c.minOrderAmount).toLocaleString()}`
+            : '';
+
+        return `
+            <div class="admin-card">
+                <div class="admin-card-media" style="background:#fef9e7;color:#d4a017;">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <div class="admin-card-body">
+                    <h3 class="admin-card-title" style="font-family: 'Courier New', monospace; letter-spacing: 1px; font-size: 1.1rem;">
+                        ${adminEscape(c.code || '')}
+                    </h3>
+                    <p class="admin-card-meta"><strong>${adminEscape(discountDisplay)}</strong>${adminEscape(minOrderDisplay)}</p>
+                    ${c.description ? `<p class="admin-card-meta">${adminEscape(c.description)}</p>` : ''}
+                    <p class="admin-card-meta">Used: ${adminEscape(usageDisplay)} · Expires: ${adminEscape(expiresDisplay)}</p>
+                    <span class="admin-card-badge ${statusClass}">${statusText}</span>
+                </div>
+                <div class="admin-card-actions">
+                    <button class="admin-btn ${c.active ? 'admin-btn-secondary' : 'admin-btn-success'}" onclick="adminToggleCoupon('${c.documentId}', '${adminEscape(c.code || '')}', ${c.active})">
+                        <i class="fas fa-${c.active ? 'pause' : 'play'}"></i> ${c.active ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button class="admin-btn admin-btn-danger" onclick="adminDeleteCoupon('${c.documentId}', '${adminEscape(c.code || '')}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function adminCreateCoupon() {
+    const feedback = document.getElementById('cFormFeedback');
+    const btn = document.getElementById('cSaveBtn');
+
+    const code = document.getElementById('cCode').value.trim().toUpperCase();
+    const description = document.getElementById('cDescription').value.trim();
+    const discountType = document.getElementById('cDiscountType').value;
+    const discountValue = Number(document.getElementById('cDiscountValue').value);
+    const minOrderAmount = Number(document.getElementById('cMinOrder').value) || 0;
+    const maxDiscountAmount = Number(document.getElementById('cMaxDiscount').value) || 0;
+    const usageLimit = Number(document.getElementById('cUsageLimit').value) || 0;
+    const startsAt = document.getElementById('cStartsAt').value || null;
+    const expiresAt = document.getElementById('cExpiresAt').value || null;
+
+    const showErr = (msg) => {
+        feedback.className = 'error';
+        feedback.style.cssText = 'color:#721c24;background:#f8d7da;padding:0.6rem 0.9rem;border-radius:8px;';
+        feedback.innerHTML = '⚠️ ' + msg;
+    };
+
+    if (!code) return showErr('Coupon code is required.');
+    if (!/^[A-Z0-9]{3,20}$/.test(code)) return showErr('Code must be 3 to 20 letters or numbers.');
+    if (!discountValue || discountValue <= 0) return showErr('Discount value must be greater than 0.');
+    if (discountType === 'percent' && discountValue > 100) return showErr('Percent discount cannot exceed 100.');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating…';
+    feedback.className = '';
+    feedback.style.cssText = '';
+    feedback.innerHTML = '';
+
+    adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/coupons?key=${encodeURIComponent(adminState.key)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code, description, discountType, discountValue,
+                minOrderAmount, maxDiscountAmount, usageLimit,
+                startsAt, expiresAt, active: true,
+            }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed to create');
+
+        adminToast(`Coupon ${code} created ✅`, 'success');
+        adminToggleCouponForm();
+        adminLoadCoupons();
+    } catch (err) {
+        console.error('Create coupon error:', err);
+        feedback.className = 'error';
+        feedback.style.cssText = 'color:#721c24;background:#f8d7da;padding:0.6rem 0.9rem;border-radius:8px;';
+        feedback.innerHTML = '❌ ' + adminEscape(err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Create Coupon';
+    }
+}
+
+async function adminToggleCoupon(documentId, code, currentlyActive) {
+    adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/coupons/${documentId}/toggle?key=${encodeURIComponent(adminState.key)}`, {
+            method: 'POST',
+        });
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed to toggle');
+        adminToast(`Coupon ${code} ${currentlyActive ? 'deactivated' : 'activated'}`, 'success');
+        adminLoadCoupons();
+    } catch (err) {
+        console.error('Toggle coupon error:', err);
+        adminToast('Could not toggle coupon', 'error');
+    }
+}
+
+function adminDeleteCoupon(documentId, code) {
+    adminConfirm({
+        title: 'Delete Coupon?',
+        message: `"${code}" will be permanently deleted. This cannot be undone.`,
+        icon: 'danger',
+        iconName: 'trash',
+        btnText: 'Yes, Delete',
+        btnClass: 'admin-btn-danger',
+        onConfirm: async () => {
+            adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
+            try {
+                const res = await fetch(`${ADMIN_API_BASE}/api/admin/coupons/${documentId}?key=${encodeURIComponent(adminState.key)}`, {
+                    method: 'DELETE',
+                });
+                const data = await res.json();
+                if (!res.ok || !data.status) throw new Error(data.error || 'Failed');
+                adminToast(`Coupon ${code} deleted`, 'success');
+                adminLoadCoupons();
+            } catch (err) {
+                console.error('Delete coupon error:', err);
+                adminToast('Could not delete coupon', 'error');
+            }
+        },
+    });
 }
