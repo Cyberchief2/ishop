@@ -74,6 +74,9 @@
             <button class="admin-tab" data-tab="orders" onclick="adminSwitchTab('orders')">
                 <i class="fas fa-shopping-bag"></i> Orders
             </button>
+            <button class="admin-tab" data-tab="coupons" onclick="adminSwitchTab('coupons')">
+                <i class="fas fa-tag"></i> Coupons
+            </button>
         </nav>
 
         <main class="admin-content">
@@ -159,6 +162,96 @@
                 <div id="adminPayoutsList" class="admin-list">
                     <div class="admin-loading">
                         <i class="fas fa-spinner fa-spin"></i> Loading…
+                    </div>
+                </div>
+            </section>
+
+            <!-- COUPONS TAB -->
+            <section class="admin-panel" id="admin-panel-coupons">
+                <div class="admin-section-header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+                    <div>
+                        <h2>Coupons</h2>
+                        <p>Create and manage discount codes for promotions and campaigns.</p>
+                    </div>
+                    <button class="admin-btn admin-btn-primary" onclick="adminToggleCouponForm()" id="adminCreateCouponBtn" style="width:auto;">
+                        <i class="fas fa-plus"></i> Create Coupon
+                    </button>
+                </div>
+
+                <!-- CREATE FORM (hidden by default) -->
+                <div id="adminCouponFormWrap" style="display:none;background:#fff;border-radius:14px;padding:1.5rem;border:1px solid #eef1f4;box-shadow:0 4px 16px rgba(13,27,42,0.04);margin-bottom:1.5rem;">
+                    <h3 style="font-size:1.05rem;font-weight:800;color:#0d1b2a;margin:0 0 1rem;">New Coupon</h3>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="admin-form-group">
+                            <label for="cCode">Code <span style="color:#e74c3c;">*</span></label>
+                            <input type="text" id="cCode" placeholder="e.g. SAVE10" autocomplete="off" spellcheck="false" style="text-transform:uppercase;" />
+                            <small style="font-size:0.75rem;color:#8896a8;">Letters and numbers only. Will be uppercased.</small>
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="cDescription">Description</label>
+                            <input type="text" id="cDescription" placeholder="e.g. 10% off first order" autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="admin-form-group">
+                            <label for="cDiscountType">Discount Type <span style="color:#e74c3c;">*</span></label>
+                            <select id="cDiscountType">
+                                <option value="percent">Percent (%)</option>
+                                <option value="fixed">Fixed (₦)</option>
+                            </select>
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="cDiscountValue">Discount Value <span style="color:#e74c3c;">*</span></label>
+                            <input type="number" id="cDiscountValue" placeholder="e.g. 10" min="1" step="1" />
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+                        <div class="admin-form-group">
+                            <label for="cMinOrder">Min Order (₦)</label>
+                            <input type="number" id="cMinOrder" placeholder="0" min="0" step="1" />
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="cMaxDiscount">Max Discount (₦)</label>
+                            <input type="number" id="cMaxDiscount" placeholder="0" min="0" step="1" />
+                            <small style="font-size:0.72rem;color:#8896a8;">Percent only. 0 = no cap.</small>
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="cUsageLimit">Usage Limit</label>
+                            <input type="number" id="cUsageLimit" placeholder="0" min="0" step="1" />
+                            <small style="font-size:0.72rem;color:#8896a8;">0 = unlimited</small>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="admin-form-group">
+                            <label for="cStartsAt">Starts At</label>
+                            <input type="datetime-local" id="cStartsAt" />
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="cExpiresAt">Expires At</label>
+                            <input type="datetime-local" id="cExpiresAt" />
+                        </div>
+                    </div>
+
+                    <div id="cFormFeedback" style="margin-top:0.5rem;"></div>
+
+                    <div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">
+                        <button class="admin-btn admin-btn-primary" id="cSaveBtn" onclick="adminCreateCoupon()" style="width:auto;">
+                            <i class="fas fa-check"></i> Create Coupon
+                        </button>
+                        <button class="admin-btn admin-btn-secondary" onclick="adminToggleCouponForm()" style="width:auto;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- COUPONS LIST -->
+                <div id="adminCouponsList" class="admin-list">
+                    <div class="admin-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading coupons…
                     </div>
                 </div>
             </section>
