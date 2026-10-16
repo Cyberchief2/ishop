@@ -6697,6 +6697,9 @@ function adminSwitchTab(tabName) {
     if (tabName === 'coupons' && typeof adminLoadCoupons === 'function') {
         adminLoadCoupons();
     }
+    if (tabName === 'analytics' && typeof adminLoadAnalytics === 'function') {
+        adminLoadAnalytics();
+    }
 }
 
 // ---------- REFRESH ALL ----------
@@ -8242,4 +8245,178 @@ function adminDeleteCoupon(documentId, code) {
             }
         },
     });
+}
+
+/* ============================================ */
+/* ADMIN: ANALYTICS */
+/* ============================================ */
+
+async function adminLoadAnalytics() {
+    const container = document.getElementById('adminAnalyticsContent');
+    if (!container) return;
+
+    adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
+    if (!adminState.key) return;
+
+    container.innerHTML = `<div class="admin-loading"><i class="fas fa-spinner fa-spin"></i> Loading analytics…</div>`;
+
+    try {
+        const res = await fetch(`${ADMIN_API_BASE}/api/admin/analytics?key=${encodeURIComponent(adminState.key)}`);
+        const data = await res.json();
+        if (!res.ok || !data.status) throw new Error(data.error || 'Failed to load');
+        adminRenderAnalytics(data.analytics);
+    } catch (err) {
+        console.error('Analytics load error:', err);
+        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load analytics.</div>`;
+    }
+}
+
+function adminRenderAnalytics(a) {
+    const container = document.getElementById('adminAnalyticsContent');
+    if (!container) return;
+
+    const fmtN = (n) => '₦' + Number(n || 0).toLocaleString();
+    const fmt = (n) => Number(n || 0).toLocaleString();
+
+    // ---- Overview cards ----
+    const cardsHTML = `
+        <div class="admin-analytics-grid">
+            <div class="admin-analytics-card accent">
+                <div class="admin-analytics-card-label">Total Revenue</div>
+                <div class="admin-analytics-card-value">${fmtN(a.revenue.allTime)}</div>
+                <div class="admin-analytics-card-hint">${fmt(a.orders.paid)} paid order${a.orders.paid === 1 ? '' : 's'}</div>
+            </div>
+            <div class="admin-analytics-card">
+                <div class="admin-analytics-card-label">Revenue · Last 30 Days</div>
+                <div class="admin-analytics-card-value">${fmtN(a.revenue.thisMonth)}</div>
+                <div class="admin-analytics-card-hint">${fmt(a.orders.thisMonth)} orders</div>
+            </div>
+            <div class="admin-analytics-card green">
+                <div class="admin-analytics-card-label">Revenue · Last 7 Days</div>
+                <div class="admin-analytics-card-value">${fmtN(a.revenue.thisWeek)}</div>
+                <div class="admin-analytics-card-hint">${fmt(a.orders.thisWeek)} orders</div>
+            </div>
+            <div class="admin-analytics-card blue">
+                <div class="admin-analytics-card-label">Average Order Value</div>
+                <div class="admin-analytics-card-value">${fmtN(a.aov)}</div>
+                <div class="admin-analytics-card-hint">Across all paid orders</div>
+            </div>
+            <div class="admin-analytics-card purple">
+                <div class="admin-analytics-card-label">Unique Buyers</div>
+                <div class="admin-analytics-card-value">${fmt(a.buyers.unique)}</div>
+                <div class="admin-analytics-card-hint">Distinct customer emails</div>
+            </div>
+            <div class="admin-analytics-card">
+                <div class="admin-analytics-card-label">Orders Today</div>
+                <div class="admin-analytics-card-value">${fmt(a.orders.today)}</div>
+                <div class="admin-analytics-card-hint">${fmtN(a.revenue.today)} revenue</div>
+            </div>
+        </div>
+    `;
+
+    // ---- Revenue trend chart (last 30 days) ----
+    const trend = a.revenueTrend || [];
+    const maxRev = Math.max(1, ...trend.map(d => d.revenue));
+    const barsHTML = trend.map(d => {
+        const height = Math.max(3, Math.round((d.revenue / maxRev) * 100));
+        const label = `${d.date} · ₦${Number(d.revenue).toLocaleString()} · ${d.orders} order${d.orders === 1 ? '' : 's'}`;
+        return `<div class="admin-bar" style="height:${height}%" title="${label}"></div>`;
+    }).join('');
+
+    const trendHTML = `
+        <div class="admin-analytics-panel">
+            <h3><i class="fas fa-chart-line"></i> Revenue · Last 30 Days</h3>
+            <p>Each bar is one day. Hover a bar to see the exact amount.</p>
+            <div class="admin-bar-chart">${barsHTML || '<p style="color:#8896a8;">No data yet.</p>'}</div>
+            <div class="admin-bar-chart-labels">
+                <span>${trend[0]?.date || ''}</span>
+                <span>${trend[Math.floor(trend.length / 2)]?.date || ''}</span>
+                <span>${trend[trend.length - 1]?.date || ''}</span>
+            </div>
+        </div>
+    `;
+
+    // ---- Top products table ----
+    const topProducts = a.topProducts || [];
+    const productsRows = topProducts.length === 0
+        ? '<tr><td colspan="4" style="text-align:center;color:#8896a8;padding:1.5rem;">No paid orders yet.</td></tr>'
+        : topProducts.map((p, i) => `
+            <tr>
+                <td class="rank">${i + 1}</td>
+                <td>${adminEscape(p.name)}</td>
+                <td class="num">${fmt(p.units)}</td>
+                <td class="num">${fmtN(p.revenue)}</td>
+            </tr>
+        `).join('');
+
+    const productsHTML = `
+        <div class="admin-analytics-panel">
+            <h3><i class="fas fa-crown"></i> Top 5 Products by Revenue</h3>
+            <p>Which listings are pulling in the most money.</p>
+            <div style="overflow-x:auto;">
+                <table class="admin-analytics-table">
+                    <thead>
+                        <tr><th>#</th><th>Product</th><th style="text-align:right;">Units</th><th style="text-align:right;">Revenue</th></tr>
+                    </thead>
+                    <tbody>${productsRows}</tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    // ---- Top vendors table ----
+    const topVendors = a.topVendors || [];
+    const vendorsRows = topVendors.length === 0
+        ? '<tr><td colspan="3" style="text-align:center;color:#8896a8;padding:1.5rem;">No vendor sales yet.</td></tr>'
+        : topVendors.map((v, i) => `
+            <tr>
+                <td class="rank">${i + 1}</td>
+                <td>${adminEscape(v.name)}</td>
+                <td class="num">${fmtN(v.revenue)}</td>
+            </tr>
+        `).join('');
+
+    const vendorsHTML = `
+        <div class="admin-analytics-panel">
+            <h3><i class="fas fa-store"></i> Top 5 Vendors by Revenue</h3>
+            <p>Which vendors are driving GMV.</p>
+            <div style="overflow-x:auto;">
+                <table class="admin-analytics-table">
+                    <thead>
+                        <tr><th>#</th><th>Vendor</th><th style="text-align:right;">Revenue</th></tr>
+                    </thead>
+                    <tbody>${vendorsRows}</tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    // ---- Cart recovery funnel ----
+    const cr = a.cartRecovery || { sent: 0, clicked: 0, recovered: 0, revenueRecovered: 0, clickRate: 0, recoveryRate: 0 };
+    const funnelHTML = `
+        <div class="admin-analytics-panel">
+            <h3><i class="fas fa-shopping-cart"></i> Cart Recovery Performance</h3>
+            <p>Emails sent, clicks, and revenue recovered from abandoned carts.</p>
+            <div class="admin-funnel">
+                <div class="admin-funnel-step">
+                    <div class="admin-funnel-step-value">${fmt(cr.sent)}</div>
+                    <div class="admin-funnel-step-label">Emails Sent</div>
+                </div>
+                <div class="admin-funnel-step accent">
+                    <div class="admin-funnel-step-value">${fmt(cr.clicked)}</div>
+                    <div class="admin-funnel-step-label">Clicked (${cr.clickRate}%)</div>
+                </div>
+                <div class="admin-funnel-step green">
+                    <div class="admin-funnel-step-value">${fmt(cr.recovered)}</div>
+                    <div class="admin-funnel-step-label">Recovered (${cr.recoveryRate}%)</div>
+                </div>
+                <div class="admin-funnel-step accent">
+                    <div class="admin-funnel-step-value">${fmtN(cr.revenueRecovered)}</div>
+                    <div class="admin-funnel-step-label">Revenue Recovered</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = cardsHTML + trendHTML + productsHTML + vendorsHTML + funnelHTML;
 }

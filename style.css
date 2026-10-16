@@ -16503,3 +16503,190 @@ html body .hero-slide[data-theme="home"] .hero-cta {
 .vendor-verification-section .vendor-container {
     padding: 0;
 }
+/* ============================================ */
+/* ADMIN ANALYTICS */
+/* ============================================ */
+.admin-analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.admin-analytics-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid #eef1f4;
+    box-shadow: 0 4px 16px rgba(13, 27, 42, 0.04);
+    transition: transform 0.2s ease;
+}
+
+.admin-analytics-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(13, 27, 42, 0.08);
+}
+
+.admin-analytics-card-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8896a8;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.admin-analytics-card-value {
+    font-size: 1.7rem;
+    font-weight: 900;
+    color: #0d1b2a;
+    line-height: 1;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.4rem;
+}
+
+.admin-analytics-card-hint {
+    font-size: 0.78rem;
+    color: #8896a8;
+}
+
+.admin-analytics-card.accent .admin-analytics-card-value { color: #d4a017; }
+.admin-analytics-card.green .admin-analytics-card-value { color: #15803d; }
+.admin-analytics-card.blue .admin-analytics-card-value { color: #0369a1; }
+.admin-analytics-card.purple .admin-analytics-card-value { color: #7c3aed; }
+
+.admin-analytics-panel {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 1.5rem;
+    border: 1px solid #eef1f4;
+    box-shadow: 0 4px 16px rgba(13, 27, 42, 0.04);
+    margin-bottom: 1.5rem;
+}
+
+.admin-analytics-panel h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0d1b2a;
+    margin: 0 0 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-analytics-panel h3 i { color: #d4a017; }
+
+.admin-analytics-panel > p {
+    color: #8896a8;
+    font-size: 0.86rem;
+    margin: 0 0 1.25rem;
+}
+
+/* Chart: 30-day bar */
+.admin-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 160px;
+    padding: 0.5rem 0;
+    margin-bottom: 0.75rem;
+}
+
+.admin-bar {
+    flex: 1;
+    background: linear-gradient(180deg, #f9c74f 0%, #e0a92e 100%);
+    border-radius: 3px 3px 0 0;
+    min-height: 3px;
+    position: relative;
+    transition: background 0.2s ease;
+    cursor: pointer;
+}
+
+.admin-bar:hover {
+    background: linear-gradient(180deg, #0d1b2a 0%, #1a2a3a 100%);
+}
+
+.admin-bar-chart-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: #8896a8;
+    margin-bottom: 0.5rem;
+}
+
+/* Simple tables */
+.admin-analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-analytics-table th {
+    text-align: left;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8896a8;
+    font-weight: 700;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 2px solid #f0f2f5;
+}
+
+.admin-analytics-table td {
+    padding: 0.75rem 0.75rem;
+    border-bottom: 1px solid #f5f7fa;
+    font-size: 0.9rem;
+    color: #0d1b2a;
+}
+
+.admin-analytics-table tr:last-child td { border-bottom: none; }
+
+.admin-analytics-table td.num {
+    text-align: right;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.admin-analytics-table td.rank {
+    width: 36px;
+    font-weight: 800;
+    color: #d4a017;
+}
+
+/* Cart recovery funnel */
+.admin-funnel {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.admin-funnel-step {
+    text-align: center;
+    padding: 1.25rem 0.75rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #eef1f4;
+}
+
+.admin-funnel-step-value {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #0d1b2a;
+    line-height: 1;
+    margin-bottom: 0.35rem;
+}
+
+.admin-funnel-step-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8896a8;
+    font-weight: 700;
+}
+
+.admin-funnel-step.accent .admin-funnel-step-value { color: #d4a017; }
+.admin-funnel-step.green .admin-funnel-step-value { color: #15803d; }
+
+@media (max-width: 640px) {
+    .admin-funnel { grid-template-columns: 1fr 1fr; }
+    .admin-bar-chart { height: 100px; }
+}

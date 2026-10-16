@@ -59,6 +59,9 @@
             <button class="admin-tab active" data-tab="overview" onclick="adminSwitchTab('overview')">
                 <i class="fas fa-chart-line"></i> Overview
             </button>
+            <button class="admin-tab" data-tab="analytics" onclick="adminSwitchTab('analytics')">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </button>
             <button class="admin-tab" data-tab="vendors" onclick="adminSwitchTab('vendors')">
                 <i class="fas fa-store"></i> Vendors <span class="admin-tab-badge" id="adminBadgeVendors" style="display:none;">0</span>
             </button>
@@ -94,7 +97,27 @@
                 </div>
             </section>
 
+            <!-- ANALYTICS TAB -->
+            <section class="admin-panel" id="admin-panel-analytics">
+                <div class="admin-section-header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+                    <div>
+                        <h2>Analytics</h2>
+                        <p>Revenue, top performers, and cart recovery performance.</p>
+                    </div>
+                    <button class="admin-btn admin-btn-secondary" onclick="adminLoadAnalytics()" style="width:auto;">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <div id="adminAnalyticsContent">
+                    <div class="admin-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading analytics…
+                    </div>
+                </div>
+            </section>
+
             <!-- VENDORS TAB -->
+            <section class="admin-panel" id="admin-panel-vendors">
             <section class="admin-panel" id="admin-panel-vendors">
                 <div class="admin-section-header">
                     <h2>Pending Vendors</h2>
