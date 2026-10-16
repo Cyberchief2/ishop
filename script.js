@@ -8622,3 +8622,50 @@ function adminRenderAnalytics(a) {
     window.addEventListener('load', () => setTimeout(setup, 300));
 })();
 /* (Mega menu positioning is now handled purely by CSS) */
+
+/* ============================================ */
+/* MEGA MENU — scroll hint + fade state         */
+/* ============================================ */
+(function megaMenuScrollHint() {
+    function setup() {
+        const menu = document.querySelector('.mega-menu');
+        const scroller = document.querySelector('.mega-menu-content');
+        if (!menu || !scroller) return;
+
+        // Create the chevron button if it's not in the DOM
+        let chevron = menu.querySelector('.mega-menu-scroll-hint');
+        if (!chevron) {
+            chevron = document.createElement('button');
+            chevron.className = 'mega-menu-scroll-hint';
+            chevron.setAttribute('aria-label', 'Scroll categories right');
+            chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            chevron.addEventListener('click', () => {
+                scroller.scrollBy({ left: 220, behavior: 'smooth' });
+            });
+            menu.appendChild(chevron);
+        }
+
+        function update() {
+            const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+            if (maxScroll <= 4) {
+                chevron.classList.add('hidden');
+                scroller.classList.add('scrolled-end');
+                return;
+            }
+            const atEnd = scroller.scrollLeft >= maxScroll - 6;
+            chevron.classList.toggle('hidden', atEnd);
+            scroller.classList.toggle('scrolled-end', atEnd);
+        }
+
+        scroller.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        setTimeout(update, 200);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setup);
+    } else {
+        setup();
+    }
+    window.addEventListener('load', () => setTimeout(setup, 400));
+})();

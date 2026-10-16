@@ -16694,7 +16694,7 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     .admin-bar-chart { height: 100px; }
 }
 /* ============================================ */
-/* MEGA MENU — FINAL WORKING VERSION            */
+/* MEGA MENU — FINAL WORKING VERSION v2         */
 /* ============================================ */
 
 .mega-menu {
@@ -16712,20 +16712,30 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     margin: 0 auto !important;
     display: flex !important;
     align-items: center !important;
-    min-height: 46px !important;
+    min-height: 52px !important;
     padding: 0 !important;
     overflow: visible !important;
+    position: relative !important;
 }
 
 .menu-links {
     display: flex !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
-    gap: 0 !important;
+    gap: 0.1rem !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0 3rem 0 0 !important;
     width: 100% !important;
     list-style: none !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+}
+
+.menu-links::-webkit-scrollbar {
+    display: none !important;
 }
 
 .menu-links > li {
@@ -16735,22 +16745,90 @@ html body .hero-slide[data-theme="home"] .hero-cta {
 }
 
 .menu-links > li > a {
-    padding: 0.5rem 0.65rem !important;
-    font-size: 0.82rem !important;
-    gap: 0.3rem !important;
+    padding: 0.65rem 0.7rem !important;
+    font-size: 0.83rem !important;
+    line-height: 1.2 !important;
+    gap: 0.35rem !important;
     display: inline-flex !important;
     align-items: center !important;
     border-radius: 6px !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .menu-links > li > a i:first-child {
-    font-size: 0.78rem !important;
+    font-size: 0.8rem !important;
     color: #888 !important;
 }
 
 .menu-links > li > a .fa-chevron-down {
     font-size: 0.55rem !important;
     color: #aaa !important;
+}
+
+/* ---------- RIGHT FADE SCROLL HINT ---------- */
+.mega-menu-content::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 70px !important;
+    pointer-events: none !important;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.9) 55%,
+        rgba(255, 255, 255, 1) 100%
+    ) !important;
+    z-index: 10 !important;
+    transition: opacity 0.25s ease !important;
+}
+
+.mega-menu-content.scrolled-end::after {
+    opacity: 0 !important;
+}
+
+/* Chevron arrow that floats on the right */
+.mega-menu-scroll-hint {
+    position: absolute !important;
+    top: 50% !important;
+    right: 6px !important;
+    transform: translateY(-50%) !important;
+    width: 32px !important;
+    height: 32px !important;
+    background: #ffffff !important;
+    border: 1px solid #e8ecf0 !important;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 14px rgba(13, 27, 42, 0.12) !important;
+    color: #0d1b2a !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 20 !important;
+    font-size: 0.75rem !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease !important;
+    animation: menuHintPulse 1.8s ease-in-out infinite !important;
+}
+
+.mega-menu-scroll-hint:hover {
+    background: #f9c74f !important;
+    border-color: #f9c74f !important;
+}
+
+.mega-menu-scroll-hint.hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-50%) translateX(8px) !important;
+}
+
+@keyframes menuHintPulse {
+    0%, 100% { transform: translateY(-50%) translateX(0); }
+    50%      { transform: translateY(-50%) translateX(3px); }
 }
 
 /* ---------- DROPDOWN ---------- */
@@ -16781,7 +16859,6 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     display: block !important;
 }
 
-/* Right-side items flip left so dropdown stays on screen */
 .menu-links > li:nth-last-child(-n+3) .mega-dropdown {
     left: auto !important;
     right: 0 !important;
@@ -16824,37 +16901,27 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     padding-left: 0.35rem !important;
 }
 
-/* Kill any old chevron button / fade */
-.mega-menu-scroll-hint,
-.mega-menu::after {
-    display: none !important;
-}
-
 /* ---------- MOBILE ---------- */
 @media (max-width: 768px) {
     .mega-menu {
         padding: 0 !important;
     }
 
-    .menu-links {
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        padding: 0.25rem 0.5rem !important;
-        gap: 0.05rem !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
+    .mega-menu-content {
+        min-height: 44px !important;
     }
 
-    .menu-links::-webkit-scrollbar {
-        display: none !important;
+    .menu-links {
+        padding: 0 2.5rem 0 0.5rem !important;
+        gap: 0.05rem !important;
     }
 
     .menu-links > li > a {
-        padding: 0.4rem 0.55rem !important;
+        padding: 0.5rem 0.55rem !important;
         font-size: 0.72rem !important;
     }
 
-    .menu-links > li > a i {
+    .menu-links > li > a i:first-child {
         display: none !important;
     }
 
@@ -16866,11 +16933,22 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     .mega-dropdown {
         display: none !important;
     }
+
+    .mega-menu-scroll-hint {
+        width: 26px !important;
+        height: 26px !important;
+        right: 4px !important;
+        font-size: 0.6rem !important;
+    }
+
+    .mega-menu-content::after {
+        width: 40px !important;
+    }
 }
 
 @media (max-width: 480px) {
     .menu-links > li > a {
-        padding: 0.35rem 0.5rem !important;
+        padding: 0.45rem 0.5rem !important;
         font-size: 0.68rem !important;
     }
 }
