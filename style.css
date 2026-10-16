@@ -17270,3 +17270,38 @@ html body .hero-slide[data-theme="home"] .hero-cta {
         transition: opacity 0.08s ease;
     }
 }
+/* ============================================ */
+/* MEGA MENU — SCROLLABLE DROPDOWNS */
+/* ============================================ */
+@media (min-width: 769px) {
+    .menu-links > li > .mega-dropdown {
+        /* Never taller than the viewport (leave room for browser chrome + gutter) */
+        max-height: calc(100vh - 160px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: thin;
+        scrollbar-color: #d0d4d8 transparent;
+        /* Hide default radius at the bottom corners when scrolling */
+        padding-right: 1.15rem !important;
+    }
+
+    /* Slim, subtle scrollbar */
+    .menu-links > li > .mega-dropdown::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .menu-links > li > .mega-dropdown::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .menu-links > li > .mega-dropdown::-webkit-scrollbar-thumb {
+        background: #d0d4d8;
+        border-radius: 3px;
+    }
+
+    .menu-links > li > .mega-dropdown::-webkit-scrollbar-thumb:hover {
+        background: #f9c74f;
+    }
+}
