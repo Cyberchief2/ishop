@@ -8645,7 +8645,7 @@ function adminRenderAnalytics(a) {
         // If still off the left edge, clamp to gutter
         if (left < gutter) left = gutter;
 
-        dd.style.top = (rect.bottom + 2) + 'px';
+        dd.style.top = rect.bottom + 'px';
         dd.style.left = left + 'px';
         dd.style.right = 'auto';
     }

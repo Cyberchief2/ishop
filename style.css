@@ -17233,3 +17233,40 @@ html body .hero-slide[data-theme="home"] .hero-cta {
         display: grid !important;
     }
 }
+/* ============================================ */
+/* MEGA MENU — HOVER BRIDGE + DROPDOWN ATTACH */
+/* ============================================ */
+
+@media (min-width: 769px) {
+    /* Make sure the dropdown touches the menu bar with no gap */
+    .menu-links > li > .mega-dropdown {
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+        margin-top: 0 !important;
+    }
+
+    /* Invisible bridge: extends the <li>'s hover zone downward to the dropdown */
+    .menu-links > li.dropdown-hover::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background: transparent;
+        pointer-events: auto;
+        z-index: 5;
+    }
+
+    /* When the LI is hovered, keep the bridge active so the mouse can travel */
+    .menu-links > li.dropdown-hover:hover::after,
+    .menu-links > li.dropdown-hover:focus-within::after {
+        pointer-events: auto;
+    }
+
+    /* Add a soft transition so the close feels less twitchy */
+    .menu-links > li > .mega-dropdown {
+        opacity: 1;
+        transition: opacity 0.08s ease;
+    }
+}
