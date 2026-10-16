@@ -1789,7 +1789,15 @@ async function renderHomepage() {
         const featured = getVarietyProducts(featuredPool, 10);
         renderProducts('featuredProducts', featured);
 
-        const electronicsProducts = products.filter(p => p.category === 'electronics');
+        // Electronics — exclude anything that belongs to Phones & Tablets or Computers
+        const movedToPhonesTablets = ['smartphones', 'tablets', 'phone-accessories', 'power-banks'];
+        const movedToComputers = ['laptops', 'desktops', 'monitors', 'computer-accessories', 'printers-scanners', 'networking'];
+        const movedSubTypes = [...movedToPhonesTablets, ...movedToComputers];
+
+        const electronicsProducts = products.filter(p =>
+            p.category === 'electronics' &&
+            !movedSubTypes.includes(p.subType)
+        );
         const freshElectronics = shuffleArray([...electronicsProducts]).slice(0, 10);
         renderProducts('freshElectronics', freshElectronics);
 
@@ -8560,4 +8568,56 @@ function adminRenderAnalytics(a) {
 
     // Also re-attach after header re-renders
     window.addEventListener('load', () => setTimeout(attach, 300));
+})();
+
+/* ============================================ */
+/* MEGA MENU — chevron button + scroll-state */
+/* ============================================ */
+(function megaMenuScroller() {
+    function setup() {
+        const menu = document.querySelector('.mega-menu');
+        const scroller = document.querySelector('.mega-menu-content');
+        if (!menu || !scroller) return;
+
+        // Inject the chevron button if not already there
+        let chevron = menu.querySelector('.mega-menu-scroll-hint');
+        if (!chevron) {
+            chevron = document.createElement('button');
+            chevron.className = 'mega-menu-scroll-hint';
+            chevron.setAttribute('aria-label', 'Scroll categories right');
+            chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            menu.appendChild(chevron);
+
+            chevron.addEventListener('click', () => {
+                scroller.scrollBy({ left: 220, behavior: 'smooth' });
+            });
+        }
+
+        function update() {
+            const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+            if (maxScroll <= 4) {
+                chevron.classList.add('hidden');
+                menu.classList.add('scrolled-end');
+                return;
+            }
+            const atEnd = scroller.scrollLeft >= maxScroll - 6;
+            chevron.classList.toggle('hidden', atEnd);
+            menu.classList.toggle('scrolled-end', atEnd);
+        }
+
+        // Remove any previous listeners to be safe on re-init
+        scroller.removeEventListener('scroll', update);
+        window.removeEventListener('resize', update);
+
+        scroller.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        setTimeout(update, 200);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setup);
+    } else {
+        setup();
+    }
+    window.addEventListener('load', () => setTimeout(setup, 300));
 })();
