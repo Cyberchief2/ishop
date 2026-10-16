@@ -8669,3 +8669,66 @@ function adminRenderAnalytics(a) {
     }
     window.addEventListener('load', () => setTimeout(setup, 400));
 })();
+
+/* ============================================ */
+/* MEGA MENU — force-inject chevron (robust)    */
+/* ============================================ */
+(function forceMegaMenuChevron() {
+    function tryInject() {
+        const menu = document.querySelector('.mega-menu');
+        const scroller = document.querySelector('.mega-menu-content');
+        const links = document.querySelector('.menu-links');
+        if (!menu || !scroller || !links) {
+            return false;
+        }
+
+        // Remove any stale chevrons first
+        menu.querySelectorAll('.mega-menu-scroll-hint').forEach(el => el.remove());
+
+        // Create a fresh chevron
+        const chevron = document.createElement('button');
+        chevron.className = 'mega-menu-scroll-hint';
+        chevron.setAttribute('aria-label', 'Scroll categories right');
+        chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+        // Click handler — scrolls the menu strip
+        chevron.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            links.scrollBy({ left: 250, behavior: 'smooth' });
+        });
+
+        menu.appendChild(chevron);
+
+        function update() {
+            const maxScroll = links.scrollWidth - links.clientWidth;
+            if (maxScroll <= 4) {
+                chevron.classList.add('hidden');
+                scroller.classList.add('scrolled-end');
+                return;
+            }
+            const atEnd = links.scrollLeft >= maxScroll - 8;
+            chevron.classList.toggle('hidden', atEnd);
+            scroller.classList.toggle('scrolled-end', atEnd);
+        }
+
+        links.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        setTimeout(update, 300);
+        return true;
+    }
+
+    // Try at various lifecycle points since the header renders dynamically
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', tryInject);
+    } else {
+        tryInject();
+    }
+    // Also retry a few times after load — the header JS may take a moment
+    setTimeout(tryInject, 300);
+    setTimeout(tryInject, 800);
+    setTimeout(tryInject, 1500);
+    window.addEventListener('load', function () {
+        setTimeout(tryInject, 400);
+    });
+})();
