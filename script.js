@@ -8526,3 +8526,38 @@ function adminRenderAnalytics(a) {
 
     container.innerHTML = cardsHTML + trendHTML + productsHTML + vendorsHTML + funnelHTML;
 }
+
+/* ============================================ */
+/* MEGA MENU — hide fade indicator at scroll end */
+/* ============================================ */
+(function setupMenuScrollIndicator() {
+    function attach() {
+        const menu = document.querySelector('.mega-menu');
+        const scroller = document.querySelector('.mega-menu-content');
+        if (!menu || !scroller) return;
+
+        function update() {
+            const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+            if (maxScroll <= 4) {
+                // No overflow, hide indicator entirely
+                menu.classList.add('scrolled-end');
+                return;
+            }
+            const atEnd = scroller.scrollLeft >= maxScroll - 6;
+            menu.classList.toggle('scrolled-end', atEnd);
+        }
+
+        scroller.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        setTimeout(update, 200);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attach);
+    } else {
+        attach();
+    }
+
+    // Also re-attach after header re-renders
+    window.addEventListener('load', () => setTimeout(attach, 300));
+})();
