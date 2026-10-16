@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Computers & Accessories – iShop</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+</head>
+<body class="category-page">
+    <div id="site-header"></div>
+
+    <section class="page-header">
+        <div class="page-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="12" rx="1" fill="#0d1b2a"/>
+                <rect x="5" y="6" width="14" height="8" fill="#f9c74f"/>
+                <path d="M8 20h8" stroke="#0d1b2a" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 16v4" stroke="#0d1b2a" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h1>Computers & Accessories</h1>
+        <p>Laptops, desktops, monitors, printers & networking</p>
+    </section>
+
+    <section class="subcat-section">
+        <div class="subcat-row">
+            <button class="subcat-item active" data-subtype="all">
+                <div class="subcat-icon"><i class="fas fa-th-large" style="font-size:1.4rem;color:#0d1b2a;"></i></div>
+                <span class="subcat-label">All</span>
+            </button>
+            <button class="subcat-item" data-subtype="laptops">
+                <div class="subcat-icon"><i class="fas fa-laptop" style="font-size:1.4rem;color:#0d1b2a;"></i></div>
+                <span class="subcat-label">Laptops</span>
+            </button>
+            <button class="subcat-item" data-subtype="desktops">
+                <div class="subcat-icon"><i class="fas fa-desktop" style="font-size:1.4rem;color:#0d1b2a;"></i></div>
+                <span class="subcat-label">Desktops</span>
+            </button>
+            <button class="subcat-item" data-subtype="monitors">
+                <div class="subcat-icon"><i class="fas fa-tv" style="font-size:1.4rem;color:#0d1b2a;"></i></div>
+                <span class="subcat-label">Monitors</span>
+            </button>
+            <button class="subcat-item" data-subtype="computer-accessories">
+                <div class="subcat-icon"><i class="fas fa-keyboard" style="font-size:1.4rem;color:#0d1b2a;"></i></div>
+                <span class="subcat-label">Accessories</span>
+            </button>
+            <button class="subcat-item" data-subtype="printers-scanners">
+                <div class="subcat-icon"><i class="fas fa-print" style="font-size:1.4rem;color:#0d1b2a;"></i></div>
+                <span class="subcat-label">Printers</span>
+            </button>
+            <button class="subcat-item" data-subtype="networking">
+                <div class="subcat-icon"><i class="fas fa-wifi" style="font-size:1.4rem;color:#0d1b2a;"></i></div>
+                <span class="subcat-label">Networking</span>
+            </button>
+        </div>
+    </section>
+
+    <section class="featured-products">
+        <div class="product-grid" id="computersAccessoriesProducts"></div>
+    </section>
+
+    <div id="site-footer"></div>
+    <script src="script.js"></script>
+</body>
+</html>

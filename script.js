@@ -518,8 +518,8 @@ function getHeaderHTML(activePage = '') {
 
         <div class="mobile-cat-strip">
             <a href="shop.html" class="cat-chip">All</a>
-            <a href="electronics.html" class="cat-chip">📱 Phones</a>
-            <a href="electronics.html?subtype=laptops" class="cat-chip">💻 Laptops</a>
+            <a href="phones-tablets.html" class="cat-chip">📱 Phones</a>
+            <a href="computers-accessories.html?subtype=laptops" class="cat-chip">💻 Laptops</a>
             <a href="fashion.html" class="cat-chip">👗 Fashion</a>
             <a href="fashion.html?subtype=shoes" class="cat-chip">👟 Shoes</a>
             <a href="beauty.html" class="cat-chip">💄 Beauty</a>
@@ -537,36 +537,111 @@ function getHeaderHTML(activePage = '') {
                 <li><a href="index.html" class="${isActive('home')}"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="shop.html" class="${isActive('shop')}"><i class="fas fa-store"></i> All Products</a></li>
                 <li class="dropdown-hover">
-                    <a href="electronics.html" class="${isActive('electronics')}"><i class="fas fa-mobile-alt"></i> Electronics <i class="fas fa-chevron-down"></i></a>
+                    <a href="electronics.html" class="${isActive('electronics')}"><i class="fas fa-tv"></i> Electronics <i class="fas fa-chevron-down"></i></a>
                     <div class="mega-dropdown">
                         <div class="mega-dropdown-content">
                             <div class="mega-column">
-                                <h4>📱 Phones & Tablets</h4>
-                                <a href="electronics.html?subtype=smartphones">Smartphones</a>
-                                <a href="electronics.html?subtype=tablets">Tablets</a>
-                                <a href="electronics.html?subtype=accessories">Accessories</a>
+                                <h4>📺 Televisions</h4>
+                                <a href="electronics.html?subtype=televisions">Smart TVs</a>
+                                <a href="electronics.html?subtype=televisions">LED & LCD</a>
+                                <a href="electronics.html?subtype=televisions">Projectors</a>
                             </div>
                             <div class="mega-column">
-                                <h4>💻 Computing</h4>
-                                <a href="electronics.html?subtype=laptops">Laptops</a>
-                                <a href="electronics.html?subtype=laptops">MacBooks</a>
-                                <a href="electronics.html?subtype=accessories">Keyboards & Mice</a>
+                                <h4>🔊 Home Audio & Theatre</h4>
+                                <a href="electronics.html?subtype=home-audio-theatre">Home Theatre Systems</a>
+                                <a href="electronics.html?subtype=home-audio-theatre">Soundbars</a>
+                                <a href="electronics.html?subtype=home-audio-theatre">Speakers</a>
                             </div>
                             <div class="mega-column">
-                                <h4>🎧 Audio</h4>
-                                <a href="electronics.html?subtype=audio">Headphones</a>
-                                <a href="electronics.html?subtype=audio">Earbuds</a>
-                                <a href="electronics.html?subtype=audio">Speakers</a>
+                                <h4>📷 Cameras & Photo</h4>
+                                <a href="electronics.html?subtype=cameras-photo">DSLR & Mirrorless</a>
+                                <a href="electronics.html?subtype=cameras-photo">Instant Cameras</a>
+                                <a href="electronics.html?subtype=cameras-photo">Camera Accessories</a>
                             </div>
                             <div class="mega-column">
-                                <h4>📺 TV</h4>
-                                <a href="electronics.html?subtype=tv">Smart TVs</a>
-                                <a href="electronics.html?subtype=tv">Projectors</a>
+                                <h4>🎬 DVD Players & Recorders</h4>
+                                <a href="electronics.html?subtype=dvd-players-recorders">DVD Players</a>
+                                <a href="electronics.html?subtype=dvd-players-recorders">Blu-Ray Players</a>
                             </div>
                             <div class="mega-column">
-                                <h4>⌚ Wearables</h4>
-                                <a href="electronics.html?subtype=wearables">Smartwatches</a>
-                                <a href="electronics.html?subtype=wearables">Fitness Trackers</a>
+                                <h4>🎮 Games & Consoles</h4>
+                                <a href="electronics.html?subtype=games-consoles">PlayStation</a>
+                                <a href="electronics.html?subtype=games-consoles">Xbox</a>
+                                <a href="electronics.html?subtype=games-consoles">Nintendo</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🔌 Accessories</h4>
+                                <a href="electronics.html?subtype=electronics-accessories">Cables & Adapters</a>
+                                <a href="electronics.html?subtype=electronics-accessories">Remote Controls</a>
+                                <a href="electronics.html?subtype=electronics-accessories">Mounts & Stands</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="phones-tablets.html" class="${isActive('phones-tablets')}"><i class="fas fa-mobile-alt"></i> Phones & Tablets <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>📱 Smartphones</h4>
+                                <a href="phones-tablets.html?subtype=smartphones">Android Phones</a>
+                                <a href="phones-tablets.html?subtype=smartphones">iPhones</a>
+                                <a href="phones-tablets.html?subtype=smartphones">Refurbished Phones</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📟 Tablets</h4>
+                                <a href="phones-tablets.html?subtype=tablets">iPads</a>
+                                <a href="phones-tablets.html?subtype=tablets">Android Tablets</a>
+                                <a href="phones-tablets.html?subtype=tablets">Tablet Accessories</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🎧 Phone Accessories</h4>
+                                <a href="phones-tablets.html?subtype=phone-accessories">Cases & Covers</a>
+                                <a href="phones-tablets.html?subtype=phone-accessories">Chargers & Cables</a>
+                                <a href="phones-tablets.html?subtype=phone-accessories">Screen Protectors</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🔋 Power Banks</h4>
+                                <a href="phones-tablets.html?subtype=power-banks">10,000 mAh</a>
+                                <a href="phones-tablets.html?subtype=power-banks">20,000 mAh</a>
+                                <a href="phones-tablets.html?subtype=power-banks">Solar Power Banks</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dropdown-hover">
+                    <a href="computers-accessories.html" class="${isActive('computers-accessories')}"><i class="fas fa-laptop"></i> Computers & Accessories <i class="fas fa-chevron-down"></i></a>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-content">
+                            <div class="mega-column">
+                                <h4>💻 Laptops</h4>
+                                <a href="computers-accessories.html?subtype=laptops">Windows Laptops</a>
+                                <a href="computers-accessories.html?subtype=laptops">MacBooks</a>
+                                <a href="computers-accessories.html?subtype=laptops">Chromebooks</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🖥️ Desktops</h4>
+                                <a href="computers-accessories.html?subtype=desktops">All-in-One PCs</a>
+                                <a href="computers-accessories.html?subtype=desktops">Gaming PCs</a>
+                                <a href="computers-accessories.html?subtype=desktops">Monitors</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>⌨️ Computer Accessories</h4>
+                                <a href="computers-accessories.html?subtype=computer-accessories">Keyboards & Mice</a>
+                                <a href="computers-accessories.html?subtype=computer-accessories">Webcams</a>
+                                <a href="computers-accessories.html?subtype=computer-accessories">External Drives</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>🖨️ Printers & Scanners</h4>
+                                <a href="computers-accessories.html?subtype=printers-scanners">Printers</a>
+                                <a href="computers-accessories.html?subtype=printers-scanners">Scanners</a>
+                                <a href="computers-accessories.html?subtype=printers-scanners">Ink & Toner</a>
+                            </div>
+                            <div class="mega-column">
+                                <h4>📡 Networking</h4>
+                                <a href="computers-accessories.html?subtype=networking">Routers</a>
+                                <a href="computers-accessories.html?subtype=networking">Modems</a>
+                                <a href="computers-accessories.html?subtype=networking">Range Extenders</a>
                             </div>
                         </div>
                     </div>
@@ -753,16 +828,42 @@ function getHeaderHTML(activePage = '') {
                 <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
                 <li class="drawer-dropdown">
                     <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
-                        <i class="fas fa-mobile-alt"></i> Electronics
+                        <i class="fas fa-tv"></i> Electronics
                         <i class="fas fa-chevron-down drawer-chevron"></i>
                     </a>
                     <ul class="drawer-submenu">
-                        <li><a href="electronics.html?subtype=smartphones">Smartphones</a></li>
-                        <li><a href="electronics.html?subtype=tablets">Tablets</a></li>
-                        <li><a href="electronics.html?subtype=laptops">Laptops</a></li>
-                        <li><a href="electronics.html?subtype=audio">Audio</a></li>
-                        <li><a href="electronics.html?subtype=tv">Smart TVs</a></li>
-                        <li><a href="electronics.html?subtype=wearables">Smartwatches</a></li>
+                        <li><a href="electronics.html?subtype=televisions">Televisions</a></li>
+                        <li><a href="electronics.html?subtype=home-audio-theatre">Home Audio & Theatre</a></li>
+                        <li><a href="electronics.html?subtype=cameras-photo">Cameras & Photo</a></li>
+                        <li><a href="electronics.html?subtype=dvd-players-recorders">DVD Players</a></li>
+                        <li><a href="electronics.html?subtype=games-consoles">Games & Consoles</a></li>
+                        <li><a href="electronics.html?subtype=electronics-accessories">Accessories</a></li>
+                    </ul>
+                </li>
+                <li class="drawer-dropdown">
+                    <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                        <i class="fas fa-mobile-alt"></i> Phones & Tablets
+                        <i class="fas fa-chevron-down drawer-chevron"></i>
+                    </a>
+                    <ul class="drawer-submenu">
+                        <li><a href="phones-tablets.html?subtype=smartphones">Smartphones</a></li>
+                        <li><a href="phones-tablets.html?subtype=tablets">Tablets</a></li>
+                        <li><a href="phones-tablets.html?subtype=phone-accessories">Phone Accessories</a></li>
+                        <li><a href="phones-tablets.html?subtype=power-banks">Power Banks</a></li>
+                    </ul>
+                </li>
+                <li class="drawer-dropdown">
+                    <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                        <i class="fas fa-laptop"></i> Computers & Accessories
+                        <i class="fas fa-chevron-down drawer-chevron"></i>
+                    </a>
+                    <ul class="drawer-submenu">
+                        <li><a href="computers-accessories.html?subtype=laptops">Laptops</a></li>
+                        <li><a href="computers-accessories.html?subtype=desktops">Desktops</a></li>
+                        <li><a href="computers-accessories.html?subtype=monitors">Monitors</a></li>
+                        <li><a href="computers-accessories.html?subtype=computer-accessories">Accessories</a></li>
+                        <li><a href="computers-accessories.html?subtype=printers-scanners">Printers & Scanners</a></li>
+                        <li><a href="computers-accessories.html?subtype=networking">Networking</a></li>
                     </ul>
                 </li>
                 <li class="drawer-dropdown">
@@ -2126,6 +2227,8 @@ async function renderCategory(category, subType = '') {
         beauty: 'beautyProducts',
         home: 'homeProducts',
         traditional: 'traditionalProducts',
+        'phones-tablets': 'phonesTabletsProducts',
+        'computers-accessories': 'computersAccessoriesProducts',
     };
     if (containerMap[category]) {
         renderProductSkeletons(containerMap[category], 12);
@@ -2140,12 +2243,7 @@ async function renderCategory(category, subType = '') {
             console.log(`🔎 Filtered by subtype "${subType}": ${products.length} products`);
         }
 
-        const containerId = category === 'digital' ? 'digitalProductsGrid' :
-                            category === 'electronics' ? 'electronicsProducts' :
-                            category === 'fashion' ? 'fashionProducts' :
-                            category === 'beauty' ? 'beautyProducts' :
-                            category === 'home' ? 'homeProducts' :
-                            category === 'traditional' ? 'traditionalProducts' : null;
+        const containerId = containerMap[category] || null;
         if (containerId) {
             renderProducts(containerId, products);
         }
@@ -3999,7 +4097,21 @@ function initializeApp() {
         const sectionToOpen = validSections.includes(hash) ? hash : 'overview';
         switchAccountSection(sectionToOpen);
         loadMyOrders();
-    } else if (page === 'electronics.html' || page === 'fashion.html' || page === 'beauty.html' || page === 'home.html' || page === 'traditional.html') {
+    } else if (
+        page === 'electronics.html' ||
+        page === 'fashion.html' ||
+        page === 'beauty.html' ||
+        page === 'home.html' ||
+        page === 'traditional.html' ||
+        page === 'phones-tablets.html' ||
+        page === 'computers-accessories.html'
+    ) {
+        const category = page.replace('.html', '');
+        const urlParams = new URLSearchParams(window.location.search);
+        const subType = urlParams.get('subtype') || '';
+        renderCategory(category, subType);
+        setupSubcategoryButtons(category);
+    }
         const category = page.replace('.html', '');
         const urlParams = new URLSearchParams(window.location.search);
         const subType = urlParams.get('subtype') || '';
