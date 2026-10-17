@@ -8450,9 +8450,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(buildDynamicMegaMenu, 100);
 });
 // ============================================
-// VENDOR PRODUCT FORM - FINAL FIX
+// VENDOR PRODUCT FORM - FIX
 // ============================================
-window.globalCategoriesList = [];
+
 
 async function loadFormDropdowns() {
     const catDropdown = document.getElementById('productCategory');
@@ -8532,34 +8532,170 @@ async function loadFormDropdowns() {
     }
 }
 
-// Force the buttons to work using onclick
+// Global click handlers to ensure the buttons ALWAYS work
+window.goToNextStep = function() {
+    if (typeof productNextStep === 'function') {
+        productNextStep();
+    } else {
+        console.error("productNextStep function not found!");
+    }
+};
+
+window.goToPrevStep = function() {
+    if (typeof productPrevStep === 'function') {
+        productPrevStep();
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('productForm');
-    
-    if (form) {
-        // Load the dropdowns
+    // 1. Load Categories
+    if (document.getElementById('productCategory')) {
         loadFormDropdowns();
+    }
 
-        // Attach the Continue button
-        const nextBtn = document.getElementById('productNextBtn');
-        if (nextBtn) {
-            nextBtn.onclick = function(e) {
-                e.preventDefault();
-                if (typeof productNextStep === 'function') {
-                    productNextStep();
-                }
-            };
+    // 2. Attach to buttons natively using onclick attributes
+    const nextBtn = document.getElementById('productNextBtn');
+    if (nextBtn) {
+        nextBtn.onclick = function(e) {
+            e.preventDefault();
+            window.goToNextStep();
+        };
+    }
+
+    const backBtn = document.getElementById('productBackBtn');
+    if (backBtn) {
+        backBtn.onclick = function(e) {
+            e.preventDefault();
+            window.goToPrevStep();
+        };
+    }
+});
+// ============================================
+// VENDOR PRODUCT FORM - FINAL WORKING FIX
+// ============================================
+var globalCategoriesList = [];
+
+function loadFormDropdowns() {
+    var catDropdown = document.getElementById('productCategory');
+    var subDropdown = document.getElementById('productSubCategory');
+    var typeDropdown = document.getElementById('productTypeRef');
+    
+    if (!catDropdown || !subDropdown || !typeDropdown) return;
+
+    var urls = [
+        'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
+        'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
+        'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
+    ];
+    
+    Promise.all(urls.map(url => fetch(url).then(res => res.json())))
+        .then(responses => {
+            var rawCategories = [];
+            responses.forEach(res => {
+                if (res.data) rawCategories = rawCategories.concat(res.data);
+            });
+
+            var seen = new Set();
+            globalCategoriesList = rawCategories.filter(c => {
+                if (seen.has(c.documentId)) return false;
+                seen.add(c.documentId);
+                return true;
+            });
+
+            var mainCats = globalCategoriesList.filter(c => !c.parentSlug || c.parentSlug === "");
+            
+            catDropdown.innerHTML = '<option value="">Select a category</option>';
+            
+            mainCats.forEach(c => {
+                catDropdown.innerHTML += '<option value="' + c.slug + '">' + c.name + '</option>';
+            });
+        })
+        .catch(e => {
+            console.error("Failed to load categories:", e);
+            catDropdown.innerHTML = '<option value="">Error loading categories</option>';
+        });
+
+    // Attach the change listeners
+    catDropdown.onchange = function() {
+        var selectedSlug = this.value;
+        subDropdown.innerHTML = '<option value="">Select a Sub-Category</option>';
+        typeDropdown.innerHTML = '<option value="">Select a Sub-category first</option>';
+        typeDropdown.disabled = true;
+
+        if (!selectedSlug) {
+            subDropdown.disabled = true;
+            return;
         }
 
-        // Attach the Back button
-        const backBtn = document.getElementById('productBackBtn');
-        if (backBtn) {
-            backBtn.onclick = function(e) {
-                e.preventDefault();
-                if (typeof productPrevStep === 'function') {
-                    productPrevStep();
-                }
-            };
+        var subs = globalCategoriesList.filter(c => c.parentSlug === selectedSlug);
+        subs.forEach(sub => {
+            subDropdown.innerHTML += '<option value="' + sub.slug + '">' + sub.name + '</option>';
+        });
+        subDropdown.disabled = false;
+    };
+
+    subDropdown.onchange = function() {
+        var selectedSubSlug = this.value;
+        typeDropdown.innerHTML = '<option value="">Select a Type</option>';
+
+        if (!selectedSubSlug) {
+            typeDropdown.disabled = true;
+            return;
         }
+
+        var types = globalCategoriesList.filter(c => c.parentSlug === selectedSubSlug);
+        types.forEach(type => {
+            typeDropdown.innerHTML += '<option value="' + type.slug + '">' + type.name + '</option>';
+        });
+        typeDropdown.disabled = false;
+    };
+}
+
+// ============================================
+// BUTTON CLICK FIX
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Load dropdowns
+    if (document.getElementById('productCategory')) {
+        loadFormDropdowns();
+    }
+
+    // 2. Wire up Continue Button
+    var nextBtn = document.getElementById('productNextBtn');
+    if (nextBtn) {
+        nextBtn.onclick = function(e) {
+            e.preventDefault();
+            // Direct call to the function
+            if (typeof productNextStep === 'function') {
+                productNextStep();
+            } else {
+                // Fallback: If function is missing, manually trigger step 2
+                document.querySelectorAll('.vendor-apply-step').forEach(el => el.classList.remove('active'));
+                document.querySelector('.vendor-apply-step[data-step="2"]').classList.add('active');
+                document.getElementById('productNextBtn').style.display = 'none';
+                document.getElementById('productBackBtn').style.display = 'inline-flex';
+                document.getElementById('productSubmitBtn').style.display = 'inline-flex';
+                document.getElementById('productProgressBar').style.width = '66%';
+            }
+        };
+    }
+
+    // 3. Wire up Back Button
+    var backBtn = document.getElementById('productBackBtn');
+    if (backBtn) {
+        backBtn.onclick = function(e) {
+            e.preventDefault();
+            if (typeof productPrevStep === 'function') {
+                productPrevStep();
+            } else {
+                // Fallback: Manually go back to step 1
+                document.querySelectorAll('.vendor-apply-step').forEach(el => el.classList.remove('active'));
+                document.querySelector('.vendor-apply-step[data-step="1"]').classList.add('active');
+                document.getElementById('productNextBtn').style.display = 'inline-flex';
+                document.getElementById('productBackBtn').style.display = 'none';
+                document.getElementById('productSubmitBtn').style.display = 'none';
+                document.getElementById('productProgressBar').style.width = '33%';
+            }
+        };
     }
 });
