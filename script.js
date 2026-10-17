@@ -1,3 +1,8 @@
+// Global state for vendor product form
+window.productFormState = {
+    images: [],
+    currentStep: 1
+};
 // ============================================
 // SITE CONFIG — edit once, used everywhere
 // ============================================
@@ -5485,20 +5490,25 @@ function getSpecificationsFromForm() {
 // IMAGE UPLOAD
 // ============================================
 
-function handleImageSelection(e) {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-
-    const totalAfter = productFormState.uploadedImages.length + productFormState.existingImages.length + files.length;
-    if (totalAfter > 5) {
-        alert('You can upload up to 5 images. Please remove some first.');
-        return;
+function handleImageSelection(event) {
+    const files = Array.from(event.target.files);
+    
+    // Check if productFormState exists, if not, create it
+    if (!window.productFormState) {
+        window.productFormState = { images: [] };
     }
 
-    files.forEach(file => uploadImageToStrapi(file));
+    // Add the new files to the images array
+    files.forEach(file => {
+        if (file.size > 5 * 1024 * 1024) {
+            alert(`File ${file.name} is too large. Max 5MB.`);
+        } else {
+            window.productFormState.images.push(file);
+        }
+    });
 
-    // Reset input so same file can be re-selected
-    e.target.value = '';
+    // Optional: Update the UI to show uploaded images
+    console.log("Images uploaded to state:", window.productFormState.images);
 }
 
 async function uploadImageToStrapi(file) {
