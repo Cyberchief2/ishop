@@ -8450,7 +8450,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(buildDynamicMegaMenu, 100);
 });
 // ============================================
-// VENDOR PRODUCT FORM - DYNAMIC CATEGORIES (FIX)
+// // ============================================
+// VENDOR PRODUCT FORM - DYNAMIC CATEGORIES
 // ============================================
 let globalCategoriesList = [];
 
@@ -8488,7 +8489,6 @@ async function loadFormDropdowns() {
         // 1. Populate Main Categories
         const mainCats = globalCategoriesList.filter(c => !c.parentSlug || c.parentSlug === "");
         
-        // Clear the dropdown
         catDropdown.innerHTML = '<option value="">Select a category</option>';
         
         mainCats.forEach(c => {
@@ -8539,7 +8539,31 @@ async function loadFormDropdowns() {
     }
 }
 
-// Trigger it when the page loads
+// ============================================
+// FIX: ENSURE THE CONTINUE BUTTON WORKS
+// ============================================
+// We re-bind the buttons here just in case the main initializeApp missed them
 document.addEventListener('DOMContentLoaded', () => {
     loadFormDropdowns();
+
+    // Check if we are on the product form page
+    const form = document.getElementById('productForm');
+    if (form) {
+        // Bind Next Button
+        const nextBtn = document.getElementById('productNextBtn');
+        if (nextBtn) {
+            // Remove old listeners to prevent double-firing
+            nextBtn.replaceWith(nextBtn.cloneNode(true));
+            const freshNextBtn = document.getElementById('productNextBtn');
+            freshNextBtn.addEventListener('click', productNextStep);
+        }
+
+        // Bind Back Button
+        const backBtn = document.getElementById('productBackBtn');
+        if (backBtn) {
+            backBtn.replaceWith(backBtn.cloneNode(true));
+            const freshBackBtn = document.getElementById('productBackBtn');
+            freshBackBtn.addEventListener('click', productPrevStep);
+        }
+    }
 });
