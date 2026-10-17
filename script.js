@@ -8270,7 +8270,9 @@ function adminRenderAnalytics(a) {
 
     container.innerHTML = cardsHTML + trendHTML + productsHTML + vendorsHTML + funnelHTML;
 }
-//
+// ============================================
+// MEGA MENU BUILDER (SCROLLABLE & DYNAMIC)
+// ============================================
 // ============================================
 // MEGA MENU BUILDER (FETCHES ALL PAGES)
 // ============================================
@@ -8367,3 +8369,91 @@ async function buildDynamicMegaMenu() {
         setupMegaMenuScroller();
     }
 }
+
+// ============================================
+// MEGA MENU POSITIONING (Prevents top-left jump)
+// ============================================
+function attachMegaMenuPositioning() {
+    function positionDropdown(li) {
+        const dd = li.querySelector('.mega-dropdown');
+        if (!dd) return;
+        
+        const rect = li.getBoundingClientRect();
+        const ddWidth = dd.offsetWidth || 460;
+        const vw = window.innerWidth;
+        const gutter = 8;
+
+        let left = rect.left;
+        if (left + ddWidth + gutter > vw) {
+            left = rect.right - ddWidth;
+        }
+        if (left < gutter) left = gutter;
+
+        dd.style.setProperty('top', rect.bottom + 'px', 'important');
+        dd.style.setProperty('left', left + 'px', 'important');
+    }
+
+    const items = document.querySelectorAll('.mega-menu .menu-links > li');
+    items.forEach(li => {
+        if (li.dataset.mmBound === '1') return;
+        li.dataset.mmBound = '1';
+        
+        const onEnter = () => positionDropdown(li);
+        li.addEventListener('mouseenter', onEnter);
+        li.addEventListener('focusin', onEnter);
+        window.addEventListener('resize', () => { if (li.matches(':hover')) positionDropdown(li); });
+        window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
+    });
+}
+
+// ============================================
+// MEGA MENU SCROLLER (Chevron + Fade)
+// ============================================
+function setupMegaMenuScroller() {
+    const menu = document.querySelector('.mega-menu');
+    const scroller = document.querySelector('.mega-menu .menu-links');
+    const content = document.querySelector('.mega-menu .mega-menu-content');
+    if (!menu || !scroller || !content) return;
+
+    // Remove old chevron if exists
+    menu.querySelectorAll('.mega-menu-scroll-hint').forEach(el => el.remove());
+
+    // Create chevron
+    const chevron = document.createElement('button');
+    chevron.className = 'mega-menu-scroll-hint';
+    chevron.setAttribute('aria-label', 'Scroll categories right');
+    chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    
+    // Scroll on click
+    chevron.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        scroller.scrollBy({ left: 250, behavior: 'smooth' });
+    });
+    
+    menu.appendChild(chevron);
+
+    // Update fade & chevron visibility
+    function update() {
+        const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+        if (maxScroll <= 4) {
+            chevron.classList.add('hidden');
+            content.classList.add('scrolled-end');
+            return;
+        }
+        const atEnd = scroller.scrollLeft >= maxScroll - 8;
+        chevron.classList.toggle('hidden', atEnd);
+        content.classList.toggle('scrolled-end', atEnd);
+    }
+
+    scroller.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    setTimeout(update, 200);
+}
+
+// ============================================
+// RUN ON PAGE LOAD
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(buildDynamicMegaMenu, 100);
+});
