@@ -16796,3 +16796,25 @@ html body .hero-arrow,
 html body .hero-dots {
     z-index: 1 !important;
 }
+/* ============================================ */
+/* MEGA MENU — FIX DROPDOWN POSITION            */
+/* ============================================ */
+html body .mega-menu .menu-links > li > .mega-dropdown {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: auto !important;
+    z-index: 99999 !important;
+    display: none;
+}
+
+html body .mega-menu .menu-links > li:hover > .mega-dropdown,
+html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
+    display: block !important;
+}
+
+/* Right-side items (like Traditional Attire) flip to the left so they stay on screen */
+html body .mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
+    left: auto !important;
+    right: 0 !important;
+}
