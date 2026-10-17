@@ -16899,3 +16899,84 @@ html body .mega-menu .menu-links > li:hover > .mega-dropdown,
 html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
     display: block !important;
 }
+/* ============================================ */
+/* STOP TOP-LEFT JUMP ON PAGE LOAD              */
+/* ============================================ */
+html body .mega-menu .menu-links > li > .mega-dropdown {
+    visibility: hidden;
+}
+html body .mega-menu .menu-links > li:hover > .mega-dropdown,
+html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
+    visibility: visible;
+}
+/* ============================================ */
+/* ULTIMATE MEGA MENU FIX — VISIBLE & POSITIONED */
+/* ============================================ */
+
+/* 1. Ensure the menu bar allows the dropdown to break out of it */
+html body .mega-menu, 
+html body .mega-menu .mega-menu-content, 
+html body .mega-menu .menu-links {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* 2. Setup the parent list item */
+html body .mega-menu .menu-links > li {
+    position: static !important; /* Let the JS control the absolute position */
+}
+
+/* 3. Hide the dropdown by default, but make it fixed so it isn't clipped */
+html body .mega-menu .mega-dropdown {
+    display: none !important;
+    position: fixed !important; 
+    top: 0; left: 0; /* JS overrides this */
+    background: #ffffff !important;
+    box-shadow: 0 20px 50px rgba(13, 27, 42, 0.18) !important;
+    border-top: 3px solid #f9c74f !important;
+    border-radius: 0 0 14px 14px !important;
+    z-index: 999999 !important;
+    padding: 1.2rem 1.5rem !important;
+    min-width: 420px !important;
+    max-width: 550px !important;
+    max-height: calc(100vh - 150px) !important;
+    overflow-y: auto !important;
+    visibility: hidden;
+}
+
+/* 4. Show the dropdown when hovering over the category */
+html body .mega-menu .menu-links > li:hover .mega-dropdown,
+html body .mega-menu .menu-links > li:focus-within .mega-dropdown {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* 5. Style the content inside the dropdown */
+html body .mega-menu .mega-dropdown-content {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem 2rem !important;
+}
+
+html body .mega-menu .mega-column h4 {
+    font-size: 0.85rem !important;
+    font-weight: 800 !important;
+    color: #0d1b2a !important;
+    margin: 0 0 0.5rem 0 !important;
+    padding-bottom: 0.3rem !important;
+    border-bottom: 2px solid #f9c74f !important;
+    text-transform: uppercase;
+}
+
+html body .mega-menu .mega-column a {
+    display: block !important;
+    padding: 0.3rem 0 !important;
+    font-size: 0.85rem !important;
+    color: #555 !important;
+    text-decoration: none !important;
+}
+
+html body .mega-menu .mega-column a:hover {
+    color: #d4a017 !important;
+    padding-left: 0.3rem !important;
+}
