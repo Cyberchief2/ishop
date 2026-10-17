@@ -8450,210 +8450,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(buildDynamicMegaMenu, 100);
 });
 // ============================================
-// // ============================================
-// VENDOR PRODUCT FORM - DYNAMIC CATEGORIES
-// ============================================
-async function loadFormDropdowns() {
-    const catDropdown = document.getElementById('productCategory');
-    const subDropdown = document.getElementById('productSubCategory');
-    const typeDropdown = document.getElementById('productTypeRef');
-    
-    // Only run on the product form page
-    if (!catDropdown || !subDropdown || !typeDropdown) return;
-
-    try {
-        // Fetch all categories in parallel (Pages 1, 2, 3)
-        const urls = [
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
-        ];
-        
-        const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
-        let rawCategories = [];
-        
-        responses.forEach(res => {
-            if (res.data) rawCategories = rawCategories.concat(res.data);
-        });
-
-        // Remove duplicates
-        const seen = new Set();
-        globalCategoriesList = rawCategories.filter(c => {
-            if (seen.has(c.documentId)) return false;
-            seen.add(c.documentId);
-            return true;
-        });
-
-        // 1. Populate Main Categories
-        const mainCats = globalCategoriesList.filter(c => !c.parentSlug || c.parentSlug === "");
-        
-        catDropdown.innerHTML = '<option value="">Select a category</option>';
-        
-        mainCats.forEach(c => {
-            catDropdown.innerHTML += `<option value="${c.slug}">${c.name}</option>`;
-        });
-
-        // 2. Handle Category Change -> Sub-categories
-        catDropdown.addEventListener('change', function() {
-            const selectedSlug = this.value;
-            
-            subDropdown.innerHTML = '<option value="">Select a Sub-Category</option>';
-            typeDropdown.innerHTML = '<option value="">Select a Sub-category first</option>';
-            typeDropdown.disabled = true;
-
-            if (!selectedSlug) {
-                subDropdown.disabled = true;
-                return;
-            }
-
-            const subs = globalCategoriesList.filter(c => c.parentSlug === selectedSlug);
-            subs.forEach(sub => {
-                subDropdown.innerHTML += `<option value="${sub.slug}">${sub.name}</option>`;
-            });
-            subDropdown.disabled = false;
-        });
-
-        // 3. Handle Sub-Category Change -> Types
-        subDropdown.addEventListener('change', function() {
-            const selectedSubSlug = this.value;
-            
-            typeDropdown.innerHTML = '<option value="">Select a Type</option>';
-
-            if (!selectedSubSlug) {
-                typeDropdown.disabled = true;
-                return;
-            }
-
-            const types = globalCategoriesList.filter(c => c.parentSlug === selectedSubSlug);
-            types.forEach(type => {
-                typeDropdown.innerHTML += `<option value="${type.slug}">${type.name}</option>`;
-            });
-            typeDropdown.disabled = false;
-        });
-
-    } catch (e) {
-        console.error("Failed to load categories:", e);
-        catDropdown.innerHTML = '<option value="">Error loading categories</option>';
-    }
-}
-// ============================================
-// VENDOR PRODUCT FORM - DYNAMIC CATEGORIES & NAVIGATION
-// ============================================
-
-
-async function loadFormDropdowns() {
-    const catDropdown = document.getElementById('productCategory');
-    const subDropdown = document.getElementById('productSubCategory');
-    const typeDropdown = document.getElementById('productTypeRef');
-    
-    // Only run on the product form page
-    if (!catDropdown || !subDropdown || !typeDropdown) return;
-
-    try {
-        const urls = [
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
-        ];
-        
-        const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
-        let rawCategories = [];
-        
-        responses.forEach(res => {
-            if (res.data) rawCategories = rawCategories.concat(res.data);
-        });
-
-        const seen = new Set();
-        globalCategoriesList = rawCategories.filter(c => {
-            if (seen.has(c.documentId)) return false;
-            seen.add(c.documentId);
-            return true;
-        });
-
-        const mainCats = globalCategoriesList.filter(c => !c.parentSlug || c.parentSlug === "");
-        
-        catDropdown.innerHTML = '<option value="">Select a category</option>';
-        
-        mainCats.forEach(c => {
-            catDropdown.innerHTML += `<option value="${c.slug}">${c.name}</option>`;
-        });
-
-        catDropdown.addEventListener('change', function() {
-            const selectedSlug = this.value;
-            
-            subDropdown.innerHTML = '<option value="">Select a Sub-Category</option>';
-            typeDropdown.innerHTML = '<option value="">Select a Sub-category first</option>';
-            typeDropdown.disabled = true;
-
-            if (!selectedSlug) {
-                subDropdown.disabled = true;
-                return;
-            }
-
-            const subs = globalCategoriesList.filter(c => c.parentSlug === selectedSlug);
-            subs.forEach(sub => {
-                subDropdown.innerHTML += `<option value="${sub.slug}">${sub.name}</option>`;
-            });
-            subDropdown.disabled = false;
-        });
-
-        subDropdown.addEventListener('change', function() {
-            const selectedSubSlug = this.value;
-            
-            typeDropdown.innerHTML = '<option value="">Select a Type</option>';
-
-            if (!selectedSubSlug) {
-                typeDropdown.disabled = true;
-                return;
-            }
-
-            const types = globalCategoriesList.filter(c => c.parentSlug === selectedSubSlug);
-            types.forEach(type => {
-                typeDropdown.innerHTML += `<option value="${type.slug}">${type.name}</option>`;
-            });
-            typeDropdown.disabled = false;
-        });
-
-    } catch (e) {
-        console.error("Failed to load categories:", e);
-        catDropdown.innerHTML = '<option value="">Error loading categories</option>';
-    }
-}
-// ============================================
-// VENDOR PRODUCT FORM - INITIALIZATION
-// ============================================
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('productForm');
-    
-    // Only run if we are on the product form page
-    if (form) {
-        // 1. Load the categories into the dropdowns
-        if (typeof loadFormDropdowns === 'function') {
-            loadFormDropdowns();
-        }
-
-        // 2. Attach the Continue button
-        const nextBtn = document.getElementById('productNextBtn');
-        if (nextBtn) {
-            nextBtn.onclick = function(e) {
-                e.preventDefault(); // Stop the form from submitting early
-                window.productNextStep(); // Call the global function
-            };
-        }
-
-        // 3. Attach the Back button
-        const backBtn = document.getElementById('productBackBtn');
-        if (backBtn) {
-            backBtn.onclick = function(e) {
-                e.preventDefault();
-                window.productPrevStep();
-            };
-        }
-    }
-});
-
-// ============================================
-// VENDOR PRODUCT FORM - DYNAMIC CATEGORIES (FINAL)
+// VENDOR PRODUCT FORM - FINAL FIX
 // ============================================
 window.globalCategoriesList = [];
 
@@ -8735,27 +8532,33 @@ async function loadFormDropdowns() {
     }
 }
 
-// ============================================
-// INIT & BUTTON BINDING
-// ============================================
+// Force the buttons to work using onclick
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('productForm');
+    
     if (form) {
+        // Load the dropdowns
         loadFormDropdowns();
 
+        // Attach the Continue button
         const nextBtn = document.getElementById('productNextBtn');
         if (nextBtn) {
             nextBtn.onclick = function(e) {
                 e.preventDefault();
-                if (typeof productNextStep === 'function') productNextStep();
+                if (typeof productNextStep === 'function') {
+                    productNextStep();
+                }
             };
         }
 
+        // Attach the Back button
         const backBtn = document.getElementById('productBackBtn');
         if (backBtn) {
             backBtn.onclick = function(e) {
                 e.preventDefault();
-                if (typeof productPrevStep === 'function') productPrevStep();
+                if (typeof productPrevStep === 'function') {
+                    productPrevStep();
+                }
             };
         }
     }
