@@ -17247,3 +17247,20 @@ html body .mega-menu .mega-column a:hover {
         display: none !important;
     }
 }
+/* ============================================ */
+/* NUCLEAR MOBILE FIX — HIDE DESKTOP MENU       */
+/* ============================================ */
+@media (max-width: 768px) {
+    /* Hide the horizontal scrollable mega menu entirely */
+    html body .mega-menu {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Make sure the mobile hamburger menu is visible */
+    .hamburger-btn {
+        display: flex !important;
+    }
+}
