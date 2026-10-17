@@ -533,284 +533,13 @@ function getHeaderHTML(activePage = '') {
 
     <nav class="mega-menu">
         <div class="mega-menu-content">
-            <ul class="menu-links">
+            <ul class="menu-links" id="dynamic-menu-links">
                 <li><a href="index.html" class="${isActive('home')}"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="shop.html" class="${isActive('shop')}"><i class="fas fa-store"></i> All Products</a></li>
-                <li class="dropdown-hover">
-                    <a href="electronics.html" class="${isActive('electronics')}"><i class="fas fa-tv"></i> Electronics <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>📺 Televisions</h4>
-                                <a href="electronics.html?subtype=televisions">Smart TVs</a>
-                                <a href="electronics.html?subtype=televisions">LED & LCD</a>
-                                <a href="electronics.html?subtype=televisions">Projectors</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🔊 Home Audio & Theatre</h4>
-                                <a href="electronics.html?subtype=home-audio-theatre">Home Theatre Systems</a>
-                                <a href="electronics.html?subtype=home-audio-theatre">Soundbars</a>
-                                <a href="electronics.html?subtype=home-audio-theatre">Speakers</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>📷 Cameras & Photo</h4>
-                                <a href="electronics.html?subtype=cameras-photo">DSLR & Mirrorless</a>
-                                <a href="electronics.html?subtype=cameras-photo">Instant Cameras</a>
-                                <a href="electronics.html?subtype=cameras-photo">Camera Accessories</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🎬 DVD Players & Recorders</h4>
-                                <a href="electronics.html?subtype=dvd-players-recorders">DVD Players</a>
-                                <a href="electronics.html?subtype=dvd-players-recorders">Blu-Ray Players</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🎮 Games & Consoles</h4>
-                                <a href="electronics.html?subtype=games-consoles">PlayStation</a>
-                                <a href="electronics.html?subtype=games-consoles">Xbox</a>
-                                <a href="electronics.html?subtype=games-consoles">Nintendo</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🔌 Accessories</h4>
-                                <a href="electronics.html?subtype=electronics-accessories">Cables & Adapters</a>
-                                <a href="electronics.html?subtype=electronics-accessories">Remote Controls</a>
-                                <a href="electronics.html?subtype=electronics-accessories">Mounts & Stands</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="phones-tablets.html" class="${isActive('phones-tablets')}"><i class="fas fa-mobile-alt"></i> Phones & Tablets <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>📱 Smartphones</h4>
-                                <a href="phones-tablets.html?subtype=smartphones">Android Phones</a>
-                                <a href="phones-tablets.html?subtype=smartphones">iPhones</a>
-                                <a href="phones-tablets.html?subtype=smartphones">Refurbished Phones</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>📟 Tablets</h4>
-                                <a href="phones-tablets.html?subtype=tablets">iPads</a>
-                                <a href="phones-tablets.html?subtype=tablets">Android Tablets</a>
-                                <a href="phones-tablets.html?subtype=tablets">Tablet Accessories</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🎧 Phone Accessories</h4>
-                                <a href="phones-tablets.html?subtype=phone-accessories">Cases & Covers</a>
-                                <a href="phones-tablets.html?subtype=phone-accessories">Chargers & Cables</a>
-                                <a href="phones-tablets.html?subtype=phone-accessories">Screen Protectors</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🔋 Power Banks</h4>
-                                <a href="phones-tablets.html?subtype=power-banks">10,000 mAh</a>
-                                <a href="phones-tablets.html?subtype=power-banks">20,000 mAh</a>
-                                <a href="phones-tablets.html?subtype=power-banks">Solar Power Banks</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="computers-accessories.html" class="${isActive('computers-accessories')}"><i class="fas fa-laptop"></i> Computers & Accessories <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>💻 Laptops</h4>
-                                <a href="computers-accessories.html?subtype=laptops">Windows Laptops</a>
-                                <a href="computers-accessories.html?subtype=laptops">MacBooks</a>
-                                <a href="computers-accessories.html?subtype=laptops">Chromebooks</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🖥️ Desktops</h4>
-                                <a href="computers-accessories.html?subtype=desktops">All-in-One PCs</a>
-                                <a href="computers-accessories.html?subtype=desktops">Gaming PCs</a>
-                                <a href="computers-accessories.html?subtype=desktops">Monitors</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>⌨️ Computer Accessories</h4>
-                                <a href="computers-accessories.html?subtype=computer-accessories">Keyboards & Mice</a>
-                                <a href="computers-accessories.html?subtype=computer-accessories">Webcams</a>
-                                <a href="computers-accessories.html?subtype=computer-accessories">External Drives</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🖨️ Printers & Scanners</h4>
-                                <a href="computers-accessories.html?subtype=printers-scanners">Printers</a>
-                                <a href="computers-accessories.html?subtype=printers-scanners">Scanners</a>
-                                <a href="computers-accessories.html?subtype=printers-scanners">Ink & Toner</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>📡 Networking</h4>
-                                <a href="computers-accessories.html?subtype=networking">Routers</a>
-                                <a href="computers-accessories.html?subtype=networking">Modems</a>
-                                <a href="computers-accessories.html?subtype=networking">Range Extenders</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="fashion.html" class="${isActive('fashion')}"><i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>👩 Women's</h4>
-                                <a href="fashion.html?subtype=clothing">Dresses</a>
-                                <a href="fashion.html?subtype=clothing">Tops</a>
-                                <a href="fashion.html?subtype=traditional">Ankara</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>👨 Men's</h4>
-                                <a href="fashion.html?subtype=clothing">Shirts</a>
-                                <a href="fashion.html?subtype=traditional">Agbada</a>
-                                <a href="fashion.html?subtype=traditional">Kaftans</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>👟 Shoes</h4>
-                                <a href="fashion.html?subtype=shoes">Sneakers</a>
-                                <a href="fashion.html?subtype=shoes">Heels</a>
-                                <a href="fashion.html?subtype=shoes">Sandals</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>👜 Bags</h4>
-                                <a href="fashion.html?subtype=bags">Handbags</a>
-                                <a href="fashion.html?subtype=bags">Wallets</a>
-                                <a href="fashion.html?subtype=jewelry">Jewelry</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="beauty.html" class="${isActive('beauty')}"><i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>🧴 Skincare</h4>
-                                <a href="beauty.html?subtype=skincare">Face Wash</a>
-                                <a href="beauty.html?subtype=skincare">Moisturizers</a>
-                                <a href="beauty.html?subtype=skincare">Serums</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>💄 Makeup</h4>
-                                <a href="beauty.html?subtype=makeup">Foundation</a>
-                                <a href="beauty.html?subtype=makeup">Lipstick</a>
-                                <a href="beauty.html?subtype=makeup">Eyeshadow</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🌸 Fragrances</h4>
-                                <a href="beauty.html?subtype=fragrances">Perfumes</a>
-                                <a href="beauty.html?subtype=fragrances">Body Sprays</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>💇 Hair Care</h4>
-                                <a href="beauty.html?subtype=haircare">Shampoo</a>
-                                <a href="beauty.html?subtype=haircare">Conditioner</a>
-                                <a href="beauty.html?subtype=haircare">Wigs & Weaves</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="digital-products.html" class="${isActive('digital')}"><i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>💻 Software</h4>
-                                <a href="digital-products.html?type=software">Antivirus</a>
-                                <a href="digital-products.html?type=software">Office Suites</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>📚 E-books</h4>
-                                <a href="digital-products.html?type=ebook">Business Books</a>
-                                <a href="digital-products.html?type=ebook">Fiction</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🎓 Courses</h4>
-                                <a href="digital-products.html?type=course">Web Development</a>
-                                <a href="digital-products.html?type=course">Digital Marketing</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>📄 Templates</h4>
-                                <a href="digital-products.html?type=template">Resume Templates</a>
-                                <a href="digital-products.html?type=template">Social Media Kits</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="home.html" class="${isActive('home')}"><i class="fas fa-couch"></i> Home & Kitchen <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>🛋️ Furniture</h4>
-                                <a href="home.html?subtype=sofas">Sofas</a>
-                                <a href="home.html?subtype=beds">Beds</a>
-                                <a href="home.html?subtype=tables">Tables & Desks</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🍳 Kitchen</h4>
-                                <a href="home.html?subtype=cookware">Cookware</a>
-                                <a href="home.html?subtype=appliances">Appliances</a>
-                                <a href="home.html?subtype=utensils">Utensils</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🛏️ Bedding</h4>
-                                <a href="home.html?subtype=bedding">Bedsheets</a>
-                                <a href="home.html?subtype=bedding">Duvets</a>
-                                <a href="home.html?subtype=bedding">Pillows</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🎨 Décor</h4>
-                                <a href="home.html?subtype=decor">Wall Art</a>
-                                <a href="home.html?subtype=decor">Vases</a>
-                                <a href="home.html?subtype=decor">Rugs</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🧹 Cleaning</h4>
-                                <a href="home.html?subtype=cleaning">Vacuum</a>
-                                <a href="home.html?subtype=cleaning">Mops</a>
-                                <a href="home.html?subtype=cleaning">Storage</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="dropdown-hover">
-                    <a href="traditional.html" class="${isActive('traditional')}"><i class="fas fa-crown"></i> Traditional Attire <i class="fas fa-chevron-down"></i></a>
-                    <div class="mega-dropdown">
-                        <div class="mega-dropdown-content">
-                            <div class="mega-column">
-                                <h4>👘 Women's</h4>
-                                <a href="traditional.html?subtype=women">Ankara Dresses</a>
-                                <a href="traditional.html?subtype=women">Iro & Buba</a>
-                                <a href="traditional.html?subtype=women">Kaftans</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>👔 Men's</h4>
-                                <a href="traditional.html?subtype=men">Agbada</a>
-                                <a href="traditional.html?subtype=men">Buba & Sokoto</a>
-                                <a href="traditional.html?subtype=men">Kaftans</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>👑 Accessories</h4>
-                                <a href="traditional.html?subtype=accessories">Gele</a>
-                                <a href="traditional.html?subtype=accessories">Fila</a>
-                                <a href="traditional.html?subtype=accessories">Beads & Jewelry</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>👟 Footwear</h4>
-                                <a href="traditional.html?subtype=footwear">Shoes</a>
-                                <a href="traditional.html?subtype=footwear">Sandals</a>
-                            </div>
-                            <div class="mega-column">
-                                <h4>🧵 Fabrics</h4>
-                                <a href="traditional.html?subtype=fabrics">Ankara</a>
-                                <a href="traditional.html?subtype=fabrics">Lace</a>
-                                <a href="traditional.html?subtype=fabrics">Aso-Oke</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
+                <!-- Dynamic categories will be injected below this line -->
             </ul>
-
         </div>
-    </nav>
+
 
     <div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="closeMobileDrawer()"></div>
 
@@ -1072,7 +801,7 @@ function toggleDrawerDropdown(linkEl) {
 // ============================================
 // iShop API CONFIGURATION
 // ============================================
-const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications&populate[2]=vendor&populate[3]=categoryRef&populate[4]=subTypeRef&pagination[pageSize]=100';
+const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications&populate[2]=vendor&populate[3]=categoryRef&populate[4]=subCategoryRef&populate[5]=typeRef&pagination[pageSize]=100';
 const IMAGE_BASE_URL = 'https://ishop-cms-production.up.railway.app';
 const PAYMENT_API = 'https://ishop-payments-production.up.railway.app/api/orders/initialize';
 const FREE_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/free-download';
@@ -1223,8 +952,9 @@ function convertStrapiProduct(strapiProduct) {
         documentId: strapiProduct.documentId || String(strapiProduct.id),
         name: strapiProduct.Product_Name || 'Unnamed Product',
         vendorName: (strapiProduct.vendor && strapiProduct.vendor.businessName) ? strapiProduct.vendor.businessName : '',
-        category: (strapiProduct.categoryRef && strapiProduct.categoryRef.slug) ? strapiProduct.categoryRef.slug.toLowerCase() : (strapiProduct.Category ? strapiProduct.Category.toLowerCase() : 'uncategorized'),
-        subType: (strapiProduct.subTypeRef && strapiProduct.subTypeRef.slug) ? strapiProduct.subTypeRef.slug.toLowerCase() : (strapiProduct.Sub_Type ? strapiProduct.Sub_Type.toLowerCase() : ''),
+        category: (strapiProduct.categoryRef && strapiProduct.categoryRef.slug) ? strapiProduct.categoryRef.slug.toLowerCase() : 'uncategorized',
+        subType: (strapiProduct.subCategoryRef && strapiProduct.subCategoryRef.slug) ? strapiProduct.subCategoryRef.slug.toLowerCase() : '',
+        minorType: (strapiProduct.typeRef && strapiProduct.typeRef.slug) ? strapiProduct.typeRef.slug.toLowerCase() : '',
         type: (strapiProduct.Type || 'physical').toLowerCase(),
         price: parseFloat(strapiProduct.Price || 0),
         rating: parseFloat(strapiProduct.Rating || 4.2),
@@ -2227,7 +1957,7 @@ async function initShopPage() {
 // ============================================
 // RENDER CATEGORY
 // ============================================
-async function renderCategory(category, subType = '') {
+async function renderCategory(category, subType = '', type = '') {
     const containerMap = {
         digital: 'digitalProductsGrid',
         electronics: 'electronicsProducts',
@@ -2249,6 +1979,11 @@ async function renderCategory(category, subType = '') {
         if (subType) {
             products = products.filter(p => p.subType === subType.toLowerCase());
             console.log(`🔎 Filtered by subtype "${subType}": ${products.length} products`);
+        }
+        
+        if (type) {
+            products = products.filter(p => p.minorType === type.toLowerCase());
+            console.log(`🔎 Filtered by type "${type}": ${products.length} products`);
         }
 
         const containerId = containerMap[category] || null;
@@ -4117,7 +3852,8 @@ function initializeApp() {
         const category = page.replace('.html', '');
         const urlParams = new URLSearchParams(window.location.search);
         const subType = urlParams.get('subtype') || '';
-        renderCategory(category, subType);
+        const typeSlug = urlParams.get('type') || '';
+        renderCategory(category, subType, typeSlug);
         setupSubcategoryButtons(category);
     } else if (page === 'vendor-orders.html') {
         initVendorOrdersPage();
@@ -8535,203 +8271,11 @@ function adminRenderAnalytics(a) {
     container.innerHTML = cardsHTML + trendHTML + productsHTML + vendorsHTML + funnelHTML;
 }
 
-/* ============================================ */
-/* MEGA MENU — hide fade indicator at scroll end */
-/* ============================================ */
-(function setupMenuScrollIndicator() {
-    function attach() {
-        const menu = document.querySelector('.mega-menu');
-        const scroller = document.querySelector('.mega-menu-content');
-        if (!menu || !scroller) return;
 
-        function update() {
-            const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-            if (maxScroll <= 4) {
-                // No overflow, hide indicator entirely
-                menu.classList.add('scrolled-end');
-                return;
-            }
-            const atEnd = scroller.scrollLeft >= maxScroll - 6;
-            menu.classList.toggle('scrolled-end', atEnd);
-        }
 
-        scroller.addEventListener('scroll', update, { passive: true });
-        window.addEventListener('resize', update);
-        setTimeout(update, 200);
-    }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', attach);
-    } else {
-        attach();
-    }
-
-    // Also re-attach after header re-renders
-    window.addEventListener('load', () => setTimeout(attach, 300));
-})();
-
-/* ============================================ */
-/* MEGA MENU — chevron button + scroll-state */
-/* ============================================ */
-(function megaMenuScroller() {
-    function setup() {
-        const menu = document.querySelector('.mega-menu');
-        const scroller = document.querySelector('.mega-menu-content');
-        if (!menu || !scroller) return;
-
-        // Inject the chevron button if not already there
-        let chevron = menu.querySelector('.mega-menu-scroll-hint');
-        if (!chevron) {
-            chevron = document.createElement('button');
-            chevron.className = 'mega-menu-scroll-hint';
-            chevron.setAttribute('aria-label', 'Scroll categories right');
-            chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
-            menu.appendChild(chevron);
-
-            chevron.addEventListener('click', () => {
-                scroller.scrollBy({ left: 220, behavior: 'smooth' });
-            });
-        }
-
-        function update() {
-            const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-            if (maxScroll <= 4) {
-                chevron.classList.add('hidden');
-                menu.classList.add('scrolled-end');
-                return;
-            }
-            const atEnd = scroller.scrollLeft >= maxScroll - 6;
-            chevron.classList.toggle('hidden', atEnd);
-            menu.classList.toggle('scrolled-end', atEnd);
-        }
-
-        // Remove any previous listeners to be safe on re-init
-        scroller.removeEventListener('scroll', update);
-        window.removeEventListener('resize', update);
-
-        scroller.addEventListener('scroll', update, { passive: true });
-        window.addEventListener('resize', update);
-        setTimeout(update, 200);
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setup);
-    } else {
-        setup();
-    }
-    window.addEventListener('load', () => setTimeout(setup, 300));
-})();
 /* (Mega menu positioning is now handled purely by CSS) */
 
-/* ============================================ */
-/* MEGA MENU — scroll hint + fade state         */
-/* ============================================ */
-(function megaMenuScrollHint() {
-    function setup() {
-        const menu = document.querySelector('.mega-menu');
-        const scroller = document.querySelector('.mega-menu-content');
-        if (!menu || !scroller) return;
-
-        // Create the chevron button if it's not in the DOM
-        let chevron = menu.querySelector('.mega-menu-scroll-hint');
-        if (!chevron) {
-            chevron = document.createElement('button');
-            chevron.className = 'mega-menu-scroll-hint';
-            chevron.setAttribute('aria-label', 'Scroll categories right');
-            chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
-            chevron.addEventListener('click', () => {
-                scroller.scrollBy({ left: 220, behavior: 'smooth' });
-            });
-            menu.appendChild(chevron);
-        }
-
-        function update() {
-            const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-            if (maxScroll <= 4) {
-                chevron.classList.add('hidden');
-                scroller.classList.add('scrolled-end');
-                return;
-            }
-            const atEnd = scroller.scrollLeft >= maxScroll - 6;
-            chevron.classList.toggle('hidden', atEnd);
-            scroller.classList.toggle('scrolled-end', atEnd);
-        }
-
-        scroller.addEventListener('scroll', update, { passive: true });
-        window.addEventListener('resize', update);
-        setTimeout(update, 200);
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setup);
-    } else {
-        setup();
-    }
-    window.addEventListener('load', () => setTimeout(setup, 400));
-})();
-
-/* ============================================ */
-/* MEGA MENU — force-inject chevron (robust)    */
-/* ============================================ */
-(function forceMegaMenuChevron() {
-    function tryInject() {
-        const menu = document.querySelector('.mega-menu');
-        const scroller = document.querySelector('.mega-menu-content');
-        const links = document.querySelector('.menu-links');
-        if (!menu || !scroller || !links) {
-            return false;
-        }
-
-        // Remove any stale chevrons first
-        menu.querySelectorAll('.mega-menu-scroll-hint').forEach(el => el.remove());
-
-        // Create a fresh chevron
-        const chevron = document.createElement('button');
-        chevron.className = 'mega-menu-scroll-hint';
-        chevron.setAttribute('aria-label', 'Scroll categories right');
-        chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
-
-        // Click handler — scrolls the menu strip
-        chevron.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            links.scrollBy({ left: 250, behavior: 'smooth' });
-        });
-
-        menu.appendChild(chevron);
-
-        function update() {
-            const maxScroll = links.scrollWidth - links.clientWidth;
-            if (maxScroll <= 4) {
-                chevron.classList.add('hidden');
-                scroller.classList.add('scrolled-end');
-                return;
-            }
-            const atEnd = links.scrollLeft >= maxScroll - 8;
-            chevron.classList.toggle('hidden', atEnd);
-            scroller.classList.toggle('scrolled-end', atEnd);
-        }
-
-        links.addEventListener('scroll', update, { passive: true });
-        window.addEventListener('resize', update);
-        setTimeout(update, 300);
-        return true;
-    }
-
-    // Try at various lifecycle points since the header renders dynamically
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', tryInject);
-    } else {
-        tryInject();
-    }
-    // Also retry a few times after load — the header JS may take a moment
-    setTimeout(tryInject, 300);
-    setTimeout(tryInject, 800);
-    setTimeout(tryInject, 1500);
-    window.addEventListener('load', function () {
-        setTimeout(tryInject, 400);
-    });
-})();
 
 /* ============================================ */
 /* MEGA MENU — dropdown positioning + scroll hint */
@@ -8811,3 +8355,74 @@ function adminRenderAnalytics(a) {
     setTimeout(run, 1000);
     window.addEventListener('load', () => setTimeout(run, 300));
 })();
+// ============================================
+// DYNAMIC MEGA MENU BUILDER
+// ============================================
+async function buildDynamicMegaMenu() {
+    const menuLinks = document.getElementById('dynamic-menu-links');
+    if (!menuLinks) return;
+
+    try {
+        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=200');
+        const json = await res.json();
+        const allCategories = json.data || [];
+
+        const majorCategories = allCategories.filter(c => !c.parentSlug);
+        const subCategories = allCategories.filter(c => c.parentSlug && !allCategories.some(parent => parent.slug === c.parentSlug && parent.parentSlug));
+        const minorTypes = allCategories.filter(c => c.parentSlug && allCategories.some(parent => parent.slug === c.parentSlug && parent.parentSlug));
+
+        majorCategories.forEach(major => {
+            const li = document.createElement('li');
+            li.className = 'dropdown-hover';
+
+            li.innerHTML = `
+                <a href="${major.slug}.html" class="nav-link">
+                    <i class="fas ${major.icon || 'fa-tag'}"></i> ${major.name}
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <div class="mega-dropdown">
+                    <div class="mega-dropdown-content" id="dropdown-${major.slug}">
+                        <!-- Injected -->
+                    </div>
+                </div>
+            `;
+            menuLinks.appendChild(li);
+
+            const dropdownContent = li.querySelector('.mega-dropdown-content');
+            const mySubs = allCategories.filter(sub => sub.parentSlug === major.slug);
+
+            if (mySubs.length === 0) {
+                dropdownContent.innerHTML = `<div class="mega-column"><a href="${major.slug}.html">View All ${major.name}</a></div>`;
+                return;
+            }
+
+            mySubs.forEach(sub => {
+                const column = document.createElement('div');
+                column.className = 'mega-column';
+                
+                let html = `<h4>${sub.name}</h4>`;
+                const myTypes = allCategories.filter(type => type.parentSlug === sub.slug);
+
+                if (myTypes.length > 0) {
+                    myTypes.forEach(type => {
+                        html += `<a href="${major.slug}.html?subtype=${sub.slug}&type=${type.slug}">${type.name}</a>`;
+                    });
+                } else {
+                    html += `<a href="${major.slug}.html?subtype=${sub.slug}">View All</a>`;
+                }
+
+                column.innerHTML = html;
+                dropdownContent.appendChild(column);
+            });
+        });
+    } catch (e) {
+        console.error("Failed to build mega menu:", e);
+    }
+}
+
+// Call it when the page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', buildDynamicMegaMenu);
+} else {
+    buildDynamicMegaMenu();
+}
