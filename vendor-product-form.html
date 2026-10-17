@@ -68,13 +68,7 @@
                     <div class="vendor-form-group">
                         <label for="productCategory">Category <span class="req">*</span></label>
                         <select id="productCategory" required>
-                            <option value="">Select category</option>
-                            <option value="electronics">📱 Electronics</option>
-                            <option value="fashion">👗 Fashion</option>
-                            <option value="beauty">💄 Beauty</option>
-                            <option value="digital">💻 Digital</option>
-                            <option value="home">🏠 Home & Kitchen</option>
-                            <option value="traditional">👘 Traditional Attire</option>
+                            <option value="">Loading categories...</option>
                         </select>
                     </div>
                     <div class="vendor-form-group">
@@ -86,10 +80,20 @@
                     </div>
                 </div>
 
-                <div class="vendor-form-group" id="subTypeGroup">
-                    <label for="productSubType">Sub-Type <span class="optional">(optional)</span></label>
-                    <input type="text" id="productSubType" placeholder="e.g. smartphones, shoes, skincare" />
-                    <small class="vendor-form-hint">Helps customers filter — common values: smartphones, laptops, clothing, shoes, bags</small>
+                <!-- Sub-Category Dropdown -->
+                <div class="vendor-form-group">
+                    <label for="productSubCategory">Sub-Category <span class="req">*</span></label>
+                    <select id="productSubCategory" required disabled style="width: 100%; padding: 0.85rem; border-radius: 10px; border: 2px solid #e5e9ef;">
+                        <option value="">Select a Category first</option>
+                    </select>
+                </div>
+
+                <!-- Type Dropdown -->
+                <div class="vendor-form-group">
+                    <label for="productTypeRef">Specific Type <span class="req">*</span></label>
+                    <select id="productTypeRef" required disabled style="width: 100%; padding: 0.85rem; border-radius: 10px; border: 2px solid #e5e9ef;">
+                        <option value="">Select a Sub-category first</option>
+                    </select>
                 </div>
 
                 <div class="vendor-form-row">
