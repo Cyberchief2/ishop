@@ -8271,14 +8271,14 @@ function adminRenderAnalytics(a) {
     container.innerHTML = cardsHTML + trendHTML + productsHTML + vendorsHTML + funnelHTML;
 }
 // ============================================
-// MEGA MENU BUILDER (SIMPLE & CLEAN)
+// MEGA MENU BUILDER
 // ============================================
 async function buildDynamicMegaMenu() {
     const menuLinks = document.getElementById('dynamic-menu-links');
     if (!menuLinks) return;
 
     try {
-        // Fetch categories
+        // Fetch categories (removed publicationState to prevent 400 error)
         const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=500');
         const json = await res.json();
         const allCategories = json.data || [];
@@ -8289,7 +8289,7 @@ async function buildDynamicMegaMenu() {
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
         `;
 
-        // Filter out the 8 major categories
+        // Filter out the major categories (where parentSlug is empty)
         const majorCategories = allCategories.filter(c => !c.parentSlug || c.parentSlug === "");
 
         majorCategories.forEach(major => {
@@ -8333,9 +8333,12 @@ async function buildDynamicMegaMenu() {
             });
         });
 
-        } catch (e) {
+        // Attach positioning AFTER building the menu
+        attachMegaMenuPositioning();
+
+    } catch (e) {
         console.error("Failed to build mega menu:", e);
-        // FALLBACK: If Strapi API fails, show the main 8 categories
+        // FALLBACK: If API fails, show the main categories
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
@@ -8349,3 +8352,50 @@ async function buildDynamicMegaMenu() {
             <li><a href="digital-products.html"><i class="fas fa-download"></i> Digital</a></li>
         `;
     }
+}
+
+// ============================================
+// MEGA MENU POSITIONING
+// ============================================
+function attachMegaMenuPositioning() {
+    function positionDropdown(li) {
+        const dd = li.querySelector('.mega-dropdown');
+        if (!dd) return;
+        
+        const rect = li.getBoundingClientRect();
+        const ddWidth = dd.offsetWidth || 460;
+        const vw = window.innerWidth;
+        const gutter = 8;
+
+        let left = rect.left;
+        // Flip left if it would go off the right side of the screen
+        if (left + ddWidth + gutter > vw) {
+            left = rect.right - ddWidth;
+        }
+        if (left < gutter) left = gutter;
+
+        dd.style.setProperty('top', rect.bottom + 'px', 'important');
+        dd.style.setProperty('left', left + 'px', 'important');
+    }
+
+    const items = document.querySelectorAll('.mega-menu .menu-links > li');
+    items.forEach(li => {
+        if (li.dataset.mmBound === '1') return;
+        li.dataset.mmBound = '1';
+        
+        const onEnter = () => positionDropdown(li);
+        li.addEventListener('mouseenter', onEnter);
+        li.addEventListener('focusin', onEnter);
+        window.addEventListener('resize', () => { if (li.matches(':hover')) positionDropdown(li); });
+        window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
+    });
+}
+
+// ============================================
+// RUN ON PAGE LOAD
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        buildDynamicMegaMenu();
+    }, 100);
+});
