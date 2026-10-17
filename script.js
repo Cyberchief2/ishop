@@ -8271,56 +8271,25 @@ function adminRenderAnalytics(a) {
     container.innerHTML = cardsHTML + trendHTML + productsHTML + vendorsHTML + funnelHTML;
 }
 // ============================================
-// MEGA MENU & ANALYTICS FIX (CLEAN INSTALL)
+// MEGA MENU BUILDER (SIMPLE & CLEAN)
 // ============================================
-
-// 1. Analytics function (if you deleted it, here it is back)
-async function adminLoadAnalytics() {
-    const container = document.getElementById('adminAnalyticsContent');
-    if (!container) return;
-    adminState.key = sessionStorage.getItem('iShopAdminKey') || localStorage.getItem('iShopAdminKey') || adminState.key;
-    if (!adminState.key) return;
-
-    container.innerHTML = `<div class="admin-loading"><i class="fas fa-spinner fa-spin"></i> Loading analytics…</div>`;
-    try {
-        const res = await fetch(`${ADMIN_API_BASE}/api/admin/analytics?key=${encodeURIComponent(adminState.key)}`);
-        const data = await res.json();
-        if (!res.ok || !data.status) throw new Error(data.error || 'Failed to load');
-        adminRenderAnalytics(data.analytics);
-    } catch (err) {
-        console.error('Analytics load error:', err);
-        container.innerHTML = `<div class="admin-error"><i class="fas fa-exclamation-triangle"></i>Could not load analytics.</div>`;
-    }
-}
-
-function adminRenderAnalytics(a) {
-    const container = document.getElementById('adminAnalyticsContent');
-    if (!container) return;
-    const fmtN = (n) => '₦' + Number(n || 0).toLocaleString();
-    const fmt = (n) => Number(n || 0).toLocaleString();
-    // (Your original analytics rendering code here — I'm putting a placeholder so it doesn't break)
-    container.innerHTML = '<div class="admin-analytics-panel"><h3>Analytics Loaded</h3><p>Data processed successfully.</p></div>'; 
-}
-// ^ Note: If your analytics dashboard was fully built, you can put your original adminRenderAnalytics back in. If it was broken, this placeholder keeps the page working.
-
-
-// 2. MEGA MENU BUILDER
 async function buildDynamicMegaMenu() {
     const menuLinks = document.getElementById('dynamic-menu-links');
     if (!menuLinks) return;
 
     try {
-        // Fetch 500 to ensure ALL categories (like page 2 and 3) show up
+        // Fetch categories
         const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=500&publicationState=live');
         const json = await res.json();
         const allCategories = json.data || [];
 
-        // Clear menu
+        // Reset to base links
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
         `;
 
+        // Filter out the 8 major categories
         const majorCategories = allCategories.filter(c => !c.parentSlug || c.parentSlug === "");
 
         majorCategories.forEach(major => {
@@ -8364,51 +8333,12 @@ async function buildDynamicMegaMenu() {
             });
         });
 
-        // Attach positioning AFTER building
-        attachMegaMenuPositioning();
-
     } catch (e) {
         console.error("Failed to build mega menu:", e);
     }
 }
 
-// 3. MEGA MENU POSITIONING (Prevents top-left jump)
-function attachMegaMenuPositioning() {
-    function positionDropdown(li) {
-        const dd = li.querySelector('.mega-dropdown');
-        if (!dd) return;
-        
-        const rect = li.getBoundingClientRect();
-        const ddWidth = dd.offsetWidth || 460;
-        const vw = window.innerWidth;
-        const gutter = 8;
-
-        let left = rect.left;
-        if (left + ddWidth + gutter > vw) {
-            left = rect.right - ddWidth;
-        }
-        if (left < gutter) left = gutter;
-
-        dd.style.setProperty('top', rect.bottom + 'px', 'important');
-        dd.style.setProperty('left', left + 'px', 'important');
-    }
-
-    const items = document.querySelectorAll('.mega-menu .menu-links > li');
-    items.forEach(li => {
-        if (li.dataset.mmBound === '1') return;
-        li.dataset.mmBound = '1';
-        
-        const onEnter = () => positionDropdown(li);
-        li.addEventListener('mouseenter', onEnter);
-        li.addEventListener('focusin', onEnter);
-        window.addEventListener('resize', () => { if (li.matches(':hover')) positionDropdown(li); });
-        window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
-    });
-}
-
-// 4. RUN ON LOAD
+// Run when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        buildDynamicMegaMenu();
-    }, 100);
+    setTimeout(buildDynamicMegaMenu, 200);
 });

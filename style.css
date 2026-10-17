@@ -16980,3 +16980,77 @@ html body .mega-menu .mega-column a:hover {
     color: #d4a017 !important;
     padding-left: 0.3rem !important;
 }
+/* ============================================ */
+/* MEGA MENU — BULLETPROOF CSS                  */
+/* ============================================ */
+
+/* Ensure the menu can show dropdowns */
+html body .mega-menu,
+html body .mega-menu .mega-menu-content,
+html body .mega-menu .menu-links {
+    overflow: visible !important;
+}
+
+/* The Parent <li> */
+html body .mega-menu .menu-links > li {
+    position: relative !important;
+}
+
+/* The Dropdown */
+html body .mega-menu .mega-dropdown {
+    display: none !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    z-index: 99999 !important;
+    
+    /* Styling */
+    background: #ffffff !important;
+    min-width: 400px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
+    border-top: 3px solid #f9c74f !important;
+    border-radius: 0 0 12px 12px !important;
+}
+
+/* Show on Hover */
+html body .mega-menu .menu-links > li:hover .mega-dropdown {
+    display: block !important;
+}
+
+/* Prevent right-side dropdowns from going off-screen */
+html body .mega-menu .menu-links > li:nth-last-child(-n+3) .mega-dropdown {
+    left: auto !important;
+    right: 0 !important;
+}
+
+/* Dropdown Content Grid */
+html body .mega-menu .mega-dropdown-content {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem !important;
+}
+
+/* Column Headers */
+html body .mega-menu .mega-column h4 {
+    font-size: 0.9rem !important;
+    font-weight: 800 !important;
+    color: #0d1b2a !important;
+    margin: 0 0 0.5rem 0 !important;
+    border-bottom: 2px solid #f9c74f !important;
+    padding-bottom: 0.3rem !important;
+    text-transform: uppercase !important;
+}
+
+/* Column Links */
+html body .mega-menu .mega-column a {
+    display: block !important;
+    padding: 0.3rem 0 !important;
+    font-size: 0.85rem !important;
+    color: #666 !important;
+    text-decoration: none !important;
+}
+
+html body .mega-menu .mega-column a:hover {
+    color: #d4a017 !important;
+}
