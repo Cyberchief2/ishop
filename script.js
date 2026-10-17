@@ -5388,10 +5388,6 @@ window.productPrevStep = function() {
     }
 }
 
-// ============================================
-// VALIDATION
-// ============================================
-
 function validateProductStep(step) {
     if (step === 1) {
         const name = document.getElementById('productName')?.value.trim();
@@ -5413,24 +5409,26 @@ function validateProductStep(step) {
     }
 
     if (step === 3) {
-        // Must have at least 1 image (existing for edit mode, or freshly uploaded)
-const images = (window.productFormState && window.productFormState.images) ? window.productFormState.images : [];
-if (images.length === 0) {
-    // whatever alert or error message you had here
-    alert("Please upload at least one image.");
-    return false;
-}        if (!hasImages) {
+        // 1. Safely check for images
+        const images = (window.productFormState && window.productFormState.images) ? window.productFormState.images : [];
+        
+        if (images.length === 0) {
             return { valid: false, message: 'Please upload at least one product image.' };
         }
 
-        // If digital and no existing book file, require a new one
+        // 2. Check for digital file if needed
         const type = document.getElementById('productType')?.value;
         if (type === 'digital') {
-            const hasBook = productFormState.uploadedBookFile || productFormState.existingBookFile;
+            const hasBook = (window.productFormState && window.productFormState.uploadedBookFile) || (window.productFormState && window.productFormState.existingBookFile);
             if (!hasBook) {
                 return { valid: false, message: 'Please upload the digital file for this product.' };
             }
         }
+    }
+
+    // Return valid if all checks pass
+    return { valid: true };
+}
 
         // All uploads must be done (no errors, no in-progress)
         const stillUploading = productFormState.uploadedImages.some(img => img.status === 'uploading');
@@ -5438,10 +5436,8 @@ if (images.length === 0) {
 
         const anyError = productFormState.uploadedImages.some(img => img.status === 'error');
         if (anyError) return { valid: false, message: 'Some images failed to upload. Please remove them and try again.' };
-    }
 
     return { valid: true };
-}
 
 function showProductFeedback(message, type = 'error') {
     const fb = document.getElementById('productFormFeedback');
