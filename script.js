@@ -8279,7 +8279,7 @@ async function buildDynamicMegaMenu() {
 
     try {
         // Fetch ALL categories (removed publicationState to prevent 400 error)
-        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=500');
+        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=500&sort[0]=displayOrder:asc');
         const json = await res.json();
         const allCategories = json.data || [];
         
@@ -8309,6 +8309,8 @@ async function buildDynamicMegaMenu() {
             menuLinks.appendChild(li);
 
             const dropdownContent = li.querySelector('.mega-dropdown-content');
+            
+            // Find sub-categories for this major
             const mySubs = allCategories.filter(sub => sub.parentSlug === major.slug);
 
             if (mySubs.length === 0) {
@@ -8319,7 +8321,10 @@ async function buildDynamicMegaMenu() {
             mySubs.forEach(sub => {
                 const column = document.createElement('div');
                 column.className = 'mega-column';
+                
                 let html = `<h4>${sub.name}</h4>`;
+                
+                // Find Types for this sub-category
                 const myTypes = allCategories.filter(type => type.parentSlug === sub.slug);
 
                 if (myTypes.length > 0) {
@@ -8329,6 +8334,7 @@ async function buildDynamicMegaMenu() {
                 } else {
                     html += `<a href="${major.slug}.html?subtype=${sub.slug}">View All</a>`;
                 }
+                
                 column.innerHTML = html;
                 dropdownContent.appendChild(column);
             });
