@@ -8367,7 +8367,6 @@ async function buildDynamicMegaMenu() {
         const json = await res.json();
         const allCategories = json.data || [];
 
-        // Find the 8 major categories
         const majorCategories = allCategories.filter(c => !c.parentSlug);
 
         majorCategories.forEach(major => {
@@ -8388,8 +8387,6 @@ async function buildDynamicMegaMenu() {
             menuLinks.appendChild(li);
 
             const dropdownContent = li.querySelector('.mega-dropdown-content');
-            
-            // Find sub-categories that belong to this major category
             const mySubs = allCategories.filter(sub => sub.parentSlug === major.slug);
 
             if (mySubs.length === 0) {
@@ -8402,8 +8399,6 @@ async function buildDynamicMegaMenu() {
                 column.className = 'mega-column';
                 
                 let html = `<h4>${sub.name}</h4>`;
-
-                // Find minor types that belong to this sub-category
                 const myTypes = allCategories.filter(type => type.parentSlug === sub.slug);
 
                 if (myTypes.length > 0) {
@@ -8411,7 +8406,6 @@ async function buildDynamicMegaMenu() {
                         html += `<a href="${major.slug}.html?subtype=${sub.slug}&type=${type.slug}">${type.name}</a>`;
                     });
                 } else {
-                    // If no minor types exist, just link to the subtype
                     html += `<a href="${major.slug}.html?subtype=${sub.slug}">View All</a>`;
                 }
 

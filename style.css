@@ -16818,3 +16818,45 @@ html body .mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
     left: auto !important;
     right: 0 !important;
 }
+/* ============================================ */
+/* MEGA MENU — FORCE DROPDOWNS TO SHOW          */
+/* ============================================ */
+
+/* Ensure nothing clips the dropdown */
+html body .mega-menu, 
+html body .mega-menu-content, 
+html body .menu-links {
+    overflow: visible !important;
+}
+
+/* Position the dropdown directly under the category */
+html body .mega-menu .menu-links > li {
+    position: relative !important;
+}
+
+html body .mega-menu .menu-links > li > .mega-dropdown {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    min-width: 420px !important;
+    max-width: 520px !important;
+    background: #ffffff !important;
+    box-shadow: 0 20px 50px rgba(13, 27, 42, 0.18) !important;
+    border-top: 3px solid #f9c74f !important;
+    border-radius: 0 0 14px 14px !important;
+    z-index: 999999 !important;
+    padding: 1.1rem 1.35rem !important;
+    display: none; /* Hidden by default */
+}
+
+/* Show on hover */
+html body .mega-menu .menu-links > li:hover > .mega-dropdown,
+html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
+    display: block !important;
+}
+
+/* Right-side items flip left */
+html body .mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
+    left: auto !important;
+    right: 0 !important;
+}
