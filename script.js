@@ -8290,10 +8290,18 @@ async function buildDynamicMegaMenu() {
 
         const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
         
-        // Combine all categories into one array
-        let allCategories = [];
+        // Combine all categories into one array and remove duplicates
+        let rawCategories = [];
         responses.forEach(res => {
-            if (res.data) allCategories = allCategories.concat(res.data);
+            if (res.data) rawCategories = rawCategories.concat(res.data);
+        });
+
+        // Filter out duplicates based on documentId
+        const seen = new Set();
+        const allCategories = rawCategories.filter(c => {
+            if (seen.has(c.documentId)) return false;
+            seen.add(c.documentId);
+            return true;
         });
 
         console.log(`✅ Total categories loaded from Strapi: ${allCategories.length}`);
