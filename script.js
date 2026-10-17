@@ -8275,12 +8275,19 @@ function adminRenderAnalytics(a) {
 // ============================================
 async function buildDynamicMegaMenu() {
     const menuLinks = document.getElementById('dynamic-menu-links');
-    if (!menuLinks) return;
+    if (!menuLinks) {
+        console.warn("Menu container not found");
+        return;
+    }
 
     try {
+        console.log("Fetching categories for mega menu...");
         const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=250&publicationState=live');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
         const json = await res.json();
         const allCategories = json.data || [];
+        console.log(`Fetched ${allCategories.length} categories.`);
 
         // Reset to base links
         menuLinks.innerHTML = `
@@ -8288,7 +8295,13 @@ async function buildDynamicMegaMenu() {
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
         `;
 
-        const majorCategories = allCategories.filter(c => !c.parentSlug);
+        // Find categories with NO parent (Major categories)
+        const majorCategories = allCategories.filter(c => !c.parentSlug || c.parentSlug === null || c.parentSlug === "");
+        console.log(`Found ${majorCategories.length} major categories.`);
+
+        if (majorCategories.length === 0) {
+            console.warn("No major categories found. Check your Strapi data (parentSlug must be empty).");
+        }
 
         majorCategories.forEach(major => {
             const li = document.createElement('li');
@@ -8337,7 +8350,20 @@ async function buildDynamicMegaMenu() {
         attachMegaMenuPositioning();
 
     } catch (e) {
-        console.error("Failed to build mega menu:", e);
+        console.error("❌ Failed to build mega menu:", e);
+        // Fallback: show basic categories if API fails so the menu isn't empty
+        menuLinks.innerHTML = `
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+            <li><a href="electronics.html"><i class="fas fa-tv"></i> Electronics</a></li>
+            <li><a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion</a></li>
+            <li><a href="beauty.html"><i class="fas fa-spa"></i> Beauty</a></li>
+            <li><a href="home.html"><i class="fas fa-couch"></i> Home</a></li>
+            <li><a href="traditional.html"><i class="fas fa-crown"></i> Traditional</a></li>
+            <li><a href="digital-products.html"><i class="fas fa-download"></i> Digital</a></li>
+            <li><a href="phones-tablets.html"><i class="fas fa-mobile-alt"></i> Phones</a></li>
+            <li><a href="computers-accessories.html"><i class="fas fa-laptop"></i> Computers</a></li>
+        `;
     }
 }
 
