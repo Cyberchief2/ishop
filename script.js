@@ -8570,132 +8570,143 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 });
-// ============================================
-// VENDOR PRODUCT FORM - FINAL WORKING FIX
-// ============================================
-var globalCategoriesList = [];
-
-function loadFormDropdowns() {
-    var catDropdown = document.getElementById('productCategory');
-    var subDropdown = document.getElementById('productSubCategory');
-    var typeDropdown = document.getElementById('productTypeRef');
-    
-    if (!catDropdown || !subDropdown || !typeDropdown) return;
-
-    var urls = [
-        'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
-        'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
-        'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
-    ];
-    
-    Promise.all(urls.map(url => fetch(url).then(res => res.json())))
-        .then(responses => {
-            var rawCategories = [];
-            responses.forEach(res => {
-                if (res.data) rawCategories = rawCategories.concat(res.data);
-            });
-
-            var seen = new Set();
-            globalCategoriesList = rawCategories.filter(c => {
-                if (seen.has(c.documentId)) return false;
-                seen.add(c.documentId);
-                return true;
-            });
-
-            var mainCats = globalCategoriesList.filter(c => !c.parentSlug || c.parentSlug === "");
-            
-            catDropdown.innerHTML = '<option value="">Select a category</option>';
-            
-            mainCats.forEach(c => {
-                catDropdown.innerHTML += '<option value="' + c.slug + '">' + c.name + '</option>';
-            });
-        })
-        .catch(e => {
-            console.error("Failed to load categories:", e);
-            catDropdown.innerHTML = '<option value="">Error loading categories</option>';
-        });
-
-    // Attach the change listeners
-    catDropdown.onchange = function() {
-        var selectedSlug = this.value;
-        subDropdown.innerHTML = '<option value="">Select a Sub-Category</option>';
-        typeDropdown.innerHTML = '<option value="">Select a Sub-category first</option>';
-        typeDropdown.disabled = true;
-
-        if (!selectedSlug) {
-            subDropdown.disabled = true;
-            return;
-        }
-
-        var subs = globalCategoriesList.filter(c => c.parentSlug === selectedSlug);
-        subs.forEach(sub => {
-            subDropdown.innerHTML += '<option value="' + sub.slug + '">' + sub.name + '</option>';
-        });
-        subDropdown.disabled = false;
-    };
-
-    subDropdown.onchange = function() {
-        var selectedSubSlug = this.value;
-        typeDropdown.innerHTML = '<option value="">Select a Type</option>';
-
-        if (!selectedSubSlug) {
-            typeDropdown.disabled = true;
-            return;
-        }
-
-        var types = globalCategoriesList.filter(c => c.parentSlug === selectedSubSlug);
-        types.forEach(type => {
-            typeDropdown.innerHTML += '<option value="' + type.slug + '">' + type.name + '</option>';
-        });
-        typeDropdown.disabled = false;
-    };
-}
 
 // ============================================
-// BUTTON CLICK FIX
+// VENDOR PRODUCT FORM - COMPLETE FIX
 // ============================================
+let formCategories = [];
+
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Load dropdowns
-    if (document.getElementById('productCategory')) {
-        loadFormDropdowns();
-    }
+    // 1. Safety check: Are we on the product form page?
+    const form = document.getElementById('productForm');
+    if (!form) return;
 
-    // 2. Wire up Continue Button
-    var nextBtn = document.getElementById('productNextBtn');
-    if (nextBtn) {
-        nextBtn.onclick = function(e) {
-            e.preventDefault();
-            // Direct call to the function
-            if (typeof productNextStep === 'function') {
-                productNextStep();
-            } else {
-                // Fallback: If function is missing, manually trigger step 2
-                document.querySelectorAll('.vendor-apply-step').forEach(el => el.classList.remove('active'));
-                document.querySelector('.vendor-apply-step[data-step="2"]').classList.add('active');
-                document.getElementById('productNextBtn').style.display = 'none';
-                document.getElementById('productBackBtn').style.display = 'inline-flex';
-                document.getElementById('productSubmitBtn').style.display = 'inline-flex';
-                document.getElementById('productProgressBar').style.width = '66%';
-            }
+    console.log("✅ Product form detected. Initializing...");
+
+    // ========================================
+    // A. LOAD CATEGORIES (Dropdowns)
+    // ========================================
+    const catDropdown = document.getElementById('productCategory');
+    const subDropdown = document.getElementById('productSubCategory');
+    const typeDropdown = document.getElementById('productTypeRef');
+
+    if (catDropdown) {
+        const urls = [
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
+        ];
+        
+        Promise.all(urls.map(url => fetch(url).then(res => res.json())))
+            .then(responses => {
+                let raw = [];
+                responses.forEach(r => { if(r.data) raw = raw.concat(r.data); });
+                
+                const seen = new Set();
+                formCategories = raw.filter(c => {
+                    if(seen.has(c.documentId)) return false;
+                    seen.add(c.documentId);
+                    return true;
+                });
+
+                const mainCats = formCategories.filter(c => !c.parentSlug);
+                catDropdown.innerHTML = '<option value="">Select a category</option>';
+                mainCats.forEach(c => {
+                    catDropdown.innerHTML += `<option value="${c.slug}">${c.name}</option>`;
+                });
+            }).catch(err => console.error(err));
+
+        // Sub-category filtering
+        catDropdown.onchange = function() {
+            const slug = this.value;
+            subDropdown.innerHTML = '<option value="">Select a Sub-Category</option>';
+            typeDropdown.innerHTML = '<option value="">Select a Sub-category first</option>';
+            typeDropdown.disabled = true;
+            
+            if (!slug) { subDropdown.disabled = true; return; }
+            
+            const subs = formCategories.filter(c => c.parentSlug === slug);
+            subs.forEach(s => subDropdown.innerHTML += `<option value="${s.slug}">${s.name}</option>`);
+            subDropdown.disabled = false;
+        };
+
+        // Type filtering
+        subDropdown.onchange = function() {
+            const slug = this.value;
+            typeDropdown.innerHTML = '<option value="">Select a Type</option>';
+            
+            if (!slug) { typeDropdown.disabled = true; return; }
+            
+            const types = formCategories.filter(c => c.parentSlug === slug);
+            types.forEach(t => typeDropdown.innerHTML += `<option value="${t.slug}">${t.name}</option>`);
+            typeDropdown.disabled = false;
         };
     }
 
-    // 3. Wire up Back Button
-    var backBtn = document.getElementById('productBackBtn');
-    if (backBtn) {
-        backBtn.onclick = function(e) {
-            e.preventDefault();
-            if (typeof productPrevStep === 'function') {
-                productPrevStep();
-            } else {
-                // Fallback: Manually go back to step 1
-                document.querySelectorAll('.vendor-apply-step').forEach(el => el.classList.remove('active'));
-                document.querySelector('.vendor-apply-step[data-step="1"]').classList.add('active');
-                document.getElementById('productNextBtn').style.display = 'inline-flex';
-                document.getElementById('productBackBtn').style.display = 'none';
-                document.getElementById('productSubmitBtn').style.display = 'none';
-                document.getElementById('productProgressBar').style.width = '33%';
+    // ========================================
+    // B. FORM NAVIGATION (The Continue Button)
+    // ========================================
+    // Instead of relying on outside functions, we'll do it right here.
+    let currentStep = 1;
+
+    const btnNext = document.getElementById('productNextBtn');
+    const btnBack = document.getElementById('productBackBtn');
+    const btnSubmit = document.getElementById('productSubmitBtn');
+    const progressBar = document.getElementById('productProgressBar');
+
+    function showStep(step) {
+        currentStep = step;
+        
+        // Hide all steps
+        document.querySelectorAll('.vendor-apply-step').forEach(el => el.classList.remove('active'));
+        // Show current
+        const target = document.querySelector(`.vendor-apply-step[data-step="${step}"]`);
+        if (target) target.classList.add('active');
+
+        // Update dots
+        document.querySelectorAll('.vendor-progress-step').forEach(el => {
+            const n = parseInt(el.dataset.step);
+            el.classList.remove('active', 'completed');
+            if (n < step) el.classList.add('completed');
+            if (n === step) el.classList.add('active');
+        });
+
+        // Update Buttons
+        if (btnBack) btnBack.style.display = step > 1 ? 'inline-flex' : 'none';
+        if (btnNext) btnNext.style.display = step < 3 ? 'inline-flex' : 'none';
+        if (btnSubmit) btnSubmit.style.display = step === 3 ? 'inline-flex' : 'none';
+        
+        // Update Progress Bar
+        if (progressBar) progressBar.style.width = (step / 3) * 100 + '%';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (btnNext) {
+        btnNext.onclick = function(e) {
+            e.preventDefault(); // CRITICAL: Stops form from submitting
+            
+            // Basic check before moving on
+            if (currentStep === 1) {
+                const name = document.getElementById('productName').value;
+                const cat = document.getElementById('productCategory').value;
+                const price = document.getElementById('productPrice').value;
+                if (!name || !cat || !price) {
+                    alert('Please fill in Product Name, Category, and Price before continuing.');
+                    return;
+                }
             }
+            
+            if (currentStep < 3) showStep(currentStep + 1);
         };
     }
+
+    if (btnBack) {
+        btnBack.onclick = function(e) {
+            e.preventDefault();
+            if (currentStep > 1) showStep(currentStep - 1);
+        };
+    }
+
+    console.log("✅ Form navigation initialized.");
 });
