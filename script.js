@@ -8270,35 +8270,6 @@ function adminRenderAnalytics(a) {
 
     container.innerHTML = cardsHTML + trendHTML + productsHTML + vendorsHTML + funnelHTML;
 }
-
-
-
-
-/* (Mega menu positioning is now handled purely by CSS) */
-
-
-/* ============================================ */
-/* MEGA MENU — dropdown positioning + scroll hint */
-/* ============================================ */
-(function megaMenuFinal() {
-    function positionDropdown(li) {
-        const dd = li.querySelector('.mega-dropdown');
-        if (!dd) return;
-        const rect = li.getBoundingClientRect();
-        const ddWidth = dd.offsetWidth || 460;
-        const vw = window.innerWidth;
-        const gutter = 8;
-
-        let left = rect.left;
-        if (left + ddWidth + gutter > vw) {
-            left = rect.right - ddWidth;
-        }
-        if (left < gutter) left = gutter;
-
-        dd.style.setProperty('top', rect.bottom + 'px', 'important');
-        dd.style.setProperty('left', left + 'px', 'important');
-    }
-
     function attachDropdownPositioning() {
         const items = document.querySelectorAll('.mega-menu .menu-links > li');
         items.forEach(li => {
@@ -8363,9 +8334,16 @@ async function buildDynamicMegaMenu() {
     if (!menuLinks) return;
 
     try {
-        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=200');
+        // Fetch up to 250 categories. Also ensure we get published ones.
+        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=250&publicationState=live');
         const json = await res.json();
         const allCategories = json.data || [];
+        
+        // Clear the menu except Home and All Products
+        menuLinks.innerHTML = `
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+        `;
 
         const majorCategories = allCategories.filter(c => !c.parentSlug);
 
