@@ -8279,7 +8279,7 @@ async function buildDynamicMegaMenu() {
 
     try {
         // Fetch categories (removed publicationState to prevent 400 error)
-        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=500');
+        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=1000');
         const json = await res.json();
         const allCategories = json.data || [];
 
