@@ -5483,23 +5483,36 @@ function getSpecificationsFromForm() {
 // ============================================
 
 function handleImageSelection(event) {
-    const files = Array.from(event.target.files);
-    
-    // Check if productFormState exists, if not, create it
-    if (!window.productFormState) {
-        window.productFormState = { images: [] };
-    }
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
 
-    // Add the new files to the images array
+    // Ensure the state exists
+    if (!window.productFormState) window.productFormState = {};
+    if (!window.productFormState.images) window.productFormState.images = [];
+
     files.forEach(file => {
         if (file.size > 5 * 1024 * 1024) {
             alert(`File ${file.name} is too large. Max 5MB.`);
         } else {
+            // Add to the state
             window.productFormState.images.push(file);
+            
+            // Show preview immediately
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewContainer = document.getElementById('productImagesPreview');
+                if (previewContainer) {
+                    previewContainer.innerHTML += `
+                        <div class="vendor-image-preview-item">
+                            <img src="${e.target.result}" alt="Preview" />
+                        </div>
+                    `;
+                }
+            };
+            reader.readAsDataURL(file);
         }
     });
-
-    // Optional: Update the UI to show uploaded images
+    
     console.log("Images uploaded to state:", window.productFormState.images);
 }
 
@@ -5942,31 +5955,54 @@ function extractPlainText(blocks) {
 async function handleProductFormSubmit(e) {
     e.preventDefault();
 
-    const result = validateProductStep(3);
-    if (!result.valid) {
-        showProductFeedback(result.message, 'error');
+    // 1. Safely grab all the form fields
+    const name = document.getElementById('productName')?.value || '';
+    const category = document.getElementById('productCategory')?.value || '';
+    const subCategory = document.getElementById('productSubCategory')?.value || '';
+    const typeRef = document.getElementById('productTypeRef')?.value || '';
+    const type = document.getElementById('productType')?.value || 'physical';
+    const price = document.getElementById('productPrice')?.value || '0';
+    const stock = document.getElementById('productStock')?.value || '';
+    const description = document.getElementById('productDescription')?.value || '';
+
+    // 2. Validate Step 1 & 2
+    if (!name || !category || !price) {
+        alert('Please fill in Product Name, Category, and Price.');
+        return;
+    }
+    if (!description || description.length < 50) {
+        alert('Please write at least 50 characters of description.');
         return;
     }
 
-    const jwt = localStorage.getItem('iShopJwt');
-    if (!jwt) { window.location.href = 'login.html'; return; }
+    // 3. Safely build the image array (bypasses all previous crashes)
+    let imageIds = [];
+    if (window.productFormState) {
+        if (window.productFormState.images && Array.isArray(window.productFormState.images)) {
+            imageIds = window.productFormState.images.map(img => img.id || img);
+        } else if (window.productFormState.uploadedImages && Array.isArray(window.productFormState.uploadedImages)) {
+            imageIds = window.productFormState.uploadedImages.map(img => img.id || img);
+        }
+    }
 
-    // Gather data
+    if (imageIds.length === 0) {
+        alert('Please upload at least one product image.');
+        return;
+    }
+
+    // 4. Build the payload
     const payload = {
-        name: document.getElementById('productName').value.trim(),
-        category: document.getElementById('productCategory').value,
-        subCategory: document.getElementById('productSubCategory')?.value || '',
-        typeRef: document.getElementById('productTypeRef')?.value || '',
-        type: document.getElementById('productType').value,
-        price: Number(document.getElementById('productPrice').value),
-        stock: document.getElementById('productStock')?.value || '',
-        description: document.getElementById('productDescription').value.trim(),
-        specifications: getSpecificationsFromForm(),
-        images: [
-            ...productFormState.existingImages.map(img => img.id),
-            ...productFormState.uploadedImages.filter(i => i.status === 'done').map(i => i.id),
-        ],
-        bookFile: productFormState.uploadedBookFile?.id || productFormState.existingBookFile?.id || null,
+        name: name,
+        category: category,
+        subCategory: subCategory,
+        typeRef: typeRef,
+        type: type,
+        price: Number(price),
+        stock: stock,
+        description: description,
+        specifications: typeof getSpecificationsFromForm === 'function' ? getSpecificationsFromForm() : [],
+        images: imageIds,
+        bookFile: (window.productFormState && window.productFormState.uploadedBookFile) ? window.productFormState.uploadedBookFile.id : null
     };
 
     const btn = document.getElementById('productSubmitBtn');
@@ -5975,17 +6011,17 @@ async function handleProductFormSubmit(e) {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
     try {
-        const isEdit = !!productFormState.editProductId;
+        const isEdit = (window.productFormState && window.productFormState.editProductId) ? true : false;
         const url = isEdit
-            ? `${PRODUCT_FORM_API}/api/vendors/products/${productFormState.editProductId}`
-            : `${PRODUCT_FORM_API}/api/vendors/products`;
+            ? `https://ishop-payments-production.up.railway.app/api/vendors/products/${window.productFormState.editProductId}`
+            : `https://ishop-payments-production.up.railway.app/api/vendors/products`;
         const method = isEdit ? 'PUT' : 'POST';
 
         const res = await fetch(url, {
-            method,
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${jwt}`,
+                'Authorization': `Bearer ${localStorage.getItem('iShopJwt')}`,
             },
             body: JSON.stringify(payload),
         });
@@ -5995,13 +6031,17 @@ async function handleProductFormSubmit(e) {
             throw new Error(data.error || 'Submission failed');
         }
 
-        // Success — show success screen
-        invalidateProductCache();
-        showProductSuccessScreen(isEdit, payload);
+        // Success
+        if (typeof showProductSuccessScreen === 'function') {
+            showProductSuccessScreen(isEdit, payload);
+        } else {
+            alert('Product submitted successfully!');
+            window.location.href = 'vendor-products.html';
+        }
 
     } catch (err) {
         console.error('Submit error:', err);
-        showProductFeedback(err.message || 'Something went wrong. Please try again.', 'error');
+        alert(err.message || 'Something went wrong. Please try again.');
         btn.disabled = false;
         btn.innerHTML = originalText;
     }
