@@ -5414,8 +5414,12 @@ function validateProductStep(step) {
 
     if (step === 3) {
         // Must have at least 1 image (existing for edit mode, or freshly uploaded)
-        const hasImages = productFormState.uploadedImages.length > 0 || productFormState.existingImages.length > 0;
-        if (!hasImages) {
+const images = (window.productFormState && window.productFormState.images) ? window.productFormState.images : [];
+if (images.length === 0) {
+    // whatever alert or error message you had here
+    alert("Please upload at least one image.");
+    return false;
+}        if (!hasImages) {
             return { valid: false, message: 'Please upload at least one product image.' };
         }
 
