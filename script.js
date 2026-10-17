@@ -8270,20 +8270,31 @@ function adminRenderAnalytics(a) {
 
     container.innerHTML = cardsHTML + trendHTML + productsHTML + vendorsHTML + funnelHTML;
 }
+//
 // ============================================
-// MEGA MENU BUILDER (SCROLLABLE & DYNAMIC)
+// MEGA MENU BUILDER (FETCHES ALL PAGES)
 // ============================================
 async function buildDynamicMegaMenu() {
     const menuLinks = document.getElementById('dynamic-menu-links');
     if (!menuLinks) return;
 
     try {
-        // Fetch ALL categories (removed publicationState to prevent 400 error)
-        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=500&sort[0]=displayOrder:asc');
-        const json = await res.json();
-        const allCategories = json.data || [];
+        // We fetch pages 1, 2, and 3 concurrently to bypass the 100-item limit
+        const urls = [
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
+        ];
+
+        const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
         
-        console.log(`✅ Loaded ${allCategories.length} categories from Strapi`);
+        // Combine all categories into one array
+        let allCategories = [];
+        responses.forEach(res => {
+            if (res.data) allCategories = allCategories.concat(res.data);
+        });
+
+        console.log(`✅ Total categories loaded from Strapi: ${allCategories.length}`);
 
         // Reset to base links
         menuLinks.innerHTML = `
@@ -8291,6 +8302,7 @@ async function buildDynamicMegaMenu() {
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
         `;
 
+        // Find the 8 major categories (no parentSlug)
         const majorCategories = allCategories.filter(c => !c.parentSlug || c.parentSlug === "");
 
         majorCategories.forEach(major => {
@@ -8309,8 +8321,6 @@ async function buildDynamicMegaMenu() {
             menuLinks.appendChild(li);
 
             const dropdownContent = li.querySelector('.mega-dropdown-content');
-            
-            // Find sub-categories for this major
             const mySubs = allCategories.filter(sub => sub.parentSlug === major.slug);
 
             if (mySubs.length === 0) {
@@ -8321,10 +8331,7 @@ async function buildDynamicMegaMenu() {
             mySubs.forEach(sub => {
                 const column = document.createElement('div');
                 column.className = 'mega-column';
-                
                 let html = `<h4>${sub.name}</h4>`;
-                
-                // Find Types for this sub-category
                 const myTypes = allCategories.filter(type => type.parentSlug === sub.slug);
 
                 if (myTypes.length > 0) {
@@ -8334,19 +8341,17 @@ async function buildDynamicMegaMenu() {
                 } else {
                     html += `<a href="${major.slug}.html?subtype=${sub.slug}">View All</a>`;
                 }
-                
                 column.innerHTML = html;
                 dropdownContent.appendChild(column);
             });
         });
 
-        // Attach positioning & scroll logic
+        // Attach positioning & scroller
         attachMegaMenuPositioning();
         setupMegaMenuScroller();
 
     } catch (e) {
         console.error("Failed to build mega menu:", e);
-        // FALLBACK
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
@@ -8362,91 +8367,3 @@ async function buildDynamicMegaMenu() {
         setupMegaMenuScroller();
     }
 }
-
-// ============================================
-// MEGA MENU POSITIONING (Prevents top-left jump)
-// ============================================
-function attachMegaMenuPositioning() {
-    function positionDropdown(li) {
-        const dd = li.querySelector('.mega-dropdown');
-        if (!dd) return;
-        
-        const rect = li.getBoundingClientRect();
-        const ddWidth = dd.offsetWidth || 460;
-        const vw = window.innerWidth;
-        const gutter = 8;
-
-        let left = rect.left;
-        if (left + ddWidth + gutter > vw) {
-            left = rect.right - ddWidth;
-        }
-        if (left < gutter) left = gutter;
-
-        dd.style.setProperty('top', rect.bottom + 'px', 'important');
-        dd.style.setProperty('left', left + 'px', 'important');
-    }
-
-    const items = document.querySelectorAll('.mega-menu .menu-links > li');
-    items.forEach(li => {
-        if (li.dataset.mmBound === '1') return;
-        li.dataset.mmBound = '1';
-        
-        const onEnter = () => positionDropdown(li);
-        li.addEventListener('mouseenter', onEnter);
-        li.addEventListener('focusin', onEnter);
-        window.addEventListener('resize', () => { if (li.matches(':hover')) positionDropdown(li); });
-        window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
-    });
-}
-
-// ============================================
-// MEGA MENU SCROLLER (Chevron + Fade)
-// ============================================
-function setupMegaMenuScroller() {
-    const menu = document.querySelector('.mega-menu');
-    const scroller = document.querySelector('.mega-menu .menu-links');
-    const content = document.querySelector('.mega-menu .mega-menu-content');
-    if (!menu || !scroller || !content) return;
-
-    // Remove old chevron if exists
-    menu.querySelectorAll('.mega-menu-scroll-hint').forEach(el => el.remove());
-
-    // Create chevron
-    const chevron = document.createElement('button');
-    chevron.className = 'mega-menu-scroll-hint';
-    chevron.setAttribute('aria-label', 'Scroll categories right');
-    chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
-    
-    // Scroll on click
-    chevron.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        scroller.scrollBy({ left: 250, behavior: 'smooth' });
-    });
-    
-    menu.appendChild(chevron);
-
-    // Update fade & chevron visibility
-    function update() {
-        const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-        if (maxScroll <= 4) {
-            chevron.classList.add('hidden');
-            content.classList.add('scrolled-end');
-            return;
-        }
-        const atEnd = scroller.scrollLeft >= maxScroll - 8;
-        chevron.classList.toggle('hidden', atEnd);
-        content.classList.toggle('scrolled-end', atEnd);
-    }
-
-    scroller.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    setTimeout(update, 200);
-}
-
-// ============================================
-// RUN ON PAGE LOAD
-// ============================================
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(buildDynamicMegaMenu, 100);
-});
