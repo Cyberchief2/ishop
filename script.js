@@ -8333,9 +8333,9 @@ async function buildDynamicMegaMenu() {
             });
         });
 
-    } catch (e) {
+        } catch (e) {
         console.error("Failed to build mega menu:", e);
-        // FALLBACK: If API fails, show the main 8 categories
+        // FALLBACK: If Strapi API fails, show the main 8 categories
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
