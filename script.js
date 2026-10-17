@@ -5482,38 +5482,73 @@ function getSpecificationsFromForm() {
 // IMAGE UPLOAD
 // ============================================
 
-function handleImageSelection(event) {
+async function handleImageSelection(event) {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
-    // Ensure the state exists
-    if (!window.productFormState) window.productFormState = {};
-    if (!window.productFormState.images) window.productFormState.images = [];
+    const jwt = localStorage.getItem('iShopJwt');
+    if (!jwt) return alert('Please log in again.');
 
-    files.forEach(file => {
+    const previewContainer = document.getElementById('productImagesPreview');
+    
+    for (const file of files) {
         if (file.size > 5 * 1024 * 1024) {
             alert(`File ${file.name} is too large. Max 5MB.`);
-        } else {
-            // Add to the state
-            window.productFormState.images.push(file);
-            
-            // Show preview immediately
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const previewContainer = document.getElementById('productImagesPreview');
-                if (previewContainer) {
-                    previewContainer.innerHTML += `
-                        <div class="vendor-image-preview-item">
-                            <img src="${e.target.result}" alt="Preview" />
-                        </div>
-                    `;
-                }
-            };
-            reader.readAsDataURL(file);
+            continue;
         }
-    });
-    
-    console.log("Images uploaded to state:", window.productFormState.images);
+
+        // 1. Show a temporary preview immediately
+        const tempId = 'temp-' + Date.now();
+        const objectUrl = URL.createObjectURL(file);
+        
+        if (previewContainer) {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'vendor-image-preview-item';
+            imgDiv.id = tempId;
+            imgDiv.innerHTML = `
+                <img src="${objectUrl}" alt="Uploading..." />
+                <div class="vendor-image-uploading" style="position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:white;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            `;
+            previewContainer.appendChild(imgDiv);
+        }
+
+        // 2. Upload to Strapi in the background
+        try {
+            const formData = new FormData();
+            formData.append('files', file);
+
+            const res = await fetch('https://ishop-cms-production.up.railway.app/api/upload', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${jwt}` },
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error('Upload failed');
+            
+            const data = await res.json();
+            const mediaId = data[0].id;
+
+            // 3. Save the real ID to state
+            if (!window.productFormState) window.productFormState = {};
+            if (!window.productFormState.uploadedImages) window.productFormState.uploadedImages = [];
+            window.productFormState.uploadedImages.push({ id: mediaId, url: data[0].url });
+
+            // 4. Remove the loading spinner from the preview
+            const loadingDiv = document.getElementById(tempId);
+            if (loadingDiv) {
+                const spinner = loadingDiv.querySelector('.vendor-image-uploading');
+                if (spinner) spinner.remove();
+            }
+
+        } catch (err) {
+            console.error("Upload error:", err);
+            alert(`Could not upload ${file.name}`);
+            const failDiv = document.getElementById(tempId);
+            if (failDiv) failDiv.remove();
+        }
+    }
 }
 
 async function uploadImageToStrapi(file) {
@@ -5955,7 +5990,7 @@ function extractPlainText(blocks) {
 async function handleProductFormSubmit(e) {
     e.preventDefault();
 
-    // 1. Safely grab all the form fields
+    // 1. Get data
     const name = document.getElementById('productName')?.value || '';
     const category = document.getElementById('productCategory')?.value || '';
     const subCategory = document.getElementById('productSubCategory')?.value || '';
@@ -5965,7 +6000,7 @@ async function handleProductFormSubmit(e) {
     const stock = document.getElementById('productStock')?.value || '';
     const description = document.getElementById('productDescription')?.value || '';
 
-    // 2. Validate Step 1 & 2
+    // 2. Validate
     if (!name || !category || !price) {
         alert('Please fill in Product Name, Category, and Price.');
         return;
@@ -5975,22 +6010,14 @@ async function handleProductFormSubmit(e) {
         return;
     }
 
-    // 3. Safely build the image array (bypasses all previous crashes)
-    let imageIds = [];
-    if (window.productFormState) {
-        if (window.productFormState.images && Array.isArray(window.productFormState.images)) {
-            imageIds = window.productFormState.images.map(img => img.id || img);
-        } else if (window.productFormState.uploadedImages && Array.isArray(window.productFormState.uploadedImages)) {
-            imageIds = window.productFormState.uploadedImages.map(img => img.id || img);
-        }
-    }
-
-    if (imageIds.length === 0) {
-        alert('Please upload at least one product image.');
+    // 3. Verify images are uploaded to Strapi
+    const uploadedImages = (window.productFormState && window.productFormState.uploadedImages) ? window.productFormState.uploadedImages : [];
+    if (uploadedImages.length === 0) {
+        alert('Please upload at least one product image and wait for it to finish.');
         return;
     }
 
-    // 4. Build the payload
+    // 4. Build payload with REAL Strapi IDs
     const payload = {
         name: name,
         category: category,
@@ -6001,7 +6028,7 @@ async function handleProductFormSubmit(e) {
         stock: stock,
         description: description,
         specifications: typeof getSpecificationsFromForm === 'function' ? getSpecificationsFromForm() : [],
-        images: imageIds,
+        images: uploadedImages.map(img => img.id), // Now sending IDs, not files!
         bookFile: (window.productFormState && window.productFormState.uploadedBookFile) ? window.productFormState.uploadedBookFile.id : null
     };
 
