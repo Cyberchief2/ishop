@@ -8270,3 +8270,118 @@ function adminRenderAnalytics(a) {
 
     container.innerHTML = cardsHTML + trendHTML + productsHTML + vendorsHTML + funnelHTML;
 }
+// ============================================
+// DYNAMIC MEGA MENU BUILDER
+// ============================================
+async function buildDynamicMegaMenu() {
+    const menuLinks = document.getElementById('dynamic-menu-links');
+    if (!menuLinks) return;
+
+    try {
+        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=250&publicationState=live');
+        const json = await res.json();
+        const allCategories = json.data || [];
+
+        // Reset to base links
+        menuLinks.innerHTML = `
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+        `;
+
+        const majorCategories = allCategories.filter(c => !c.parentSlug);
+
+        majorCategories.forEach(major => {
+            const li = document.createElement('li');
+            li.className = 'dropdown-hover';
+
+            li.innerHTML = `
+                <a href="${major.slug}.html" class="nav-link">
+                    <i class="fas ${major.icon || 'fa-tag'}"></i> ${major.name}
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <div class="mega-dropdown">
+                    <div class="mega-dropdown-content"></div>
+                </div>
+            `;
+            menuLinks.appendChild(li);
+
+            const dropdownContent = li.querySelector('.mega-dropdown-content');
+            const mySubs = allCategories.filter(sub => sub.parentSlug === major.slug);
+
+            if (mySubs.length === 0) {
+                dropdownContent.innerHTML = `<div class="mega-column"><a href="${major.slug}.html">View All ${major.name}</a></div>`;
+                return;
+            }
+
+            mySubs.forEach(sub => {
+                const column = document.createElement('div');
+                column.className = 'mega-column';
+                
+                let html = `<h4>${sub.name}</h4>`;
+                const myTypes = allCategories.filter(type => type.parentSlug === sub.slug);
+
+                if (myTypes.length > 0) {
+                    myTypes.forEach(type => {
+                        html += `<a href="${major.slug}.html?subtype=${sub.slug}&type=${type.slug}">${type.name}</a>`;
+                    });
+                } else {
+                    html += `<a href="${major.slug}.html?subtype=${sub.slug}">View All</a>`;
+                }
+
+                column.innerHTML = html;
+                dropdownContent.appendChild(column);
+            });
+        });
+
+        // Attach positioning AFTER building
+        attachMegaMenuPositioning();
+
+    } catch (e) {
+        console.error("Failed to build mega menu:", e);
+    }
+}
+
+// ============================================
+// MEGA MENU — JS POSITIONING
+// ============================================
+function attachMegaMenuPositioning() {
+    function positionDropdown(li) {
+        const dd = li.querySelector('.mega-dropdown');
+        if (!dd) return;
+        
+        const rect = li.getBoundingClientRect();
+        const ddWidth = dd.offsetWidth || 460;
+        const vw = window.innerWidth;
+        const gutter = 8;
+
+        let left = rect.left;
+        if (left + ddWidth + gutter > vw) {
+            left = rect.right - ddWidth;
+        }
+        if (left < gutter) left = gutter;
+
+        dd.style.setProperty('top', rect.bottom + 'px', 'important');
+        dd.style.setProperty('left', left + 'px', 'important');
+    }
+
+    const items = document.querySelectorAll('.mega-menu .menu-links > li');
+    items.forEach(li => {
+        if (li.dataset.mmBound === '1') return;
+        li.dataset.mmBound = '1';
+        
+        const onEnter = () => positionDropdown(li);
+        li.addEventListener('mouseenter', onEnter);
+        li.addEventListener('focusin', onEnter);
+        window.addEventListener('resize', () => { if (li.matches(':hover')) positionDropdown(li); });
+        window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
+    });
+}
+
+// ============================================
+// RUN ON PAGE LOAD
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        buildDynamicMegaMenu();
+    }, 100);
+});
