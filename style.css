@@ -17238,3 +17238,12 @@ html body .mega-menu .mega-column a:hover {
     html body .mega-menu .menu-links > li > a { padding: 0.5rem !important; font-size: 0.8rem !important; }
     html body .mega-menu .mega-menu-scroll-hint { width: 26px !important; height: 26px !important; font-size: 0.65rem !important; }
 }
+/* ============================================ */
+/* MOBILE FIX — HIDE HORIZONTAL MEGA MENU       */
+/* ============================================ */
+@media (max-width: 768px) {
+    /* Completely hide the horizontal scrollable menu on mobile */
+    html body .mega-menu {
+        display: none !important;
+    }
+}
