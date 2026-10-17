@@ -5369,7 +5369,7 @@ function productShowStep(step) {
     document.getElementById('productForm')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-window.productNextStep = function() {
+function productNextStep() {
     const result = validateProductStep(productFormState.currentStep);
     if (!result.valid) {
         showProductFeedback(result.message, 'error');
@@ -5381,7 +5381,7 @@ window.productNextStep = function() {
     }
 }
 
-window.productPrevStep = function() {
+function productPrevStep() {
     if (productFormState.currentStep > 1) {
         productFormState.currentStep--;
         productShowStep(productFormState.currentStep);
@@ -5429,15 +5429,6 @@ function validateProductStep(step) {
     // Return valid if all checks pass
     return { valid: true };
 }
-
-        // All uploads must be done (no errors, no in-progress)
-        const stillUploading = productFormState.uploadedImages.some(img => img.status === 'uploading');
-        if (stillUploading) return { valid: false, message: 'Please wait for image uploads to finish.' };
-
-        const anyError = productFormState.uploadedImages.some(img => img.status === 'error');
-        if (anyError) return { valid: false, message: 'Some images failed to upload. Please remove them and try again.' };
-
-    return { valid: true };
 
 function showProductFeedback(message, type = 'error') {
     const fb = document.getElementById('productFormFeedback');
@@ -8464,122 +8455,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 
 
-async function loadFormDropdowns() {
-    const catDropdown = document.getElementById('productCategory');
-    const subDropdown = document.getElementById('productSubCategory');
-    const typeDropdown = document.getElementById('productTypeRef');
-    
-    if (!catDropdown || !subDropdown || !typeDropdown) return;
 
-    try {
-        const urls = [
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
-        ];
-        
-        const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
-        let rawCategories = [];
-        
-        responses.forEach(res => {
-            if (res.data) rawCategories = rawCategories.concat(res.data);
-        });
-
-        const seen = new Set();
-        window.globalCategoriesList = rawCategories.filter(c => {
-            if (seen.has(c.documentId)) return false;
-            seen.add(c.documentId);
-            return true;
-        });
-
-        const mainCats = window.globalCategoriesList.filter(c => !c.parentSlug || c.parentSlug === "");
-        
-        catDropdown.innerHTML = '<option value="">Select a category</option>';
-        
-        mainCats.forEach(c => {
-            catDropdown.innerHTML += `<option value="${c.slug}">${c.name}</option>`;
-        });
-
-        catDropdown.addEventListener('change', function() {
-            const selectedSlug = this.value;
-            
-            subDropdown.innerHTML = '<option value="">Select a Sub-Category</option>';
-            typeDropdown.innerHTML = '<option value="">Select a Sub-category first</option>';
-            typeDropdown.disabled = true;
-
-            if (!selectedSlug) {
-                subDropdown.disabled = true;
-                return;
-            }
-
-            const subs = window.globalCategoriesList.filter(c => c.parentSlug === selectedSlug);
-            subs.forEach(sub => {
-                subDropdown.innerHTML += `<option value="${sub.slug}">${sub.name}</option>`;
-            });
-            subDropdown.disabled = false;
-        });
-
-        subDropdown.addEventListener('change', function() {
-            const selectedSubSlug = this.value;
-            
-            typeDropdown.innerHTML = '<option value="">Select a Type</option>';
-
-            if (!selectedSubSlug) {
-                typeDropdown.disabled = true;
-                return;
-            }
-
-            const types = window.globalCategoriesList.filter(c => c.parentSlug === selectedSubSlug);
-            types.forEach(type => {
-                typeDropdown.innerHTML += `<option value="${type.slug}">${type.name}</option>`;
-            });
-            typeDropdown.disabled = false;
-        });
-
-    } catch (e) {
-        console.error("Failed to load categories:", e);
-        catDropdown.innerHTML = '<option value="">Error loading categories</option>';
-    }
-}
-
-// Global click handlers to ensure the buttons ALWAYS work
-window.goToNextStep = function() {
-    if (typeof productNextStep === 'function') {
-        productNextStep();
-    } else {
-        console.error("productNextStep function not found!");
-    }
-};
-
-window.goToPrevStep = function() {
-    if (typeof productPrevStep === 'function') {
-        productPrevStep();
-    }
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. Load Categories
-    if (document.getElementById('productCategory')) {
-        loadFormDropdowns();
-    }
-
-    // 2. Attach to buttons natively using onclick attributes
-    const nextBtn = document.getElementById('productNextBtn');
-    if (nextBtn) {
-        nextBtn.onclick = function(e) {
-            e.preventDefault();
-            window.goToNextStep();
-        };
-    }
-
-    const backBtn = document.getElementById('productBackBtn');
-    if (backBtn) {
-        backBtn.onclick = function(e) {
-            e.preventDefault();
-            window.goToPrevStep();
-        };
-    }
-});
 
 // ============================================
 // VENDOR PRODUCT FORM - COMPLETE FIX
