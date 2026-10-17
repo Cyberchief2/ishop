@@ -8424,3 +8424,50 @@ if (document.readyState === 'loading') {
 } else {
     buildDynamicMegaMenu();
 }
+// ============================================
+// MEGA MENU — JS POSITIONING FOR FIXED DROPDOWNS
+// ============================================
+(function megaMenuPositioning() {
+    function positionDropdown(li) {
+        const dd = li.querySelector('.mega-dropdown');
+        if (!dd) return;
+        
+        const rect = li.getBoundingClientRect();
+        const ddWidth = dd.offsetWidth || 460;
+        const vw = window.innerWidth;
+        const gutter = 8;
+
+        let left = rect.left;
+        // Flip left if it would go off the right side of the screen
+        if (left + ddWidth + gutter > vw) {
+            left = rect.right - ddWidth;
+        }
+        if (left < gutter) left = gutter;
+
+        dd.style.setProperty('top', rect.bottom + 'px', 'important');
+        dd.style.setProperty('left', left + 'px', 'important');
+    }
+
+    function attach() {
+        // Wait for the menu to be built by buildDynamicMegaMenu
+        setTimeout(() => {
+            const items = document.querySelectorAll('.mega-menu .menu-links > li');
+            items.forEach(li => {
+                if (li.dataset.mmBound === '1') return;
+                li.dataset.mmBound = '1';
+                
+                const onEnter = () => positionDropdown(li);
+                li.addEventListener('mouseenter', onEnter);
+                li.addEventListener('focusin', onEnter);
+                window.addEventListener('resize', () => { if (li.matches(':hover')) positionDropdown(li); });
+                window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
+            });
+        }, 500); // 500ms delay ensures the dynamic menu is built first
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attach);
+    } else {
+        attach();
+    }
+})();
