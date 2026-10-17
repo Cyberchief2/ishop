@@ -5955,8 +5955,9 @@ async function handleProductFormSubmit(e) {
     const payload = {
         name: document.getElementById('productName').value.trim(),
         category: document.getElementById('productCategory').value,
+        subCategory: document.getElementById('productSubCategory')?.value || '',
+        typeRef: document.getElementById('productTypeRef')?.value || '',
         type: document.getElementById('productType').value,
-        subType: document.getElementById('productSubType').value.trim(),
         price: Number(document.getElementById('productPrice').value),
         stock: document.getElementById('productStock')?.value || '',
         description: document.getElementById('productDescription').value.trim(),
@@ -8443,26 +8444,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(buildDynamicMegaMenu, 100);
 });
 // ============================================
-// VENDOR PRODUCT FORM - FIX
-// ============================================
-
-
-
-
-// ============================================
-// VENDOR PRODUCT FORM - COMPLETE FIX
+// VENDOR PRODUCT FORM - FINAL FIX
 // ============================================
 let formCategories = [];
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Safety check: Are we on the product form page?
     const form = document.getElementById('productForm');
     if (!form) return;
 
-    console.log("✅ Product form detected. Initializing...");
-
     // ========================================
-    // A. LOAD CATEGORIES (Dropdowns)
+    // 1. LOAD CATEGORIES
     // ========================================
     const catDropdown = document.getElementById('productCategory');
     const subDropdown = document.getElementById('productSubCategory');
@@ -8494,7 +8485,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }).catch(err => console.error(err));
 
-        // Sub-category filtering
         catDropdown.onchange = function() {
             const slug = this.value;
             subDropdown.innerHTML = '<option value="">Select a Sub-Category</option>';
@@ -8508,7 +8498,6 @@ document.addEventListener('DOMContentLoaded', function() {
             subDropdown.disabled = false;
         };
 
-        // Type filtering
         subDropdown.onchange = function() {
             const slug = this.value;
             typeDropdown.innerHTML = '<option value="">Select a Type</option>';
@@ -8522,11 +8511,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ========================================
-    // B. FORM NAVIGATION (The Continue Button)
+    // 2. MANUAL BUTTON NAVIGATION
     // ========================================
-    // Instead of relying on outside functions, we'll do it right here.
     let currentStep = 1;
-
     const btnNext = document.getElementById('productNextBtn');
     const btnBack = document.getElementById('productBackBtn');
     const btnSubmit = document.getElementById('productSubmitBtn');
@@ -8535,13 +8522,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function showStep(step) {
         currentStep = step;
         
-        // Hide all steps
         document.querySelectorAll('.vendor-apply-step').forEach(el => el.classList.remove('active'));
-        // Show current
         const target = document.querySelector(`.vendor-apply-step[data-step="${step}"]`);
         if (target) target.classList.add('active');
 
-        // Update dots
         document.querySelectorAll('.vendor-progress-step').forEach(el => {
             const n = parseInt(el.dataset.step);
             el.classList.remove('active', 'completed');
@@ -8549,12 +8533,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (n === step) el.classList.add('active');
         });
 
-        // Update Buttons
         if (btnBack) btnBack.style.display = step > 1 ? 'inline-flex' : 'none';
         if (btnNext) btnNext.style.display = step < 3 ? 'inline-flex' : 'none';
         if (btnSubmit) btnSubmit.style.display = step === 3 ? 'inline-flex' : 'none';
         
-        // Update Progress Bar
         if (progressBar) progressBar.style.width = (step / 3) * 100 + '%';
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -8562,9 +8544,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (btnNext) {
         btnNext.onclick = function(e) {
-            e.preventDefault(); // CRITICAL: Stops form from submitting
-            
-            // Basic check before moving on
+            e.preventDefault(); 
             if (currentStep === 1) {
                 const name = document.getElementById('productName').value;
                 const cat = document.getElementById('productCategory').value;
@@ -8574,7 +8554,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
             }
-            
             if (currentStep < 3) showStep(currentStep + 1);
         };
     }
@@ -8585,6 +8564,4 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentStep > 1) showStep(currentStep - 1);
         };
     }
-
-    console.log("✅ Form navigation initialized.");
 });
