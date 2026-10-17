@@ -812,6 +812,7 @@ const PAYMENT_API = 'https://ishop-payments-production.up.railway.app/api/orders
 const FREE_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/free-download';
 const PAID_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/download';
 const STRAPI_AUTH_BASE = 'https://ishop-cms-production.up.railway.app';
+const STRAPI_UPLOAD_API = 'https://ishop-cms-production.up.railway.app/api/upload';
 const ORDERS_API_BASE = 'https://ishop-payments-production.up.railway.app';
 
 // ============================================
@@ -6040,15 +6041,6 @@ function showProductSuccessScreen(isEdit, payload) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ============================================
-// INIT
-// ============================================
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initProductFormPage);
-} else {
-    initProductFormPage();
-}
 /* ============================================ */
 /* VENDOR EARNINGS PAGE */
 /* ============================================ */
