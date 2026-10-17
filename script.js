@@ -8279,7 +8279,7 @@ async function buildDynamicMegaMenu() {
 
     try {
         // Fetch categories
-        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=500&publicationState=live');
+        const res = await fetch('https://ishop-cms-production.up.railway.app/api/categories?pagination[pageSize]=500');
         const json = await res.json();
         const allCategories = json.data || [];
 
@@ -8335,10 +8335,17 @@ async function buildDynamicMegaMenu() {
 
     } catch (e) {
         console.error("Failed to build mega menu:", e);
+        // FALLBACK: If API fails, show the main 8 categories
+        menuLinks.innerHTML = `
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+            <li><a href="electronics.html"><i class="fas fa-tv"></i> Electronics</a></li>
+            <li><a href="phones-tablets.html"><i class="fas fa-mobile-alt"></i> Phones & Tablets</a></li>
+            <li><a href="computers-accessories.html"><i class="fas fa-laptop"></i> Computers</a></li>
+            <li><a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion</a></li>
+            <li><a href="beauty.html"><i class="fas fa-spa"></i> Beauty</a></li>
+            <li><a href="home.html"><i class="fas fa-couch"></i> Home & Kitchen</a></li>
+            <li><a href="traditional.html"><i class="fas fa-crown"></i> Traditional</a></li>
+            <li><a href="digital-products.html"><i class="fas fa-download"></i> Digital</a></li>
+        `;
     }
-}
-
-// Run when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(buildDynamicMegaMenu, 200);
-});
