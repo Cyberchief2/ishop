@@ -1072,7 +1072,7 @@ function toggleDrawerDropdown(linkEl) {
 // ============================================
 // iShop API CONFIGURATION
 // ============================================
-const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications&populate[2]=vendor&pagination[pageSize]=100';
+const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications&populate[2]=vendor&populate[3]=categoryRef&populate[4]=subTypeRef&pagination[pageSize]=100';
 const IMAGE_BASE_URL = 'https://ishop-cms-production.up.railway.app';
 const PAYMENT_API = 'https://ishop-payments-production.up.railway.app/api/orders/initialize';
 const FREE_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/free-download';
@@ -1223,8 +1223,8 @@ function convertStrapiProduct(strapiProduct) {
         documentId: strapiProduct.documentId || String(strapiProduct.id),
         name: strapiProduct.Product_Name || 'Unnamed Product',
         vendorName: (strapiProduct.vendor && strapiProduct.vendor.businessName) ? strapiProduct.vendor.businessName : '',
-        category: (function(raw){if(!raw)return 'uncategorized';var c=String(raw).toLowerCase().trim();if(c.indexOf('electronic')===0)return 'electronics';if(c.indexOf('fashion')===0)return 'fashion';if(c.indexOf('beauty')===0)return 'beauty';if(c.indexOf('digital')===0)return 'digital';if(c.indexOf('home')===0)return 'home';if(c.indexOf('traditional')===0)return 'traditional';return c;})(strapiProduct.Category),
-        subType: (strapiProduct.Sub_Type || '').toLowerCase(),
+        category: (strapiProduct.categoryRef && strapiProduct.categoryRef.slug) ? strapiProduct.categoryRef.slug.toLowerCase() : (strapiProduct.Category ? strapiProduct.Category.toLowerCase() : 'uncategorized'),
+        subType: (strapiProduct.subTypeRef && strapiProduct.subTypeRef.slug) ? strapiProduct.subTypeRef.slug.toLowerCase() : (strapiProduct.Sub_Type ? strapiProduct.Sub_Type.toLowerCase() : ''),
         type: (strapiProduct.Type || 'physical').toLowerCase(),
         price: parseFloat(strapiProduct.Price || 0),
         rating: parseFloat(strapiProduct.Rating || 4.2),
