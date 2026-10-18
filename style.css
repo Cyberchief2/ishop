@@ -17264,3 +17264,76 @@ html body .mega-menu .mega-column a:hover {
         display: flex !important;
     }
 }
+/* ============================================ */
+/* MEGA MENU ICON GRID                          */
+/* ============================================ */
+html body .mega-menu .mega-dropdown-content {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+}
+
+html body .mega-menu .mega-icon-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+    gap: 0.75rem 0.5rem !important;
+    padding: 0.5rem 0 1rem !important;
+    border-bottom: 1px dashed #e5e9ef !important;
+    margin-bottom: 0.5rem !important;
+}
+
+html body .mega-menu .mega-icon-tile {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.4rem !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    padding: 0.4rem 0.25rem !important;
+    border-radius: 10px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+html body .mega-menu .mega-icon-tile:hover {
+    background: #fef9e7 !important;
+    transform: translateY(-2px) !important;
+}
+
+html body .mega-menu .mega-icon-circle {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    border: 1px solid #eef1f4 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 6px rgba(13, 27, 42, 0.06) !important;
+    transition: all 0.2s ease !important;
+}
+
+html body .mega-menu .mega-icon-tile:hover .mega-icon-circle {
+    border-color: #f9c74f !important;
+    box-shadow: 0 4px 12px rgba(249, 199, 79, 0.3) !important;
+    transform: scale(1.05) !important;
+}
+
+html body .mega-menu .mega-icon-circle i {
+    font-size: 1.2rem !important;
+    color: #d4a017 !important;
+}
+
+html body .mega-menu .mega-icon-label {
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    color: #0d1b2a !important;
+    line-height: 1.2 !important;
+    max-width: 80px !important;
+    word-break: break-word !important;
+}
+
+html body .mega-menu .mega-icon-tile:hover .mega-icon-label {
+    color: #d4a017 !important;
+}

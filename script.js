@@ -8383,6 +8383,33 @@ async function buildDynamicMegaMenu() {
                 return;
             }
 
+            // ---- 1. ICON GRID (Matches actual subcategories) ----
+            const iconRow = document.createElement('div');
+            iconRow.className = 'mega-icon-grid';
+            
+            mySubs.forEach(sub => {
+                const tile = document.createElement('a');
+                tile.href = `${major.slug}.html?subtype=${sub.slug}`;
+                tile.className = 'mega-icon-tile';
+                tile.dataset.category = major.slug;
+                tile.dataset.subtype = sub.slug;
+                
+                tile.innerHTML = `
+                    <span class="mega-icon-circle"><i class="fas ${sub.icon || 'fa-tag'}" style="font-size:1.2rem;color:#0d1b2a;"></i></span>
+                    <span class="mega-icon-label">${sub.name}</span>
+                `;
+
+                // THIS is what makes it filter the products
+                tile.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleMegaIconClick(major.slug, sub.slug);
+                });
+
+                iconRow.appendChild(tile);
+            });
+            dropdownContent.appendChild(iconRow);
+
+            // ---- 2. TEXT COLUMNS ----
             mySubs.forEach(sub => {
                 const column = document.createElement('div');
                 column.className = 'mega-column';
@@ -8632,3 +8659,43 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 });
+/* ============================================ */
+/* MEGA MENU CLICK HANDLER - Fetches & Filters  */
+/* ============================================ */
+function handleMegaIconClick(categorySlug, subtypeSlug) {
+    const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+    
+    // Update URL without reloading
+    const url = new URL(window.location.href);
+    url.searchParams.set('subtype', subtypeSlug);
+    url.searchParams.delete('type');
+    window.history.replaceState({}, '', url);
+
+    // 1. If we are on the correct category page (e.g. electronics.html)
+    if (currentPage === categorySlug) {
+        // Highlight the active subcategory button
+        document.querySelectorAll('.subcat-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.subtype === subtypeSlug);
+        });
+        
+        // Instantly re-render the product grid
+        if (typeof renderCategory === 'function') {
+            renderCategory(categorySlug, subtypeSlug, '');
+        }
+        
+        // Close the dropdown
+        document.querySelectorAll('.mega-dropdown').forEach(dd => dd.style.visibility = 'hidden');
+        return;
+    }
+
+    // 2. If we are on shop.html
+    if (currentPage === 'shop' && typeof shopFilterState !== 'undefined') {
+        shopFilterState.category = categorySlug;
+        shopFilterState.subType = subtypeSlug;
+        if (typeof renderShopPage === 'function') renderShopPage();
+        return;
+    }
+
+    // 3. If we are anywhere else, redirect to the category page
+    window.location.href = `${categorySlug}.html?subtype=${subtypeSlug}`;
+}
