@@ -8326,7 +8326,6 @@ async function buildDynamicMegaMenu() {
     if (!menuLinks) return;
 
     try {
-        // We fetch pages 1, 2, and 3 concurrently to bypass the 100-item limit
         const urls = [
             'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
             'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
@@ -8335,13 +8334,11 @@ async function buildDynamicMegaMenu() {
 
         const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
         
-        // Combine all categories into one array and remove duplicates
         let rawCategories = [];
         responses.forEach(res => {
             if (res.data) rawCategories = rawCategories.concat(res.data);
         });
 
-        // Filter out duplicates based on documentId
         const seen = new Set();
         const allCategories = rawCategories.filter(c => {
             if (seen.has(c.documentId)) return false;
@@ -8349,15 +8346,11 @@ async function buildDynamicMegaMenu() {
             return true;
         });
 
-        console.log(`✅ Total categories loaded from Strapi: ${allCategories.length}`);
-
-        // Reset to base links
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
         `;
 
-        // Find the 8 major categories (no parentSlug)
         const majorCategories = allCategories.filter(c => !c.parentSlug || c.parentSlug === "");
 
         majorCategories.forEach(major => {
@@ -8383,9 +8376,37 @@ async function buildDynamicMegaMenu() {
                 return;
             }
 
-            // ---- 1. ICON GRID (Matches actual subcategories) ----
+            // ---- ICON GRID ----
             const iconRow = document.createElement('div');
             iconRow.className = 'mega-icon-grid';
+            
+            // Map generic slugs to specific FontAwesome icons
+            const getIcon = (slug) => {
+                const s = slug.toLowerCase();
+                if (s.includes('cloth') || s.includes('shirt')) return 'fa-tshirt';
+                if (s.includes('shoe')) return 'fa-shoe-prints';
+                if (s.includes('bag')) return 'fa-shopping-bag';
+                if (s.includes('jewel') || s.includes('watch')) return 'fa-gem';
+                if (s.includes('phone') || s.includes('smart')) return 'fa-mobile-alt';
+                if (s.includes('laptop')) return 'fa-laptop';
+                if (s.includes('tablet')) return 'fa-tablet-alt';
+                if (s.includes('tv') || s.includes('televis')) return 'fa-tv';
+                if (s.includes('audio') || s.includes('sound') || s.includes('speaker')) return 'fa-volume-up';
+                if (s.includes('camera')) return 'fa-camera';
+                if (s.includes('power') || s.includes('batt')) return 'fa-battery-full';
+                if (s.includes('accessor')) return 'fa-plug';
+                if (s.includes('game')) return 'fa-gamepad';
+                if (s.includes('computer') || s.includes('desktop')) return 'fa-desktop';
+                if (s.includes('monitor')) return 'fa-tv';
+                if (s.includes('print')) return 'fa-print';
+                if (s.includes('network') || s.includes('wifi')) return 'fa-wifi';
+                if (s.includes('skin')) return 'fa-spa';
+                if (s.includes('makeup') || s.includes('cosmetic')) return 'fa-paint-brush';
+                if (s.includes('fragran') || s.includes('perfume')) return 'fa-spray-can';
+                if (s.includes('hair')) return 'fa-cut';
+                if (s.includes('traditional') || s.includes('crown')) return 'fa-crown';
+                return 'fa-tag'; // fallback
+            };
             
             mySubs.forEach(sub => {
                 const tile = document.createElement('a');
@@ -8393,13 +8414,16 @@ async function buildDynamicMegaMenu() {
                 tile.className = 'mega-icon-tile';
                 tile.dataset.category = major.slug;
                 tile.dataset.subtype = sub.slug;
-                
+                tile.title = sub.name;
+
+                // Determine the correct icon based on slug, or fallback to Strapi icon
+                const iconClass = getIcon(sub.slug || sub.name);
+
                 tile.innerHTML = `
-                    <span class="mega-icon-circle"><i class="fas ${sub.icon || 'fa-tag'}" style="font-size:1.2rem;color:#0d1b2a;"></i></span>
+                    <span class="mega-icon-circle"><i class="fas ${iconClass}" style="font-size:1.2rem;color:#0d1b2a;"></i></span>
                     <span class="mega-icon-label">${sub.name}</span>
                 `;
 
-                // THIS is what makes it filter the products
                 tile.addEventListener('click', (e) => {
                     e.preventDefault();
                     handleMegaIconClick(major.slug, sub.slug);
@@ -8409,7 +8433,10 @@ async function buildDynamicMegaMenu() {
             });
             dropdownContent.appendChild(iconRow);
 
-            // ---- 2. TEXT COLUMNS ----
+            // ---- TEXT COLUMNS (Placed side-by-side with icons) ----
+            const colsWrap = document.createElement('div');
+            colsWrap.className = 'mega-columns-wrap';
+
             mySubs.forEach(sub => {
                 const column = document.createElement('div');
                 column.className = 'mega-column';
@@ -8424,16 +8451,17 @@ async function buildDynamicMegaMenu() {
                     html += `<a href="${major.slug}.html?subtype=${sub.slug}">View All</a>`;
                 }
                 column.innerHTML = html;
-                dropdownContent.appendChild(column);
+                colsWrap.appendChild(column);
             });
+            dropdownContent.appendChild(colsWrap);
         });
 
-        // Attach positioning & scroller
         attachMegaMenuPositioning();
         setupMegaMenuScroller();
 
     } catch (e) {
         console.error("Failed to build mega menu:", e);
+        // Fallback if DB fails
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
@@ -8660,42 +8688,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 /* ============================================ */
-/* MEGA MENU CLICK HANDLER - Fetches & Filters  */
+/* MEGA MENU CLICK HANDLER - Filters Products   */
 /* ============================================ */
 function handleMegaIconClick(categorySlug, subtypeSlug) {
     const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
-    
-    // Update URL without reloading
-    const url = new URL(window.location.href);
-    url.searchParams.set('subtype', subtypeSlug);
-    url.searchParams.delete('type');
-    window.history.replaceState({}, '', url);
+    const isCategoryPage = currentPage === categorySlug;
+    const isShopPage = currentPage === 'shop';
 
-    // 1. If we are on the correct category page (e.g. electronics.html)
-    if (currentPage === categorySlug) {
-        // Highlight the active subcategory button
-        document.querySelectorAll('.subcat-item').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.subtype === subtypeSlug);
-        });
-        
-        // Instantly re-render the product grid
+    // 1. If we're already on the matching category page
+    if (isCategoryPage) {
+        // Instantly update the UI URL
+        const url = new URL(window.location.href);
+        url.searchParams.set('subtype', subtypeSlug);
+        url.searchParams.delete('type');
+        window.history.replaceState({}, '', url);
+
+        // Re-render the category grid using the existing function in script.js
         if (typeof renderCategory === 'function') {
             renderCategory(categorySlug, subtypeSlug, '');
         }
-        
-        // Close the dropdown
-        document.querySelectorAll('.mega-dropdown').forEach(dd => dd.style.visibility = 'hidden');
+
+        // Update active subcat button styling
+        document.querySelectorAll('.subcat-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.subtype === subtypeSlug);
+        });
+
+        // Close the dropdown visually
+        document.querySelectorAll('.mega-dropdown').forEach(dd => {
+            dd.style.visibility = 'hidden';
+        });
         return;
     }
 
-    // 2. If we are on shop.html
-    if (currentPage === 'shop' && typeof shopFilterState !== 'undefined') {
+    // 2. If on shop page
+    if (isShopPage && typeof shopFilterState !== 'undefined') {
         shopFilterState.category = categorySlug;
         shopFilterState.subType = subtypeSlug;
         if (typeof renderShopPage === 'function') renderShopPage();
         return;
     }
 
-    // 3. If we are anywhere else, redirect to the category page
+    // 3. Otherwise redirect
     window.location.href = `${categorySlug}.html?subtype=${subtypeSlug}`;
 }
