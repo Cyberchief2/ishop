@@ -8376,71 +8376,14 @@ async function buildDynamicMegaMenu() {
                 return;
             }
 
-            // ---- ICON GRID ----
-            const iconRow = document.createElement('div');
-            iconRow.className = 'mega-icon-grid';
-            
-            // Map generic slugs to specific FontAwesome icons
-            const getIcon = (slug) => {
-                const s = slug.toLowerCase();
-                if (s.includes('cloth') || s.includes('shirt')) return 'fa-tshirt';
-                if (s.includes('shoe')) return 'fa-shoe-prints';
-                if (s.includes('bag')) return 'fa-shopping-bag';
-                if (s.includes('jewel') || s.includes('watch')) return 'fa-gem';
-                if (s.includes('phone') || s.includes('smart')) return 'fa-mobile-alt';
-                if (s.includes('laptop')) return 'fa-laptop';
-                if (s.includes('tablet')) return 'fa-tablet-alt';
-                if (s.includes('tv') || s.includes('televis')) return 'fa-tv';
-                if (s.includes('audio') || s.includes('sound') || s.includes('speaker')) return 'fa-volume-up';
-                if (s.includes('camera')) return 'fa-camera';
-                if (s.includes('power') || s.includes('batt')) return 'fa-battery-full';
-                if (s.includes('accessor')) return 'fa-plug';
-                if (s.includes('game')) return 'fa-gamepad';
-                if (s.includes('computer') || s.includes('desktop')) return 'fa-desktop';
-                if (s.includes('monitor')) return 'fa-tv';
-                if (s.includes('print')) return 'fa-print';
-                if (s.includes('network') || s.includes('wifi')) return 'fa-wifi';
-                if (s.includes('skin')) return 'fa-spa';
-                if (s.includes('makeup') || s.includes('cosmetic')) return 'fa-paint-brush';
-                if (s.includes('fragran') || s.includes('perfume')) return 'fa-spray-can';
-                if (s.includes('hair')) return 'fa-cut';
-                if (s.includes('traditional') || s.includes('crown')) return 'fa-crown';
-                return 'fa-tag'; // fallback
-            };
-            
-            mySubs.forEach(sub => {
-                const tile = document.createElement('a');
-                tile.href = `${major.slug}.html?subtype=${sub.slug}`;
-                tile.className = 'mega-icon-tile';
-                tile.dataset.category = major.slug;
-                tile.dataset.subtype = sub.slug;
-                tile.title = sub.name;
-
-                // Determine the correct icon based on slug, or fallback to Strapi icon
-                const iconClass = getIcon(sub.slug || sub.name);
-
-                tile.innerHTML = `
-                    <span class="mega-icon-circle"><i class="fas ${iconClass}" style="font-size:1.2rem;color:#0d1b2a;"></i></span>
-                    <span class="mega-icon-label">${sub.name}</span>
-                `;
-
-                tile.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    handleMegaIconClick(major.slug, sub.slug);
-                });
-
-                iconRow.appendChild(tile);
-            });
-            dropdownContent.appendChild(iconRow);
-
-            // ---- TEXT COLUMNS (Placed side-by-side with icons) ----
-            const colsWrap = document.createElement('div');
-            colsWrap.className = 'mega-columns-wrap';
-
+            // ---- TEXT COLUMNS ONLY (Side-by-side) ----
             mySubs.forEach(sub => {
                 const column = document.createElement('div');
                 column.className = 'mega-column';
-                let html = `<h4>${sub.name}</h4>`;
+                
+                // Make the header clickable to filter the whole subcategory
+                let html = `<h4><a href="${major.slug}.html?subtype=${sub.slug}" onclick="event.preventDefault(); handleMegaIconClick('${major.slug}', '${sub.slug}')">${sub.name}</a></h4>`;
+                
                 const myTypes = allCategories.filter(type => type.parentSlug === sub.slug);
 
                 if (myTypes.length > 0) {
@@ -8451,9 +8394,8 @@ async function buildDynamicMegaMenu() {
                     html += `<a href="${major.slug}.html?subtype=${sub.slug}">View All</a>`;
                 }
                 column.innerHTML = html;
-                colsWrap.appendChild(column);
+                dropdownContent.appendChild(column);
             });
-            dropdownContent.appendChild(colsWrap);
         });
 
         attachMegaMenuPositioning();
@@ -8461,18 +8403,11 @@ async function buildDynamicMegaMenu() {
 
     } catch (e) {
         console.error("Failed to build mega menu:", e);
-        // Fallback if DB fails
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
             <li><a href="electronics.html"><i class="fas fa-tv"></i> Electronics</a></li>
             <li><a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion</a></li>
-            <li><a href="beauty.html"><i class="fas fa-spa"></i> Beauty</a></li>
-            <li><a href="home.html"><i class="fas fa-couch"></i> Home</a></li>
-            <li><a href="traditional.html"><i class="fas fa-crown"></i> Traditional</a></li>
-            <li><a href="digital-products.html"><i class="fas fa-download"></i> Digital</a></li>
-            <li><a href="phones-tablets.html"><i class="fas fa-mobile-alt"></i> Phones</a></li>
-            <li><a href="computers-accessories.html"><i class="fas fa-laptop"></i> Computers</a></li>
         `;
         setupMegaMenuScroller();
     }
