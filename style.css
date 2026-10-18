@@ -16405,1069 +16405,114 @@ html body .hero-slide[data-theme="home"] .hero-cta {
 }
 
 /* ============================================ */
-/* MEGA MENU — NUCLEAR OVERRIDE                 */
-/* Highest specificity — beats every old rule   */
+/* MEGA MENU — FINAL (columns + inner scroll)   */
 /* ============================================ */
 
-html body .mega-menu {
-    position: relative !important;
-    overflow: visible !important;
-    background: #ffffff !important;
-}
-
-html body .mega-menu .mega-menu-content {
-    position: relative !important;
-    display: flex !important;
-    align-items: center !important;
-    min-height: 52px !important;
-    overflow: visible !important;
-}
-
-html body .mega-menu .menu-links {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    padding: 0 3.5rem 0 0 !important;
-    margin: 0 !important;
-    gap: 0.1rem !important;
-    scrollbar-width: none !important;
-    -webkit-overflow-scrolling: touch !important;
-}
-
-html body .mega-menu .menu-links::-webkit-scrollbar {
-    display: none !important;
-}
-
-html body .mega-menu .menu-links > li {
-    position: relative !important;
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-}
-
-html body .mega-menu .menu-links > li > a {
-    padding: 0.65rem 0.7rem !important;
-    font-size: 0.83rem !important;
-    line-height: 1.2 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.35rem !important;
-}
-
-/* ---------- FORCE DROPDOWN SHOW ON HOVER ---------- */
-html body .mega-menu .menu-links > li > .mega-dropdown {
-    display: none !important;
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    right: auto !important;
-    min-width: 340px !important;
-    max-width: 460px !important;
-    width: auto !important;
-    padding: 1.1rem 1.25rem !important;
-    background: #ffffff !important;
-    box-shadow: 0 20px 50px rgba(13, 27, 42, 0.16) !important;
-    border-top: 3px solid #f9c74f !important;
-    border-radius: 0 0 14px 14px !important;
-    z-index: 3000 !important;
-    margin-top: 0 !important;
-    max-height: calc(100vh - 160px) !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    overscroll-behavior: contain !important;
-}
-
-html body .mega-menu .menu-links > li:hover > .mega-dropdown,
-html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
-    display: block !important;
-}
-
-html body .mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
-    left: auto !important;
-    right: 0 !important;
-}
-
-html body .mega-menu .mega-dropdown-content {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(140px, 1fr)) !important;
-    gap: 0.75rem 1.25rem !important;
-}
-
-/* ---------- VISIBLE CHEVRON SCROLL HINT ---------- */
-html body .mega-menu .mega-menu-scroll-hint {
-    position: absolute !important;
-    top: 50% !important;
-    right: 6px !important;
-    transform: translateY(-50%) !important;
-    width: 34px !important;
-    height: 34px !important;
-    background: #f9c74f !important;
-    border: 2px solid #ffffff !important;
-    border-radius: 50% !important;
-    box-shadow: 0 4px 14px rgba(249, 199, 79, 0.55) !important;
-    color: #0d1b2a !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    z-index: 50 !important;
-    font-size: 0.8rem !important;
-    font-weight: 900 !important;
-    padding: 0 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    animation: menuChevronPulse 1.6s ease-in-out infinite !important;
-}
-
-html body .mega-menu .mega-menu-scroll-hint:hover {
-    background: #e74c3c !important;
-    color: #ffffff !important;
-    border-color: #ffffff !important;
-}
-
-html body .mega-menu .mega-menu-scroll-hint.hidden {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
-
-/* Chevron "double arrow" effect */
-html body .mega-menu .mega-menu-scroll-hint::after {
-    content: '' !important;
-    position: absolute !important;
-    right: -4px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    width: 0 !important;
-    height: 0 !important;
-    border-left: 5px solid #f9c74f !important;
-    border-top: 5px solid transparent !important;
-    border-bottom: 5px solid transparent !important;
-    opacity: 0.7 !important;
-}
-
-@keyframes menuChevronPulse {
-    0%, 100% { transform: translateY(-50%) translateX(0); }
-    50%      { transform: translateY(-50%) translateX(4px); }
-}
-
-/* Fade gradient hint — right edge */
-html body .mega-menu .mega-menu-content::after {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 80px !important;
-    pointer-events: none !important;
-    background: linear-gradient(
-        to right,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.7) 40%,
-        rgba(255, 255, 255, 0.95) 100%
-    ) !important;
-    z-index: 40 !important;
-    transition: opacity 0.25s ease !important;
-}
-
-html body .mega-menu .mega-menu-content.scrolled-end::after {
-    opacity: 0 !important;
-}
-
-/* ---------- KILL OLD ::after on .mega-menu ---------- */
-html body .mega-menu::after {
-    display: none !important;
-}
-
-/* ---------- MOBILE ---------- */
-@media (max-width: 768px) {
-    html body .mega-menu .mega-menu-content {
-        min-height: 44px !important;
-    }
-
-    html body .mega-menu .menu-links {
-        padding: 0 3rem 0 0.5rem !important;
-        gap: 0.05rem !important;
-    }
-
-    html body .mega-menu .menu-links > li > a {
-        padding: 0.5rem 0.55rem !important;
-        font-size: 0.72rem !important;
-    }
-
-    html body .mega-menu .menu-links > li > a i:first-child {
-        display: none !important;
-    }
-
-    html body .mega-menu .menu-links > li > a .fa-chevron-down {
-        display: inline-block !important;
-        font-size: 0.5rem !important;
-    }
-
-    html body .mega-menu .menu-links > li > .mega-dropdown {
-        display: none !important;
-    }
-
-    html body .mega-menu .mega-menu-scroll-hint {
-        width: 26px !important;
-        height: 26px !important;
-        right: 4px !important;
-        font-size: 0.65rem !important;
-    }
-
-    html body .mega-menu .mega-menu-content::after {
-        width: 45px !important;
-    }
-}
-/* ============================================ */
-/* MEGA MENU — FINAL: scrollable + working DD   */
-/* ============================================ */
-
-/* Menu bar container — allow dropdown to escape */
-html body .mega-menu,
-html body .mega-menu .mega-menu-content {
-    position: relative !important;
-    overflow: visible !important;
-}
-
-/* Scrollable strip — one row */
-html body .mega-menu .menu-links {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    padding: 0 3.5rem 0 0 !important;
-    margin: 0 !important;
-    gap: 0.1rem !important;
-    scrollbar-width: none !important;
-    -webkit-overflow-scrolling: touch !important;
-    scroll-behavior: smooth !important;
-}
-html body .mega-menu .menu-links::-webkit-scrollbar {
-    display: none !important;
-}
-
-html body .mega-menu .menu-links > li {
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-    position: relative !important;
-}
-
-html body .mega-menu .menu-links > li > a {
-    padding: 0.6rem 0.55rem !important;
-    font-size: 0.8rem !important;
-    gap: 0.3rem !important;
-}
-
-/* ---------- FADE + CHEVRON ---------- */
-html body .mega-menu .mega-menu-content::after {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 70px !important;
-    pointer-events: none !important;
-    background: linear-gradient(
-        to right,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.85) 55%,
-        rgba(255,255,255,1) 100%
-    ) !important;
-    z-index: 40 !important;
-    transition: opacity 0.25s ease !important;
-    display: block !important;
-}
-html body .mega-menu .mega-menu-content.scrolled-end::after {
-    opacity: 0 !important;
-}
-
-html body .mega-menu .mega-menu-scroll-hint {
-    position: absolute !important;
-    top: 50% !important;
-    right: 6px !important;
-    transform: translateY(-50%) !important;
-    width: 34px !important;
-    height: 34px !important;
-    background: #f9c74f !important;
-    border: 2px solid #ffffff !important;
-    border-radius: 50% !important;
-    box-shadow: 0 4px 14px rgba(249, 199, 79, 0.55) !important;
-    color: #0d1b2a !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    z-index: 50 !important;
-    font-size: 0.8rem !important;
-    font-weight: 900 !important;
-    padding: 0 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transition: opacity 0.25s ease, background 0.2s ease !important;
-    animation: menuChevronPulse 1.6s ease-in-out infinite !important;
-}
-html body .mega-menu .mega-menu-scroll-hint:hover {
-    background: #e74c3c !important;
-    color: #ffffff !important;
-}
-html body .mega-menu .mega-menu-scroll-hint.hidden {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
-@keyframes menuChevronPulse {
-    0%, 100% { transform: translateY(-50%) translateX(0); }
-    50%      { transform: translateY(-50%) translateX(4px); }
-}
-
-/* ---------- DROPDOWN ---------- */
-html body .mega-menu .menu-links > li > .mega-dropdown {
-    display: none !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: auto !important;
-
-    min-width: 420px !important;
-    max-width: 520px !important;
-    width: max-content !important;
-
-    padding: 1.1rem 1.35rem !important;
-    background: #ffffff !important;
-    box-shadow: 0 20px 50px rgba(13, 27, 42, 0.18) !important;
-    border-top: 3px solid #f9c74f !important;
-    border-radius: 0 0 14px 14px !important;
-    z-index: 999999 !important;
-    margin-top: 0 !important;
-    max-height: calc(100vh - 160px) !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    overscroll-behavior: contain !important;
-    isolation: isolate !important;
-}
-
-html body .mega-menu .menu-links > li:hover > .mega-dropdown,
-html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-html body .mega-menu .mega-dropdown-content {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(180px, 1fr)) !important;
-    gap: 0.85rem 1.5rem !important;
-}
-
-html body .mega-menu .mega-column h4 {
-    font-size: 0.82rem !important;
-    font-weight: 800 !important;
-    color: #0d1b2a !important;
-    margin: 0 0 0.4rem 0 !important;
-    padding: 0 0 0.35rem 0 !important;
-    border-bottom: 2px solid #f9c74f !important;
-    white-space: nowrap !important;
-    line-height: 1.3 !important;
-}
-html body .mega-menu .mega-column a {
-    display: block !important;
-    padding: 0.28rem 0 !important;
-    color: #555 !important;
-    font-size: 0.8rem !important;
-    text-decoration: none !important;
-    white-space: nowrap !important;
-    line-height: 1.4 !important;
-    transition: color 0.15s ease, padding-left 0.15s ease !important;
-}
-html body .mega-menu .mega-column a:hover {
-    color: #d4a017 !important;
-    padding-left: 0.35rem !important;
-}
-
-html body .mega-menu::after { display: none !important; }
-
-html body .hero-carousel,
-html body .hero-arrow,
-html body .hero-dots {
-    z-index: 1 !important;
-}
-/* ============================================ */
-/* MEGA MENU — FIX DROPDOWN POSITION            */
-/* ============================================ */
-html body .mega-menu .menu-links > li > .mega-dropdown {
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    right: auto !important;
-    z-index: 99999 !important;
-    display: none;
-}
-
-html body .mega-menu .menu-links > li:hover > .mega-dropdown,
-html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
-    display: block !important;
-}
-
-/* Right-side items (like Traditional Attire) flip to the left so they stay on screen */
-html body .mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
-    left: auto !important;
-    right: 0 !important;
-}
-/* ============================================ */
-/* MEGA MENU — FORCE DROPDOWNS TO SHOW          */
-/* ============================================ */
-
-/* Ensure nothing clips the dropdown */
-html body .mega-menu, 
-html body .mega-menu-content, 
-html body .menu-links {
-    overflow: visible !important;
-}
-
-/* Position the dropdown directly under the category */
-html body .mega-menu .menu-links > li {
-    position: relative !important;
-}
-
-html body .mega-menu .menu-links > li > .mega-dropdown {
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    min-width: 420px !important;
-    max-width: 520px !important;
-    background: #ffffff !important;
-    box-shadow: 0 20px 50px rgba(13, 27, 42, 0.18) !important;
-    border-top: 3px solid #f9c74f !important;
-    border-radius: 0 0 14px 14px !important;
-    z-index: 999999 !important;
-    padding: 1.1rem 1.35rem !important;
-    display: none; /* Hidden by default */
-}
-
-/* Show on hover */
-html body .mega-menu .menu-links > li:hover > .mega-dropdown,
-html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
-    display: block !important;
-}
-
-/* Right-side items flip left */
-html body .mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
-    left: auto !important;
-    right: 0 !important;
-}
-/* ============================================ */
-/* MEGA MENU — FIXED DROPDOWN POSITION          */
-/* ============================================ */
-
-/* Make sure the parent containers don't clip */
-html body .mega-menu,
-html body .mega-menu .mega-menu-content,
-html body .mega-menu .menu-links {
-    overflow: visible !important;
-    position: relative !important;
-}
-
-/* Force the dropdown to use fixed positioning so it escapes the scroll */
-html body .mega-menu .menu-links > li > .mega-dropdown {
-    position: fixed !important;
-    top: 0 !important; /* JS will override this */
-    left: 0 !important; /* JS will override this */
-    right: auto !important;
-    min-width: 420px !important;
-    max-width: 520px !important;
-    width: max-content !important;
-    padding: 1.1rem 1.35rem !important;
-    background: #ffffff !important;
-    box-shadow: 0 20px 50px rgba(13, 27, 42, 0.18) !important;
-    border-top: 3px solid #f9c74f !important;
-    border-radius: 0 0 14px 14px !important;
-    z-index: 999999 !important;
-    margin-top: 0 !important;
-    max-height: calc(100vh - 160px) !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    display: none;
-}
-
-/* Show on hover */
-html body .mega-menu .menu-links > li:hover > .mega-dropdown,
-html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
-    display: block !important;
-}
-/* ============================================ */
-/* STOP TOP-LEFT JUMP ON PAGE LOAD              */
-/* ============================================ */
-html body .mega-menu .menu-links > li > .mega-dropdown {
-    visibility: hidden;
-}
-html body .mega-menu .menu-links > li:hover > .mega-dropdown,
-html body .mega-menu .menu-links > li:focus-within > .mega-dropdown {
-    visibility: visible;
-}
-/* ============================================ */
-/* ULTIMATE MEGA MENU FIX — VISIBLE & POSITIONED */
-/* ============================================ */
-
-/* 1. Ensure the menu bar allows the dropdown to break out of it */
-html body .mega-menu, 
-html body .mega-menu .mega-menu-content, 
-html body .mega-menu .menu-links {
-    overflow: visible !important;
-    position: relative !important;
-}
-
-/* 2. Setup the parent list item */
-html body .mega-menu .menu-links > li {
-    position: static !important; /* Let the JS control the absolute position */
-}
-
-/* 3. Hide the dropdown by default, but make it fixed so it isn't clipped */
-html body .mega-menu .mega-dropdown {
-    display: none !important;
-    position: fixed !important; 
-    top: 0; left: 0; /* JS overrides this */
-    background: #ffffff !important;
-    box-shadow: 0 20px 50px rgba(13, 27, 42, 0.18) !important;
-    border-top: 3px solid #f9c74f !important;
-    border-radius: 0 0 14px 14px !important;
-    z-index: 999999 !important;
-    padding: 1.2rem 1.5rem !important;
-    min-width: 420px !important;
-    max-width: 550px !important;
-    max-height: calc(100vh - 150px) !important;
-    overflow-y: auto !important;
-    visibility: hidden;
-}
-
-/* 4. Show the dropdown when hovering over the category */
-html body .mega-menu .menu-links > li:hover .mega-dropdown,
-html body .mega-menu .menu-links > li:focus-within .mega-dropdown {
-    display: block !important;
-    visibility: visible !important;
-}
-
-/* 5. Style the content inside the dropdown */
-html body .mega-menu .mega-dropdown-content {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 1rem 2rem !important;
-}
-
-html body .mega-menu .mega-column h4 {
-    font-size: 0.85rem !important;
-    font-weight: 800 !important;
-    color: #0d1b2a !important;
-    margin: 0 0 0.5rem 0 !important;
-    padding-bottom: 0.3rem !important;
-    border-bottom: 2px solid #f9c74f !important;
-    text-transform: uppercase;
-}
-
-html body .mega-menu .mega-column a {
-    display: block !important;
-    padding: 0.3rem 0 !important;
-    font-size: 0.85rem !important;
-    color: #555 !important;
-    text-decoration: none !important;
-}
-
-html body .mega-menu .mega-column a:hover {
-    color: #d4a017 !important;
-    padding-left: 0.3rem !important;
-}
-/* ============================================ */
-/* MEGA MENU — BULLETPROOF CSS                  */
-/* ============================================ */
-
-/* Ensure the menu can show dropdowns */
-html body .mega-menu,
-html body .mega-menu .mega-menu-content,
-html body .mega-menu .menu-links {
-    overflow: visible !important;
-}
-
-/* The Parent <li> */
-html body .mega-menu .menu-links > li {
-    position: relative !important;
-}
-
-/* The Dropdown */
+/* 1. The dropdown container */
 html body .mega-menu .mega-dropdown {
     display: none !important;
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
     z-index: 99999 !important;
-    
-    /* Styling */
+
     background: #ffffff !important;
-    min-width: 400px !important;
+    width: 680px !important;
+    max-width: 92vw !important;
     padding: 1.5rem !important;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
     border-top: 3px solid #f9c74f !important;
     border-radius: 0 0 12px 12px !important;
+
+    /* Force internal scrolling if categories are too long */
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain !important;
 }
 
-/* Show on Hover */
-html body .mega-menu .menu-links > li:hover .mega-dropdown {
-    display: block !important;
-}
-
-/* Prevent right-side dropdowns from going off-screen */
+/* Flip right-side dropdowns to the left so they don't go off-screen */
 html body .mega-menu .menu-links > li:nth-last-child(-n+3) .mega-dropdown {
     left: auto !important;
     right: 0 !important;
 }
 
-/* Dropdown Content Grid */
-html body .mega-menu .mega-dropdown-content {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 1.5rem !important;
-}
-
-/* Column Headers */
-html body .mega-menu .mega-column h4 {
-    font-size: 0.9rem !important;
-    font-weight: 800 !important;
-    color: #0d1b2a !important;
-    margin: 0 0 0.5rem 0 !important;
-    border-bottom: 2px solid #f9c74f !important;
-    padding-bottom: 0.3rem !important;
-    text-transform: uppercase !important;
-}
-
-/* Column Links */
-html body .mega-menu .mega-column a {
-    display: block !important;
-    padding: 0.3rem 0 !important;
-    font-size: 0.85rem !important;
-    color: #666 !important;
-    text-decoration: none !important;
-}
-
-html body .mega-menu .mega-column a:hover {
-    color: #d4a017 !important;
-}
-/* ============================================ */
-/* MEGA MENU — SCROLLABLE BAR WITH INDICATOR    */
-/* ============================================ */
-
-/* 1. The outer container */
-html body .mega-menu {
-    position: relative !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid #e8ecf0 !important;
-    padding: 0 2rem !important;
-    z-index: 999 !important;
-}
-
-/* 2. The inner container — flex row */
-html body .mega-menu .mega-menu-content {
-    max-width: 1300px !important;
-    margin: 0 auto !important;
-    position: relative !important;
-    display: flex !important;
-    align-items: center !important;
-    height: 50px !important;
-}
-
-/* 3. The scrollable list */
-html body .mega-menu .menu-links {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    width: 100% !important;
-    height: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    gap: 0.2rem !important;
-    padding: 0 3rem 0 0 !important; /* Space for the chevron */
-    margin: 0 !important;
-    list-style: none !important;
-    scrollbar-width: none !important; /* Hide default scrollbar Firefox */
-    -webkit-overflow-scrolling: touch !important;
-    scroll-behavior: smooth !important;
-}
-
-/* Hide default scrollbar Chrome/Safari/Edge */
-html body .mega-menu .menu-links::-webkit-scrollbar {
-    display: none !important;
-}
-
-/* 4. The list items */
-html body .mega-menu .menu-links > li {
-    position: relative !important;
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-}
-
-html body .mega-menu .menu-links > li > a {
-    padding: 0.6rem 0.8rem !important;
-    font-size: 0.88rem !important;
-    font-weight: 500 !important;
-    color: #4a4a4a !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.4rem !important;
-    transition: color 0.2s !important;
-}
-
-html body .mega-menu .menu-links > li > a:hover {
-    color: #f9c74f !important;
-}
-
-/* 5. The Fade Effect on the right side */
-html body .mega-menu .mega-menu-content::after {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 80px !important;
-    pointer-events: none !important;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 60%, rgba(255,255,255,1) 100%) !important;
-    z-index: 10 !important;
-    transition: opacity 0.3s ease !important;
-}
-
-/* Hide fade when scrolled to the end */
-html body .mega-menu .mega-menu-content.scrolled-end::after {
-    opacity: 0 !important;
-}
-
-/* 6. The Yellow Chevron Indicator */
-html body .mega-menu .mega-menu-scroll-hint {
-    position: absolute !important;
-    top: 50% !important;
-    right: 5px !important;
-    transform: translateY(-50%) !important;
-    width: 32px !important;
-    height: 32px !important;
-    background: #f9c74f !important;
-    border: 2px solid #ffffff !important;
-    border-radius: 50% !important;
-    box-shadow: 0 4px 12px rgba(249, 199, 79, 0.5) !important;
-    color: #0d1b2a !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    z-index: 20 !important;
-    font-size: 0.8rem !important;
-    padding: 0 !important;
-    transition: all 0.2s ease !important;
-    animation: pulseChevron 1.5s infinite !important;
-}
-
-html body .mega-menu .mega-menu-scroll-hint:hover {
-    background: #0d1b2a !important;
-    color: #f9c74f !important;
-    border-color: #0d1b2a !important;
-}
-
-html body .mega-menu .mega-menu-scroll-hint.hidden {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
-
-@keyframes pulseChevron {
-    0% { transform: translateY(-50%) translateX(0); }
-    50% { transform: translateY(-50%) translateX(3px); }
-    100% { transform: translateY(-50%) translateX(0); }
-}
-
-/* 7. The Dropdowns (Positioned by JS) */
-html body .mega-menu .mega-dropdown {
-    display: none !important;
-    position: fixed !important;
-    background: #ffffff !important;
-    box-shadow: 0 20px 50px rgba(13, 27, 42, 0.18) !important;
-    border-top: 3px solid #f9c74f !important;
-    border-radius: 0 0 14px 14px !important;
-    z-index: 999999 !important;
-    padding: 1.5rem !important;
-    min-width: 450px !important;
-    max-width: 600px !important;
-    max-height: calc(100vh - 150px) !important;
-    overflow-y: auto !important;
-}
-
-html body .mega-menu .menu-links > li:hover .mega-dropdown,
-html body .mega-menu .menu-links > li:focus-within .mega-dropdown {
+/* Show on hover */
+html body .mega-menu .menu-links > li:hover .mega-dropdown {
     display: block !important;
 }
 
+/* 2. The grid: forces categories into 3 columns side-by-side */
 html body .mega-menu .mega-dropdown-content {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 1.5rem !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 2rem 1.5rem !important;
+    align-items: start !important;
 }
 
-html body .mega-menu .mega-column h4 {
-    font-size: 0.85rem !important;
-    font-weight: 800 !important;
-    color: #0d1b2a !important;
-    margin: 0 0 0.5rem 0 !important;
-    padding-bottom: 0.3rem !important;
-    border-bottom: 2px solid #f9c74f !important;
-    text-transform: uppercase !important;
-}
-
-html body .mega-menu .mega-column a {
-    display: block !important;
-    padding: 0.3rem 0 !important;
-    font-size: 0.85rem !important;
-    color: #555 !important;
-    text-decoration: none !important;
-}
-
-html body .mega-menu .mega-column a:hover {
-    color: #d4a017 !important;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    html body .mega-menu { padding: 0 1rem !important; }
-    html body .mega-menu .menu-links > li > a { padding: 0.5rem !important; font-size: 0.8rem !important; }
-    html body .mega-menu .mega-menu-scroll-hint { width: 26px !important; height: 26px !important; font-size: 0.65rem !important; }
-}
-/* ============================================ */
-/* MOBILE FIX — HIDE HORIZONTAL MEGA MENU       */
-/* ============================================ */
-@media (max-width: 768px) {
-    /* Completely hide the horizontal scrollable menu on mobile */
-    html body .mega-menu {
-        display: none !important;
-    }
-}
-/* ============================================ */
-/* NUCLEAR MOBILE FIX — HIDE DESKTOP MENU       */
-/* ============================================ */
-@media (max-width: 768px) {
-    /* Hide the horizontal scrollable mega menu entirely */
-    html body .mega-menu {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* Make sure the mobile hamburger menu is visible */
-    .hamburger-btn {
-        display: flex !important;
-    }
-}
-/* ============================================ */
-/* MEGA MENU ICON GRID                          */
-/* ============================================ */
-html body .mega-menu .mega-dropdown-content {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 1rem !important;
-}
-
-html body .mega-menu .mega-icon-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
-    gap: 0.75rem 0.5rem !important;
-    padding: 0.5rem 0 1rem !important;
-    border-bottom: 1px dashed #e5e9ef !important;
-    margin-bottom: 0.5rem !important;
-}
-
-html body .mega-menu .mega-icon-tile {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.4rem !important;
-    text-align: center !important;
-    text-decoration: none !important;
-    padding: 0.4rem 0.25rem !important;
-    border-radius: 10px !important;
-    transition: all 0.2s ease !important;
-    cursor: pointer !important;
-}
-
-html body .mega-menu .mega-icon-tile:hover {
-    background: #fef9e7 !important;
-    transform: translateY(-2px) !important;
-}
-
-html body .mega-menu .mega-icon-circle {
-    width: 48px !important;
-    height: 48px !important;
-    border-radius: 50% !important;
-    background: #ffffff !important;
-    border: 1px solid #eef1f4 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: 0 2px 6px rgba(13, 27, 42, 0.06) !important;
-    transition: all 0.2s ease !important;
-}
-
-html body .mega-menu .mega-icon-tile:hover .mega-icon-circle {
-    border-color: #f9c74f !important;
-    box-shadow: 0 4px 12px rgba(249, 199, 79, 0.3) !important;
-    transform: scale(1.05) !important;
-}
-
-html body .mega-menu .mega-icon-circle i {
-    font-size: 1.2rem !important;
-    color: #d4a017 !important;
-}
-
-html body .mega-menu .mega-icon-label {
-    font-size: 0.7rem !important;
-    font-weight: 600 !important;
-    color: #0d1b2a !important;
-    line-height: 1.2 !important;
-    max-width: 80px !important;
-    word-break: break-word !important;
-}
-
-html body .mega-menu .mega-icon-tile:hover .mega-icon-label {
-    color: #d4a017 !important;
-}
-/* ============================================ */
-/* MEGA MENU LAYOUT FIX                         */
-/* ============================================ */
-html body .mega-menu .mega-dropdown-content {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 1rem !important;
-}
-
-/* Icon Grid - 6 columns */
-html body .mega-menu .mega-icon-grid {
-    display: grid !important;
-    grid-template-columns: repeat(6, 1fr) !important;
-    gap: 0.75rem 0.5rem !important;
-    padding: 0.5rem 0 1rem !important;
-    border-bottom: 1px dashed #e5e9ef !important;
-    margin-bottom: 0.5rem !important;
-}
-
-/* Text Columns Wrapper - Side by side */
-html body .mega-menu .mega-columns-wrap {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 1.5rem !important;
-}
-
-/* Restore the icon styles */
-html body .mega-menu .mega-icon-tile {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.4rem !important;
-    text-align: center !important;
-    text-decoration: none !important;
-    padding: 0.4rem 0.25rem !important;
-    border-radius: 10px !important;
-    transition: all 0.2s ease !important;
-    cursor: pointer !important;
-}
-
-html body .mega-menu .mega-icon-tile:hover {
-    background: #fef9e7 !important;
-    transform: translateY(-2px) !important;
-}
-
-html body .mega-menu .mega-icon-circle {
-    width: 48px !important;
-    height: 48px !important;
-    border-radius: 50% !important;
-    background: #ffffff !important;
-    border: 1px solid #eef1f4 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: 0 2px 6px rgba(13, 27, 42, 0.06) !important;
-    transition: all 0.2s ease !important;
-}
-
-html body .mega-menu .mega-icon-tile:hover .mega-icon-circle {
-    border-color: #f9c74f !important;
-    box-shadow: 0 4px 12px rgba(249, 199, 79, 0.3) !important;
-    transform: scale(1.05) !important;
-}
-
-html body .mega-menu .mega-icon-circle i {
-    font-size: 1.2rem !important;
-    color: #d4a017 !important;
-}
-
-html body .mega-menu .mega-icon-label {
-    font-size: 0.7rem !important;
-    font-weight: 600 !important;
-    color: #0d1b2a !important;
-    line-height: 1.2 !important;
-    max-width: 80px !important;
-    word-break: break-word !important;
-}
-
-html body .mega-menu .mega-icon-tile:hover .mega-icon-label {
-    color: #d4a017 !important;
-}
-/* ============================================ */
-/* MEGA MENU LAYOUT (TEXT ONLY, MULTI-COLUMN)   */
-/* ============================================ */
-html body .mega-menu .mega-dropdown-content {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 1.5rem 2rem !important;
-    align-items: flex-start !important;
-    padding-bottom: 0.5rem !important;
-}
-
-/* The Text Columns */
+/* 3. Each column */
 html body .mega-menu .mega-column {
-    flex: 1 1 140px !important;
-    min-width: 140px !important;
-    max-width: 200px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
 }
 
-/* Column Headers */
+/* 4. Column headers (clickable to filter) */
 html body .mega-menu .mega-column h4 {
     font-size: 0.85rem !important;
     font-weight: 800 !important;
     color: #0d1b2a !important;
-    margin: 0 0 0.5rem 0 !important;
-    padding-bottom: 0.3rem !important;
+    margin: 0 0 0.6rem 0 !important;
+    padding-bottom: 0.4rem !important;
     border-bottom: 2px solid #f9c74f !important;
     text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
 }
 
 html body .mega-menu .mega-column h4 a {
     color: #0d1b2a !important;
     text-decoration: none !important;
+    display: block !important;
+    cursor: pointer !important;
 }
 
 html body .mega-menu .mega-column h4 a:hover {
     color: #d4a017 !important;
 }
 
-/* Column Links */
+/* 5. Sub-links */
 html body .mega-menu .mega-column a {
     display: block !important;
-    padding: 0.3rem 0 !important;
+    padding: 0.35rem 0 !important;
     font-size: 0.85rem !important;
     color: #555 !important;
     text-decoration: none !important;
-    transition: color 0.15s ease !important;
+    transition: all 0.2s ease !important;
 }
 
 html body .mega-menu .mega-column a:hover {
     color: #d4a017 !important;
-    padding-left: 0.2rem !important;
+    padding-left: 0.25rem !important;
+}
+
+/* 6. Custom scrollbar (thin, brand-colored) */
+html body .mega-menu .mega-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+html body .mega-menu .mega-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+html body .mega-menu .mega-dropdown::-webkit-scrollbar-thumb {
+    background: #f9c74f;
+    border-radius: 3px;
+}
+html body .mega-menu .mega-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #d4a017;
+}
+
+/* Mobile — hide mega menu, hamburger takes over */
+@media (max-width: 768px) {
+    html body .mega-menu {
+        display: none !important;
+    }
 }
