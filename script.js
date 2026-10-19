@@ -8679,7 +8679,7 @@ window.addEventListener('scroll', function() {
 }, { passive: true });
 
 /* ============================================ */
-/* DYNAMIC CATEGORY PAGE ICON ROWS (HYBRID FIX) */
+/* DYNAMIC CATEGORY PAGE ICON ROWS (3D MASTER)  */
 /* ============================================ */
 async function buildCategoryPageIcons(categorySlug) {
     const rowContainer = document.querySelector('.subcat-row');
@@ -8715,27 +8715,35 @@ async function buildCategoryPageIcons(categorySlug) {
         const subCats = allCategories.filter(c => c.parentSlug === categorySlug);
 
         // ============================================
-        // HYBRID ICON LIBRARY (3D Images + SVG Fallbacks)
+        // THE DEFINITIVE 3D ICON MAP
         // ============================================
         const baseUrl = 'https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/';
         
-        // 1. Reliable 3D Images
         const imgIcons = {
             'all': 'Sparkles/3D/sparkles_3d.png',
+            
+            // Electronics
             'television': 'Television/3D/television_3d.png',
             'tv': 'Television/3D/television_3d.png',
             'audio': 'Headphone/3D/headphone_3d.png',
             'camera': 'Camera/3D/camera_3d.png',
             'accessories': 'Wrench/3D/wrench_3d.png',
+            
+            // Phones & Tablets
             'phone': 'Mobile%20phone/3D/mobile_phone_3d.png',
             'smartphone': 'Mobile%20phone/3D/mobile_phone_3d.png',
             'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png', 
             'power': 'Battery/3D/battery_3d.png',
+            'power-bank': 'Battery/3D/battery_3d.png',
+            
+            // Computers
             'laptop': 'Laptop/3D/laptop_3d.png',
             'computer': 'Desktop%20computer/3D/desktop_computer_3d.png',
             'desktop': 'Desktop%20computer/3D/desktop_computer_3d.png',
             'printer': 'Printer/3D/printer_3d.png',
             'network': 'Globe%20with%20meridians/3D/globe_with_meridians_3d.png',
+            
+            // Fashion
             'clothing': 'T-shirt/3D/t-shirt_3d.png',
             'shirt': 'T-shirt/3D/t-shirt_3d.png',
             'shoe': 'Running%20shoe/3D/running_shoe_3d.png',
@@ -8743,52 +8751,64 @@ async function buildCategoryPageIcons(categorySlug) {
             'bag': 'Handbag/3D/handbag_3d.png',
             'jewelry': 'Gem%20stone/3D/gem_stone_3d.png',
             'watch': 'Watch/3D/watch_3d.png',
-            'skincare': 'Lotion%20bottle/3D/lotion_bottle_3d.png',
+            
+            // Beauty (Fixed!)
+            'skincare': 'Lotion/3D/lotion_3d.png',
             'makeup': 'Lipstick/3D/lipstick_3d.png',
             'fragrance': 'Perfume/3D/perfume_3d.png',
+            'perfume': 'Perfume/3D/perfume_3d.png',
             'hair': 'Comb/3D/comb_3d.png',
+            
+            // Home & Kitchen (Fixed!)
             'furniture': 'Couch%20and%20lamp/3D/couch_and_lamp_3d.png',
             'sofa': 'Couch%20and%20lamp/3D/couch_and_lamp_3d.png',
             'cookware': 'Cooking/3D/cooking_3d.png',
             'kitchen': 'Fork%20and%20knife%20with%20plate/3D/fork_and_knife_with_plate_3d.png',
             'bedding': 'Bed/3D/bed_3d.png',
             'decor': 'Framed%20picture/3D/framed_picture_3d.png',
+            'cleaning': 'Sponge/3D/sponge_3d.png',
+            'appliances': 'Countertop/3D/countertop_3d.png',
+            
+            // Digital
             'ebook': 'Books/3D/books_3d.png',
             'course': 'Graduation%20cap/3D/graduation_cap_3d.png',
             'template': 'Page%20facing%20up/3D/page_facing_up_3d.png',
+            
+            // Traditional (Fixed!)
             'traditional': 'Crown/3D/crown_3d.png',
             'women': 'Woman/3D/woman_3d.png',
             'men': 'Man/3D/man_3d.png',
             'fabrics': 'Yarn/3D/yarn_3d.png'
         };
 
-        // 2. SVG Fallbacks for items that break in the MS library
+        // SVG Fallbacks for items Microsoft doesn't have in 3D
         const svgIcons = {
             'dvd': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>`,
             'game': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>`,
             'console': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>`,
-            'software': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`
+            'software': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`,
+            'accessories': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>`
         };
 
         function getIconHTML(name, slug) {
             const lowerName = name.toLowerCase();
             const lowerSlug = slug.toLowerCase();
             
-            // Check SVG fallbacks first (DVD, Games)
+            // 1. Check SVG fallbacks first for specific edge cases
             for (const key in svgIcons) {
                 if (lowerSlug.includes(key) || lowerName.includes(key)) {
                     return `<div style="width: 32px; height: 32px; color: #0d1b2a;">${svgIcons[key]}</div>`;
                 }
             }
 
-            // Check 3D images
+            // 2. Check 3D images
             for (const key in imgIcons) {
                 if (lowerSlug.includes(key) || lowerName.includes(key)) {
                     return `<img src="${baseUrl + encodeURI(imgIcons[key])}" alt="${name}" loading="lazy" />`;
                 }
             }
 
-            // Default fallback
+            // 3. Fallback for anything else
             return `<img src="${baseUrl + 'Shopping%20bags/3D/shopping_bags_3d.png'}" alt="${name}" loading="lazy" />`;
         }
 
