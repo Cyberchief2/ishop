@@ -8497,15 +8497,6 @@ function initMegaMenuScroller() {
     chevron.setAttribute('aria-label', 'Scroll categories right');
     chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
     
-    // Style the chevron directly since we removed CSS constraints
-    chevron.style.cssText = `
-        position: absolute; top: 50%; right: 1rem; transform: translateY(-50%);
-        width: 32px; height: 32px; background: #f9c74f; border: 2px solid #fff;
-        border-radius: 50%; color: #0d1b2a; display: flex; align-items: center;
-        justify-content: center; cursor: pointer; z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 0;
-    `;
-
     chevron.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -8517,11 +8508,11 @@ function initMegaMenuScroller() {
     function update() {
         const maxScroll = Math.ceil(scroller.scrollWidth - scroller.clientWidth);
         if (maxScroll <= 5) {
-            chevron.style.display = 'none';
+            chevron.classList.add('hidden');
             return;
         }
         const atEnd = Math.ceil(scroller.scrollLeft) >= maxScroll - 5;
-        chevron.style.display = atEnd ? 'none' : 'flex';
+        chevron.classList.toggle('hidden', atEnd);
     }
 
     scroller.addEventListener('scroll', update, { passive: true });
