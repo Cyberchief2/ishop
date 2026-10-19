@@ -16417,15 +16417,16 @@ html body .mega-menu .mega-dropdown {
     z-index: 99999 !important;
 
     background: #ffffff !important;
-    width: 680px !important;
-    max-width: 92vw !important;
-    padding: 1.5rem !important;
+    
+    /* 🔥 FIX 1: Forced a much wider width (850px) so it can fit 3 columns */
+    width: 850px !important; 
+    max-width: 95vw !important;
+    padding: 2rem 1.5rem !important;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
     border-top: 3px solid #f9c74f !important;
     border-radius: 0 0 12px 12px !important;
 
-    /* Force internal scrolling if categories are too long */
-    max-height: 70vh !important;
+    max-height: 75vh !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     overscroll-behavior: contain !important;
@@ -16442,12 +16443,19 @@ html body .mega-menu .menu-links > li:hover .mega-dropdown {
     display: block !important;
 }
 
-/* 2. The grid: forces categories into 3 columns side-by-side */
+/* 2. The grid: forces categories into 2 columns side-by-side */
 html body .mega-menu .mega-dropdown-content {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 2rem 1.5rem !important;
+    grid-template-columns: 1fr 1fr !important; 
+    gap: 2rem 3rem !important;
     align-items: start !important;
+    width: 100% !important;
+}
+
+/* 3. Ensure the columns themselves don't stretch weirdly */
+html body .mega-menu .mega-column {
+    display: block !important;
+    min-width: 0 !important;
 }
 
 /* 3. Each column */
