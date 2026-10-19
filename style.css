@@ -16866,18 +16866,27 @@ html body .hero-carousel {
     z-index: 1 !important;
 }
 /* ============================================ */
-/* MEGA MENU - THE ULTIMATE FINAL OVERRIDE      */
+/* MEGA MENU - THE ACTUAL FINAL FIX             */
 /* ============================================ */
 
-/* 1. Allow the dropdown to escape the header boundary */
+/* 1. Allow the dropdown to escape the menu bar */
 html body header,
 html body nav.mega-menu,
-html body nav.mega-menu .mega-menu-content,
-html body nav.mega-menu .menu-links {
+html body nav.mega-menu .mega-menu-content {
     overflow: visible !important;
 }
 
-/* 2. Force the menu to the absolute front */
+/* 2. Keep the scrollbar on the links, but hide the ugly scrollbar */
+html body nav.mega-menu .menu-links {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+}
+html body nav.mega-menu .menu-links::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* 3. Force the menu to the absolute front */
 html body header {
     z-index: 999999 !important;
     position: relative !important;
@@ -16889,7 +16898,7 @@ html body nav.mega-menu {
     background: #ffffff !important;
 }
 
-/* 3. The Dropdown Container - Sizing and Z-Index */
+/* 4. The Dropdown Container */
 html body nav.mega-menu .mega-dropdown {
     display: none !important;
     position: absolute !important;
@@ -16906,33 +16915,37 @@ html body nav.mega-menu .mega-dropdown {
     border-top: 3px solid #f9c74f !important;
     border-radius: 0 0 12px 12px !important;
     
-    /* THE FIX FOR EMPTY SPACES: Shrink to fit content */
+    /* THE FIX FOR SCREEN OVERFLOW: Keep it within 90% of the screen */
     width: max-content !important;
-    min-width: 400px !important;
+    min-width: 450px !important;
     max-width: 90vw !important;
+    
+    /* If there are a lot of items, allow internal scrolling */
+    max-height: 80vh !important;
+    overflow-y: auto !important;
 }
 
-/* 4. Show on hover */
+/* 5. Show on hover */
 html body nav.mega-menu .menu-links > li:hover > .mega-dropdown {
     display: block !important;
 }
 
-/* 5. Keep right-side dropdowns on screen */
+/* 6. Keep right-side dropdowns on screen */
 html body nav.mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
     left: auto !important;
     right: 0 !important;
 }
 
-/* 6. The 2-Column Grid with tighter spacing */
+/* 7. The 2-Column Grid - Forces perfect sizing */
 html body nav.mega-menu .mega-dropdown-content {
     display: grid !important;
-    /* Forces exactly 2 columns, max 220px wide each */
-    grid-template-columns: repeat(2, minmax(180px, 220px)) !important; 
+    /* 2 columns, max 240px wide each. Prevents the screen overflow. */
+    grid-template-columns: repeat(2, minmax(180px, 240px)) !important; 
     gap: 1.5rem 2rem !important;
     align-items: start !important;
 }
 
-/* 7. Typography */
+/* 8. Typography */
 html body nav.mega-menu .mega-column h4 {
     font-size: 0.85rem !important;
     font-weight: 800 !important;
@@ -16957,7 +16970,7 @@ html body nav.mega-menu .mega-column a:hover {
     color: #d4a017 !important;
 }
 
-/* 8. Force Hero Carousel to stay in the background */
+/* 9. Force Hero Carousel to stay in the background */
 html body .hero-carousel {
     z-index: 1 !important;
     position: relative !important;
