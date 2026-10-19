@@ -8524,3 +8524,24 @@ function initMegaMenuScroller() {
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(buildDynamicMegaMenu, 100);
 });
+// ============================================
+// PREVENT DROPDOWN FROM DETACHING ON SCROLL
+// ============================================
+window.addEventListener('scroll', function() {
+    // Find all open dropdowns
+    const dropdowns = document.querySelectorAll('.mega-dropdown');
+    
+    dropdowns.forEach(dd => {
+        // Check if it's currently visible on the screen
+        if (dd.offsetWidth > 0 && dd.offsetHeight > 0) {
+            // Force it to hide by removing hover state visibility
+            dd.style.setProperty('display', 'none', 'important');
+            
+            // Use a tiny timeout to restore the CSS display rule so the hover 
+            // works normally the next time they mouse over the menu
+            setTimeout(() => {
+                dd.style.removeProperty('display');
+            }, 100);
+        }
+    });
+}, { passive: true });

@@ -17023,3 +17023,16 @@ html body nav.mega-menu .mega-column a:hover {
     color: #0d1b2a !important;
     font-weight: 600 !important;
 }
+/* ============================================ */
+/* FIX SCROLL CHAINING & DETACHMENT             */
+/* ============================================ */
+
+/* 1. Prevent the page from scrolling when the dropdown reaches its end */
+html body nav.mega-menu .mega-dropdown {
+    overscroll-behavior: contain !important;
+}
+
+/* 2. Ensure the menu bar doesn't create a weird stacking context when scrolling */
+html body nav.mega-menu {
+    isolation: isolate !important;
+}
