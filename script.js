@@ -8679,13 +8679,12 @@ window.addEventListener('scroll', function() {
 }, { passive: true });
 
 /* ============================================ */
-/* DYNAMIC CATEGORY PAGE ICON ROWS (3D STYLE)   */
+/* DYNAMIC CATEGORY PAGE ICON ROWS (HYBRID FIX) */
 /* ============================================ */
 async function buildCategoryPageIcons(categorySlug) {
     const rowContainer = document.querySelector('.subcat-row');
     if (!rowContainer) return; 
 
-    // Show a loading skeleton for the icons
     rowContainer.innerHTML = `
         <div class="subcat-item"><div class="subcat-icon skeleton-block"></div></div>
         <div class="subcat-item"><div class="subcat-icon skeleton-block"></div></div>
@@ -8716,34 +8715,27 @@ async function buildCategoryPageIcons(categorySlug) {
         const subCats = allCategories.filter(c => c.parentSlug === categorySlug);
 
         // ============================================
-        // HIGH-QUALITY 3D ICON LIBRARY (MS Fluent)
+        // HYBRID ICON LIBRARY (3D Images + SVG Fallbacks)
         // ============================================
         const baseUrl = 'https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/';
         
-        const iconLibrary = {
+        // 1. Reliable 3D Images
+        const imgIcons = {
             'all': 'Sparkles/3D/sparkles_3d.png',
-            
-            // Electronics
             'television': 'Television/3D/television_3d.png',
             'tv': 'Television/3D/television_3d.png',
             'audio': 'Headphone/3D/headphone_3d.png',
             'camera': 'Camera/3D/camera_3d.png',
-            'dvd': 'Optical%20disk/3D/optical_disk_3d.png',
-            'game': 'Video%20game/3D/video_game_3d.png',
             'accessories': 'Wrench/3D/wrench_3d.png',
-            
-            // Phones & Computers
             'phone': 'Mobile%20phone/3D/mobile_phone_3d.png',
             'smartphone': 'Mobile%20phone/3D/mobile_phone_3d.png',
-            'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png', // Fallback to phone
+            'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png', 
             'power': 'Battery/3D/battery_3d.png',
             'laptop': 'Laptop/3D/laptop_3d.png',
             'computer': 'Desktop%20computer/3D/desktop_computer_3d.png',
             'desktop': 'Desktop%20computer/3D/desktop_computer_3d.png',
             'printer': 'Printer/3D/printer_3d.png',
             'network': 'Globe%20with%20meridians/3D/globe_with_meridians_3d.png',
-            
-            // Fashion
             'clothing': 'T-shirt/3D/t-shirt_3d.png',
             'shirt': 'T-shirt/3D/t-shirt_3d.png',
             'shoe': 'Running%20shoe/3D/running_shoe_3d.png',
@@ -8751,55 +8743,59 @@ async function buildCategoryPageIcons(categorySlug) {
             'bag': 'Handbag/3D/handbag_3d.png',
             'jewelry': 'Gem%20stone/3D/gem_stone_3d.png',
             'watch': 'Watch/3D/watch_3d.png',
-            
-            // Beauty
             'skincare': 'Lotion%20bottle/3D/lotion_bottle_3d.png',
             'makeup': 'Lipstick/3D/lipstick_3d.png',
             'fragrance': 'Perfume/3D/perfume_3d.png',
             'hair': 'Comb/3D/comb_3d.png',
-            
-            // Home
             'furniture': 'Couch%20and%20lamp/3D/couch_and_lamp_3d.png',
             'sofa': 'Couch%20and%20lamp/3D/couch_and_lamp_3d.png',
             'cookware': 'Cooking/3D/cooking_3d.png',
             'kitchen': 'Fork%20and%20knife%20with%20plate/3D/fork_and_knife_with_plate_3d.png',
             'bedding': 'Bed/3D/bed_3d.png',
             'decor': 'Framed%20picture/3D/framed_picture_3d.png',
-            
-            // Digital
-            'software': 'Desktop%20computer/3D/desktop_computer_3d.png',
             'ebook': 'Books/3D/books_3d.png',
             'course': 'Graduation%20cap/3D/graduation_cap_3d.png',
             'template': 'Page%20facing%20up/3D/page_facing_up_3d.png',
-
-            // Traditional
             'traditional': 'Crown/3D/crown_3d.png',
             'women': 'Woman/3D/woman_3d.png',
             'men': 'Man/3D/man_3d.png',
             'fabrics': 'Yarn/3D/yarn_3d.png'
         };
 
-        function get3DIcon(name, slug) {
+        // 2. SVG Fallbacks for items that break in the MS library
+        const svgIcons = {
+            'dvd': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>`,
+            'game': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>`,
+            'console': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>`,
+            'software': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`
+        };
+
+        function getIconHTML(name, slug) {
             const lowerName = name.toLowerCase();
             const lowerSlug = slug.toLowerCase();
             
-            if (lowerSlug === 'all') return baseUrl + iconLibrary['all'];
-
-            // Exact keyword check
-            for (const key in iconLibrary) {
+            // Check SVG fallbacks first (DVD, Games)
+            for (const key in svgIcons) {
                 if (lowerSlug.includes(key) || lowerName.includes(key)) {
-                    return baseUrl + encodeURI(iconLibrary[key]);
+                    return `<div style="width: 32px; height: 32px; color: #0d1b2a;">${svgIcons[key]}</div>`;
                 }
             }
-            // Fallback to a generic shopping bag if no match
-            return baseUrl + 'Shopping%20bags/3D/shopping_bags_3d.png'; 
+
+            // Check 3D images
+            for (const key in imgIcons) {
+                if (lowerSlug.includes(key) || lowerName.includes(key)) {
+                    return `<img src="${baseUrl + encodeURI(imgIcons[key])}" alt="${name}" loading="lazy" />`;
+                }
+            }
+
+            // Default fallback
+            return `<img src="${baseUrl + 'Shopping%20bags/3D/shopping_bags_3d.png'}" alt="${name}" loading="lazy" />`;
         }
 
-        // Start building the HTML string
         let html = `
             <button class="subcat-item active" data-subtype="all">
                 <div class="subcat-icon">
-                    <img src="${baseUrl + iconLibrary['all']}" alt="All" loading="lazy" />
+                    <img src="${baseUrl + imgIcons['all']}" alt="All" loading="lazy" />
                 </div>
                 <span class="subcat-label">All</span>
             </button>
@@ -8808,14 +8804,11 @@ async function buildCategoryPageIcons(categorySlug) {
         subCats.forEach(sub => {
             let iconHTML = '';
             
-            // 1. If Strapi has an uploaded image, use it (Top priority)
             if (sub.image && sub.image.url) {
                 const imgUrl = sub.image.url.startsWith('http') ? sub.image.url : 'https://ishop-cms-production.up.railway.app' + sub.image.url;
                 iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" />`;
             } else {
-                // 2. Otherwise, use our 3D Emoji Library
-                const imgUrl = get3DIcon(sub.name, sub.slug);
-                iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" />`;
+                iconHTML = getIconHTML(sub.name, sub.slug);
             }
 
             html += `
@@ -8828,7 +8821,6 @@ async function buildCategoryPageIcons(categorySlug) {
 
         rowContainer.innerHTML = html;
 
-        // Wire up the click events to filter products instantly
         const buttons = rowContainer.querySelectorAll('.subcat-item');
         buttons.forEach(btn => {
             btn.addEventListener('click', function() {
