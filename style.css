@@ -7116,6 +7116,7 @@ footer {
     overflow: visible;
     border-radius: 0;
     min-height: 0;
+    z-index: 1 !important;
 }
 
 .hero-slide {
@@ -16771,4 +16772,96 @@ nav.mega-menu .mega-column a:hover { color: #d4a017 !important; }
 
 @media (max-width: 768px) {
     nav.mega-menu { display: none !important; }
+}
+/* ============================================ */
+/* FINAL MEGA MENU FIX (OVERRIDES EVERYTHING)  */
+/* ============================================ */
+
+/* 1. Force the menu to sit above the hero banner */
+html body header {
+    z-index: 99999 !important;
+    overflow: visible !important;
+}
+html body .mega-menu {
+    z-index: 99999 !important;
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* 2. Anchors the dropdown to the category link */
+html body .mega-menu .menu-links > li {
+    position: relative !important;
+}
+
+/* 3. The Dropdown itself */
+html body .mega-menu .mega-dropdown {
+    display: none !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    
+    /* Force it to the absolute top layer */
+    z-index: 2147483647 !important; 
+    
+    /* Styling */
+    background: #ffffff !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2) !important;
+    border-top: 3px solid #f9c74f !important;
+    border-radius: 0 0 12px 12px !important;
+    
+    /* Size & Layout (Fixes the empty space) */
+    width: 600px !important;
+    max-width: 90vw !important;
+}
+
+/* 4. Show on hover */
+html body .mega-menu .menu-links > li:hover .mega-dropdown,
+html body .mega-menu .menu-links > li:focus-within .mega-dropdown {
+    display: block !important;
+}
+
+/* 5. Flip right-side dropdowns so they don't go off-screen */
+html body .mega-menu .menu-links > li:nth-last-child(-n+3) .mega-dropdown {
+    left: auto !important;
+    right: 0 !important;
+}
+
+/* 6. Force the 2-Column Grid */
+html body .mega-menu .mega-dropdown-content {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(160px, 1fr)) !important;
+    gap: 1.5rem 2rem !important;
+    align-items: start !important;
+}
+
+/* 7. Typography inside the dropdown */
+html body .mega-menu .mega-column h4 {
+    font-size: 0.85rem !important;
+    font-weight: 800 !important;
+    color: #0d1b2a !important;
+    margin: 0 0 0.6rem !important;
+    border-bottom: 2px solid #f9c74f !important;
+    padding-bottom: 0.4rem !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+}
+
+html body .mega-menu .mega-column a {
+    display: block !important;
+    padding: 0.35rem 0 !important;
+    font-size: 0.85rem !important;
+    color: #555 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+}
+
+html body .mega-menu .mega-column a:hover {
+    color: #d4a017 !important;
+    padding-left: 0.3rem !important;
+}
+
+/* 8. Ensure the Hero Carousel stays behind the menu */
+html body .hero-carousel {
+    z-index: 1 !important;
 }
