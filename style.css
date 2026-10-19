@@ -16453,9 +16453,9 @@ html body nav.mega-menu .menu-links {
     align-items: center !important;
     gap: 0.25rem !important;
     width: 100% !important;
-    height: 100% !important;
+    height: 50px !important; /* Forces height so chevron centers */
     overflow-x: auto !important;
-    overflow-y: visible !important;
+    overflow-y: hidden !important; /* Prevents vertical scrolling */
     padding: 0 3rem 0 0 !important;
     margin: 0 !important;
     list-style: none !important;
@@ -16546,7 +16546,7 @@ html body nav.mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
 /* 2-column content */
 html body nav.mega-menu .mega-dropdown-content {
     display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
+    grid-template-columns: repeat(2, minmax(180px, 1fr)) !important; /* Forces 2 columns if space allows */
     gap: 1.5rem 2rem !important;
     align-items: start !important;
 }

@@ -8325,6 +8325,44 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 // VENDOR PRODUCT FORM - FINAL FIX
 // ============================================
+function setupMegaMenuScroller() {
+    const menu = document.querySelector('.mega-menu');
+    const scroller = document.querySelector('.mega-menu .menu-links');
+    const content = document.querySelector('.mega-menu .mega-menu-content');
+    if (!menu || !scroller || !content) return;
+
+    menu.querySelectorAll('.mega-menu-scroll-hint').forEach(el => el.remove());
+
+    const chevron = document.createElement('button');
+    chevron.className = 'mega-menu-scroll-hint';
+    chevron.setAttribute('aria-label', 'Scroll categories right');
+    chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    
+    chevron.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        scroller.scrollBy({ left: 250, behavior: 'smooth' });
+    });
+    
+    menu.appendChild(chevron);
+
+    function update() {
+        const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+        if (maxScroll <= 4) {
+            chevron.classList.add('hidden');
+            content.classList.add('scrolled-end');
+            return;
+        }
+        const atEnd = scroller.scrollLeft >= maxScroll - 8;
+        chevron.classList.toggle('hidden', atEnd);
+        content.classList.toggle('scrolled-end', atEnd);
+    }
+
+    scroller.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    setTimeout(update, 200);
+}
+
 let formCategories = [];
 
 document.addEventListener('DOMContentLoaded', function() {
