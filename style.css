@@ -16423,21 +16423,26 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     .admin-bar-chart { height: 100px; }
 }
 /* ============================================ */
-/* MEGA MENU — THE ONLY CSS YOU NEED            */
+/* MEGA MENU — ABSOLUTE FINAL Z-INDEX FIX       */
 /* ============================================ */
 
-/* 1. The Menu Bar */
+/* 1. Force the header wrapper and menu to the very top */
 header {
-    background: #ffffff;
-    padding: 1.15rem 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    overflow: visible !important; /* Forces the dropdown to escape */
+    z-index: 99999 !important;
+    overflow: visible !important;
 }
 
-html body nav.mega-menu .mega-menu-content {
+nav.mega-menu {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e8ecf0 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+    position: relative !important;
+    z-index: 99999 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+nav.mega-menu .mega-menu-content {
     max-width: 1300px !important;
     margin: 0 auto !important;
     position: relative !important;
@@ -16448,7 +16453,7 @@ html body nav.mega-menu .mega-menu-content {
 }
 
 /* 2. The Horizontal Scrollable List */
-html body nav.mega-menu .menu-links {
+nav.mega-menu .menu-links {
     display: flex !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
@@ -16456,24 +16461,24 @@ html body nav.mega-menu .menu-links {
     width: 100% !important;
     height: 100% !important;
     overflow-x: auto !important;
-    overflow-y: hidden !important;
-    padding: 0 3.5rem 0 0 !important; /* Space for chevron */
+    overflow-y: visible !important; /* Crucial: allow dropdown to pop out */
+    padding: 0 3.5rem 0 0 !important;
     margin: 0 !important;
     list-style: none !important;
     scrollbar-width: none !important;
 }
 
-html body nav.mega-menu .menu-links::-webkit-scrollbar {
+nav.mega-menu .menu-links::-webkit-scrollbar {
     display: none !important;
 }
 
-html body nav.mega-menu .menu-links > li {
+nav.mega-menu .menu-links > li {
     flex: 0 0 auto !important;
     white-space: nowrap !important;
-    position: relative !important; /* Important for dropdown positioning */
+    position: relative !important; /* This anchors the absolute dropdown */
 }
 
-html body nav.mega-menu .menu-links > li > a {
+nav.mega-menu .menu-links > li > a {
     display: inline-flex !important;
     align-items: center !important;
     gap: 0.35rem !important;
@@ -16485,12 +16490,12 @@ html body nav.mega-menu .menu-links > li > a {
     border-radius: 6px !important;
 }
 
-html body nav.mega-menu .menu-links > li > a:hover {
+nav.mega-menu .menu-links > li > a:hover {
     color: #f9c74f !important;
 }
 
 /* 3. The Yellow Chevron Indicator */
-html body nav.mega-menu .mega-menu-scroll-hint {
+nav.mega-menu .mega-menu-scroll-hint {
     position: absolute !important;
     top: 50% !important;
     right: 0.5rem !important;
@@ -16511,55 +16516,52 @@ html body nav.mega-menu .mega-menu-scroll-hint {
     padding: 0 !important;
 }
 
-html body nav.mega-menu .mega-menu-scroll-hint.hidden {
+nav.mega-menu .mega-menu-scroll-hint.hidden {
     display: none !important;
 }
 
-/* 4. The Dropdown */
-html body nav.mega-menu .mega-dropdown {
+/* 4. The Dropdown (Forced to extreme front) */
+nav.mega-menu .mega-dropdown {
     display: none !important;
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
-    
-    /* Forces it above the hero banner and everything else */
-    z-index: 999999 !important; 
-    
+    z-index: 2147483647 !important; /* Max possible z-index in browsers */
     background: #ffffff !important;
     width: 580px !important; 
     padding: 1.5rem !important;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25) !important;
     border-top: 3px solid #f9c74f !important;
     border-radius: 0 0 12px 12px !important;
     max-height: 70vh !important;
     overflow-y: auto !important;
 }
 
-html body nav.mega-menu .menu-links > li:hover > .mega-dropdown {
+nav.mega-menu .menu-links > li:hover > .mega-dropdown {
     display: block !important;
 }
 
 /* Keep right-side dropdowns on screen */
-html body nav.mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
+nav.mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
     left: auto !important;
     right: 0 !important;
 }
 
 /* 5. The 2-Column Grid */
-html body nav.mega-menu .mega-dropdown-content {
+nav.mega-menu .mega-dropdown-content {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important; /* EXACTLY 2 COLUMNS */
+    grid-template-columns: repeat(2, 1fr) !important; 
     gap: 1.5rem 2rem !important;
     align-items: start !important;
     width: 100% !important;
 }
 
-html body nav.mega-menu .mega-column {
+nav.mega-menu .mega-column {
     display: block !important;
     min-width: 0 !important;
 }
 
-html body nav.mega-menu .mega-column h4 {
+nav.mega-menu .mega-column h4 {
     font-size: 0.85rem !important;
     font-weight: 800 !important;
     color: #0d1b2a !important;
@@ -16569,18 +16571,18 @@ html body nav.mega-menu .mega-column h4 {
     text-transform: uppercase !important;
 }
 
-html body nav.mega-menu .mega-column h4 a {
+nav.mega-menu .mega-column h4 a {
     color: #0d1b2a !important;
     text-decoration: none !important;
     display: block !important;
     cursor: pointer !important;
 }
 
-html body nav.mega-menu .mega-column h4 a:hover {
+nav.mega-menu .mega-column h4 a:hover {
     color: #d4a017 !important;
 }
 
-html body nav.mega-menu .mega-column a {
+nav.mega-menu .mega-column a {
     display: block !important;
     padding: 0.35rem 0 !important;
     font-size: 0.85rem !important;
@@ -16588,13 +16590,18 @@ html body nav.mega-menu .mega-column a {
     text-decoration: none !important;
 }
 
-html body nav.mega-menu .mega-column a:hover {
+nav.mega-menu .mega-column a:hover {
     color: #d4a017 !important;
 }
 
-/* 6. Mobile */
+/* 6. Force Hero to stay below */
+.hero-carousel {
+    z-index: 1 !important;
+}
+
+/* 7. Mobile */
 @media (max-width: 768px) {
-    html body nav.mega-menu {
+    nav.mega-menu {
         display: none !important;
     }
 }
