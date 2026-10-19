@@ -322,11 +322,29 @@ header {
 }
 
 .menu-links {
-    display: flex;
-    list-style: none;
-    gap: 0.2rem;
-    margin: 0;
-    padding: 0;
+    display: flex !important;
+    flex-wrap: nowrap !important; /* Forces horizontal line */
+    list-style: none !important;
+    gap: 0.2rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: auto !important; /* Enables horizontal scrolling */
+    overflow-y: hidden !important;
+    width: 100% !important;
+    height: 44px !important; /* Keeps the bar at the right height */
+    align-items: center !important;
+    scrollbar-width: none !important; /* Hides ugly default scrollbar */
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* Hide scrollbar for Chrome/Safari */
+.menu-links::-webkit-scrollbar {
+    display: none !important;
+}
+
+.menu-links > li {
+    flex: 0 0 auto !important; /* Stops items from shrinking */
+    white-space: nowrap !important;
 }
 
 .menu-links > li {
@@ -16418,10 +16436,10 @@ html body .mega-menu .mega-dropdown {
 
     background: #ffffff !important;
     
-    /* 🔥 FIX 1: Forced a much wider width (850px) so it can fit 3 columns */
-    width: 850px !important; 
+    /* Made it narrower (600px) so the 2 columns sit close together */
+    width: 600px !important; 
     max-width: 95vw !important;
-    padding: 2rem 1.5rem !important;
+    padding: 1.5rem !important;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
     border-top: 3px solid #f9c74f !important;
     border-radius: 0 0 12px 12px !important;
@@ -16447,7 +16465,7 @@ html body .mega-menu .menu-links > li:hover .mega-dropdown {
 html body .mega-menu .mega-dropdown-content {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important; 
-    gap: 2rem 3rem !important;
+    gap: 2rem 1.5rem !important; /* Reduced gap so they sit closer */
     align-items: start !important;
     width: 100% !important;
 }
