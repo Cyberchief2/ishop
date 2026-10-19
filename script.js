@@ -8457,13 +8457,16 @@ function setupMegaMenuScroller() {
     const content = document.querySelector('.mega-menu .mega-menu-content');
     if (!menu || !scroller || !content) return;
 
+    // Remove existing chevron
     menu.querySelectorAll('.mega-menu-scroll-hint').forEach(el => el.remove());
 
+    // Create chevron
     const chevron = document.createElement('button');
     chevron.className = 'mega-menu-scroll-hint';
     chevron.setAttribute('aria-label', 'Scroll categories right');
     chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
     
+    // Scroll right on click
     chevron.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -8472,20 +8475,25 @@ function setupMegaMenuScroller() {
     
     menu.appendChild(chevron);
 
+    // Update visibility of chevron based on scroll position
     function update() {
-        const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-        if (maxScroll <= 4) {
+        // Use Math.ceil to fix fractional pixel bugs in some browsers
+        const maxScroll = Math.ceil(scroller.scrollWidth - scroller.clientWidth);
+        
+        if (maxScroll <= 5) {
             chevron.classList.add('hidden');
-            content.classList.add('scrolled-end');
             return;
         }
-        const atEnd = scroller.scrollLeft >= maxScroll - 8;
+        
+        const atEnd = Math.ceil(scroller.scrollLeft) >= maxScroll - 5;
         chevron.classList.toggle('hidden', atEnd);
-        content.classList.toggle('scrolled-end', atEnd);
     }
 
+    // Listen for scroll and resize events
     scroller.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
+    
+    // Run once after a small delay to ensure DOM is fully painted
     setTimeout(update, 200);
 }
 

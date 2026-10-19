@@ -16866,70 +16866,107 @@ html body .hero-carousel {
     z-index: 1 !important;
 }
 /* ============================================ */
-/* MEGA MENU FIX - FINAL OVERRIDE               */
+/* MEGA MENU - ULTIMATE FIX                     */
 /* ============================================ */
 
-/* 1. Force the header and menu to the absolute top layer */
+/* 1. Reset the overflow so dropdowns and scrolls work */
 html body header,
 html body nav.mega-menu,
 html body nav.mega-menu .mega-menu-content,
 html body nav.mega-menu .menu-links {
     overflow: visible !important;
-    position: relative !important;
 }
 
 html body header {
     z-index: 100000 !important;
+    position: relative !important;
 }
 
 html body nav.mega-menu {
     z-index: 99999 !important;
     background: #ffffff !important;
     border-bottom: 1px solid #e8ecf0 !important;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
 }
 
-/* 2. The Dropdown Container */
+/* 2. Re-enable horizontal scrolling for the menu links */
+html body nav.mega-menu .menu-links {
+    display: flex !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding-right: 3.5rem !important; /* Space for the chevron */
+    scrollbar-width: none !important;
+}
+html body nav.mega-menu .menu-links::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* 3. The Chevron Button */
+html body nav.mega-menu .mega-menu-scroll-hint {
+    position: absolute !important;
+    top: 50% !important;
+    right: 1rem !important;
+    transform: translateY(-50%) !important;
+    width: 32px !important;
+    height: 32px !important;
+    background: #f9c74f !important;
+    border: 2px solid #fff !important;
+    border-radius: 50% !important;
+    color: #0d1b2a !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 1000 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    padding: 0 !important;
+}
+html body nav.mega-menu .mega-menu-scroll-hint.hidden {
+    display: none !important;
+}
+
+/* 4. The Dropdown Container - This fixes the giant empty spaces */
 html body nav.mega-menu .mega-dropdown {
     display: none !important;
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
-    
-    /* Force it above absolutely everything */
     z-index: 2147483647 !important; 
     
-    /* Styling */
     background: #ffffff !important;
     padding: 1.5rem !important;
     box-shadow: 0 20px 50px rgba(0,0,0,0.15) !important;
     border-top: 3px solid #f9c74f !important;
     border-radius: 0 0 12px 12px !important;
     
-    /* Size constraint to prevent giant empty spaces */
-    width: 600px !important;
+    /* THE FIX: Size based on content, not a fixed width */
+    width: max-content !important;
+    min-width: 400px !important;
     max-width: 90vw !important;
 }
 
-/* 3. Show on hover */
+/* 5. Show on hover */
 html body nav.mega-menu .menu-links > li:hover > .mega-dropdown {
     display: block !important;
 }
 
-/* 4. Flip right-side dropdowns so they stay on screen */
+/* 6. Keep right-side dropdowns on screen */
 html body nav.mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
     left: auto !important;
     right: 0 !important;
 }
 
-/* 5. Force the 2-Column Grid with proper spacing */
+/* 7. The 2-Column Grid - Minmax ensures columns don't get too wide */
 html body nav.mega-menu .mega-dropdown-content {
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(200px, 1fr)) !important; 
+    grid-template-columns: repeat(2, minmax(180px, 250px)) !important; 
     gap: 1.5rem 2.5rem !important;
     align-items: start !important;
 }
 
-/* 6. Typography inside the dropdown */
+/* 8. Typography */
 html body nav.mega-menu .mega-column h4 {
     font-size: 0.9rem !important;
     font-weight: 800 !important;
@@ -16954,9 +16991,4 @@ html body nav.mega-menu .mega-column a {
 html body nav.mega-menu .mega-column a:hover {
     color: #d4a017 !important;
     padding-left: 0.3rem !important;
-}
-
-/* 7. Ensure the Hero Carousel stays below the menu */
-html body .hero-carousel {
-    z-index: 1 !important;
 }
