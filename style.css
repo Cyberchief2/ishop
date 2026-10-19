@@ -17098,3 +17098,11 @@ html body nav.mega-menu {
         padding: 0.3rem 0 !important;
     }
 }
+/* Ensure premium icons look perfect */
+html body .subcat-icon img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important; /* Prevents the image from cropping */
+    padding: 8px; /* Adds breathing room inside the icon box */
+    transform: scale(1.1); /* Slight zoom so they fill the space nicely */
+}

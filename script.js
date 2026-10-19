@@ -8679,7 +8679,7 @@ window.addEventListener('scroll', function() {
 }, { passive: true });
 
 /* ============================================ */
-/* DYNAMIC CATEGORY PAGE ICON ROWS              */
+/* DYNAMIC CATEGORY PAGE ICON ROWS (PREMIUM)    */
 /* ============================================ */
 async function buildCategoryPageIcons(categorySlug) {
     const rowContainer = document.querySelector('.subcat-row');
@@ -8716,73 +8716,76 @@ async function buildCategoryPageIcons(categorySlug) {
 
         const subCats = allCategories.filter(c => c.parentSlug === categorySlug);
 
-        // --- ICON MATCHER DICTIONARY ---
-        // We match keywords in the subcategory name to a specific FontAwesome icon
-        const iconMap = {
-            'skincare': 'fa-spa',
-            'makeup': 'fa-magic',
-            'fragrance': 'fa-spray-can',
-            'perfume': 'fa-spray-can',
-            'hair': 'fa-cut',
-            'wig': 'fa-user-tie',
-            'conditioner': 'fa-pump-soap',
-            'clothing': 'fa-tshirt',
-            'shirt': 'fa-tshirt',
-            'shoe': 'fa-shoe-prints',
-            'sneaker': 'fa-shoe-prints',
-            'bag': 'fa-shopping-bag',
-            'jewelry': 'fa-gem',
-            'watch': 'fa-clock',
-            'phone': 'fa-mobile-alt',
-            'tablet': 'fa-tablet-alt',
-            'laptop': 'fa-laptop',
-            'computer': 'fa-desktop',
-            'tv': 'fa-tv',
-            'audio': 'fa-headphones',
-            'camera': 'fa-camera',
-            'game': 'fa-gamepad',
-            'console': 'fa-gamepad',
-            'furniture': 'fa-couch',
-            'sofa': 'fa-couch',
-            'bed': 'fa-bed',
-            'cookware': 'fa-utensils',
-            'kitchen': 'fa-blender',
-            'decor': 'fa-paint-roller',
-            'clean': 'fa-broom',
-            'software': 'fa-compact-disc',
-            'ebook': 'fa-book',
-            'course': 'fa-graduation-cap',
-            'template': 'fa-file-alt',
-            'traditional': 'fa-crown',
-            'women': 'fa-female',
-            'men': 'fa-male',
-            'accessories': 'fa-gem',
-            'footwear': 'fa-shoe-prints',
-            'fabric': 'fa-cut',
-            'all': 'fa-th-large'
+        // --- PREMIUM 3D/COLORFUL ICON MATCHER ---
+        // We use high-quality PNG illustrations from a public CDN
+        const premiumIcons = {
+            'all': 'https://cdn-icons-png.flaticon.com/512/10694/10694225.png',
+            'skincare': 'https://cdn-icons-png.flaticon.com/512/3076/3076210.png',
+            'makeup': 'https://cdn-icons-png.flaticon.com/512/2804/2804910.png',
+            'fragrance': 'https://cdn-icons-png.flaticon.com/512/2922/2922437.png',
+            'perfume': 'https://cdn-icons-png.flaticon.com/512/2922/2922437.png',
+            'hair': 'https://cdn-icons-png.flaticon.com/512/3076/3076229.png',
+            'wig': 'https://cdn-icons-png.flaticon.com/512/3076/3076229.png',
+            'conditioner': 'https://cdn-icons-png.flaticon.com/512/3076/3076210.png',
+            
+            'clothing': 'https://cdn-icons-png.flaticon.com/512/863/863684.png',
+            'shirt': 'https://cdn-icons-png.flaticon.com/512/863/863684.png',
+            'shoe': 'https://cdn-icons-png.flaticon.com/512/2931/2931706.png',
+            'sneaker': 'https://cdn-icons-png.flaticon.com/512/2931/2931706.png',
+            'bag': 'https://cdn-icons-png.flaticon.com/512/1073/1073704.png',
+            'jewelry': 'https://cdn-icons-png.flaticon.com/512/2780/2780119.png',
+            'watch': 'https://cdn-icons-png.flaticon.com/512/2991/2991178.png',
+            
+            'phone': 'https://cdn-icons-png.flaticon.com/512/15/15874.png',
+            'tablet': 'https://cdn-icons-png.flaticon.com/512/0/191.png',
+            'laptop': 'https://cdn-icons-png.flaticon.com/512/1813/1813962.png',
+            'computer': 'https://cdn-icons-png.flaticon.com/512/3474/3474360.png',
+            'tv': 'https://cdn-icons-png.flaticon.com/512/716/716784.png',
+            'audio': 'https://cdn-icons-png.flaticon.com/512/727/727221.png',
+            'camera': 'https://cdn-icons-png.flaticon.com/512/3643/3643408.png',
+            'game': 'https://cdn-icons-png.flaticon.com/512/3163/3163408.png',
+            
+            'furniture': 'https://cdn-icons-png.flaticon.com/512/2661/2661428.png',
+            'sofa': 'https://cdn-icons-png.flaticon.com/512/2661/2661428.png',
+            'bed': 'https://cdn-icons-png.flaticon.com/512/2661/2661419.png',
+            'cookware': 'https://cdn-icons-png.flaticon.com/512/2874/2874854.png',
+            'kitchen': 'https://cdn-icons-png.flaticon.com/512/1830/1830839.png',
+            
+            'software': 'https://cdn-icons-png.flaticon.com/512/2721/2721290.png',
+            'ebook': 'https://cdn-icons-png.flaticon.com/512/3389/3389081.png',
+            'course': 'https://cdn-icons-png.flaticon.com/512/3976/3976628.png',
+            'template': 'https://cdn-icons-png.flaticon.com/512/2965/2965326.png',
+            
+            'traditional': 'https://cdn-icons-png.flaticon.com/512/3063/3063212.png',
+            'women': 'https://cdn-icons-png.flaticon.com/512/6997/6997662.png',
+            'men': 'https://cdn-icons-png.flaticon.com/512/6997/6997674.png',
+            'accessories': 'https://cdn-icons-png.flaticon.com/512/1073/1073704.png',
+            'footwear': 'https://cdn-icons-png.flaticon.com/512/2931/2931706.png',
+            'fabric': 'https://cdn-icons-png.flaticon.com/512/1069/1069981.png'
         };
 
-        // Helper function to find the right icon
-        function getIconClass(name, slug) {
+        // Smart matcher function
+        function getPremiumIcon(name, slug) {
             const lowerName = name.toLowerCase();
             const lowerSlug = slug.toLowerCase();
             
-            if (lowerSlug === 'all') return 'fa-th-large';
+            if (lowerSlug === 'all' || lowerName === 'all') return premiumIcons['all'];
 
-            // Check if the slug or name contains any of our keywords
-            for (const key in iconMap) {
+            // Exact keyword check
+            for (const key in premiumIcons) {
                 if (lowerSlug.includes(key) || lowerName.includes(key)) {
-                    return iconMap[key];
+                    return premiumIcons[key];
                 }
             }
-            return 'fa-tag'; // Default fallback
+            // Fallback to a generic colorful box icon if no match
+            return 'https://cdn-icons-png.flaticon.com/512/679/679720.png'; 
         }
 
         // Start building the HTML string
         let html = `
             <button class="subcat-item active" data-subtype="all">
-                <div class="subcat-icon" style="background:#fef9e7; color:#d4a017; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-                    <i class="fas fa-th-large"></i>
+                <div class="subcat-icon">
+                    <img src="${premiumIcons['all']}" alt="All" loading="lazy" style="object-fit: contain; padding: 10px;" />
                 </div>
                 <span class="subcat-label">All</span>
             </button>
@@ -8791,14 +8794,15 @@ async function buildCategoryPageIcons(categorySlug) {
         subCats.forEach(sub => {
             let iconHTML = '';
             
-            // If Strapi has an actual image, use it
+            // If Strapi has an uploaded image, prioritize it
             if (sub.image && sub.image.url) {
                 const imgUrl = sub.image.url.startsWith('http') ? sub.image.url : 'https://ishop-cms-production.up.railway.app' + sub.image.url;
                 iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" />`;
             } else {
-                // If no image, use our smart icon matcher
-                const iconClass = getIconClass(sub.name, sub.slug);
-                iconHTML = `<i class="fas ${iconClass}" style="color:#0d1b2a; font-size:1.5rem;"></i>`;
+                // Otherwise use the premium mapped icon
+                const imgUrl = getPremiumIcon(sub.name, sub.slug);
+                // Added object-fit: contain so the full image shows without cropping
+                iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" style="object-fit: contain; padding: 8px;" />`;
             }
 
             html += `
