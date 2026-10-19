@@ -8414,42 +8414,6 @@ async function buildDynamicMegaMenu() {
 }
 
 // ============================================
-// MEGA MENU POSITIONING (Prevents top-left jump)
-// ============================================
-function attachMegaMenuPositioning() {
-    function positionDropdown(li) {
-        const dd = li.querySelector('.mega-dropdown');
-        if (!dd) return;
-        
-        const rect = li.getBoundingClientRect();
-        const ddWidth = dd.offsetWidth || 460;
-        const vw = window.innerWidth;
-        const gutter = 8;
-
-        let left = rect.left;
-        if (left + ddWidth + gutter > vw) {
-            left = rect.right - ddWidth;
-        }
-        if (left < gutter) left = gutter;
-
-        dd.style.setProperty('top', rect.bottom + 'px', 'important');
-        dd.style.setProperty('left', left + 'px', 'important');
-    }
-
-    const items = document.querySelectorAll('.mega-menu .menu-links > li');
-    items.forEach(li => {
-        if (li.dataset.mmBound === '1') return;
-        li.dataset.mmBound = '1';
-        
-        const onEnter = () => positionDropdown(li);
-        li.addEventListener('mouseenter', onEnter);
-        li.addEventListener('focusin', onEnter);
-        window.addEventListener('resize', () => { if (li.matches(':hover')) positionDropdown(li); });
-        window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
-    });
-}
-
-// ============================================
 // MEGA MENU SCROLLER (Chevron + Fade)
 // ============================================
 function setupMegaMenuScroller() {
