@@ -8361,6 +8361,9 @@ function attachMegaMenuPositioning() {
 // ============================================
 // MEGA MENU BUILDER - FINAL BULLETPROOF VERSION
 // ============================================
+// ============================================
+// MEGA MENU BUILDER & POSITIONER (FINAL)
+// ============================================
 async function buildDynamicMegaMenu() {
     const menuLinks = document.getElementById('dynamic-menu-links');
     if (!menuLinks) return;
@@ -8419,8 +8422,7 @@ async function buildDynamicMegaMenu() {
             mySubs.forEach(sub => {
                 const column = document.createElement('div');
                 column.className = 'mega-column';
-                // Header is clickable to trigger filter
-                let html = `<h4><a href="${major.slug}.html?subtype=${sub.slug}" onclick="event.preventDefault(); handleMegaIconClick('${major.slug}', '${sub.slug}')">${sub.name}</a></h4>`;
+                let html = `<h4><a href="${major.slug}.html?subtype=${sub.slug}">${sub.name}</a></h4>`;
                 
                 const myTypes = allCategories.filter(type => type.parentSlug === sub.slug);
 
@@ -8436,7 +8438,8 @@ async function buildDynamicMegaMenu() {
             });
         });
 
-        setupMegaMenuScroller();
+        initMegaMenuPositioning();
+        initMegaMenuScroller();
 
     } catch (e) {
         console.error("Failed to build mega menu:", e);
@@ -8444,29 +8447,65 @@ async function buildDynamicMegaMenu() {
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
         `;
-        setupMegaMenuScroller();
+        initMegaMenuScroller();
     }
 }
 
 // ============================================
-// MEGA MENU SCROLLER (Chevron)
+// POSITIONING LOGIC (Fixes the hidden dropdown)
 // ============================================
-function setupMegaMenuScroller() {
+function initMegaMenuPositioning() {
+    const items = document.querySelectorAll('.mega-menu .menu-links > li');
+    
+    items.forEach(li => {
+        const dd = li.querySelector('.mega-dropdown');
+        if (!dd) return;
+
+        li.addEventListener('mouseenter', () => {
+            const rect = li.getBoundingClientRect();
+            const ddWidth = dd.offsetWidth || 450;
+            const vw = window.innerWidth;
+
+            // Calculate horizontal position
+            let left = rect.left;
+            if (left + ddWidth > vw - 20) {
+                left = rect.right - ddWidth; // Flip to the left if it goes off-screen
+            }
+            if (left < 20) left = 20;
+
+            // Apply fixed positioning right below the hovered link
+            dd.style.setProperty('top', rect.bottom + 'px', 'important');
+            dd.style.setProperty('left', left + 'px', 'important');
+        });
+    });
+}
+
+// ============================================
+// SCROLLER & CHEVRON LOGIC
+// ============================================
+function initMegaMenuScroller() {
     const menu = document.querySelector('.mega-menu');
     const scroller = document.querySelector('.mega-menu .menu-links');
-    const content = document.querySelector('.mega-menu .mega-menu-content');
-    if (!menu || !scroller || !content) return;
+    if (!menu || !scroller) return;
 
-    // Remove existing chevron
+    // Remove old chevron
     menu.querySelectorAll('.mega-menu-scroll-hint').forEach(el => el.remove());
 
-    // Create chevron
+    // Create new chevron
     const chevron = document.createElement('button');
     chevron.className = 'mega-menu-scroll-hint';
     chevron.setAttribute('aria-label', 'Scroll categories right');
     chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
     
-    // Scroll right on click
+    // Style the chevron directly since we removed CSS constraints
+    chevron.style.cssText = `
+        position: absolute; top: 50%; right: 1rem; transform: translateY(-50%);
+        width: 32px; height: 32px; background: #f9c74f; border: 2px solid #fff;
+        border-radius: 50%; color: #0d1b2a; display: flex; align-items: center;
+        justify-content: center; cursor: pointer; z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 0;
+    `;
+
     chevron.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -8475,58 +8514,22 @@ function setupMegaMenuScroller() {
     
     menu.appendChild(chevron);
 
-    // Update visibility of chevron based on scroll position
     function update() {
-        // Use Math.ceil to fix fractional pixel bugs in some browsers
         const maxScroll = Math.ceil(scroller.scrollWidth - scroller.clientWidth);
-        
         if (maxScroll <= 5) {
-            chevron.classList.add('hidden');
+            chevron.style.display = 'none';
             return;
         }
-        
         const atEnd = Math.ceil(scroller.scrollLeft) >= maxScroll - 5;
-        chevron.classList.toggle('hidden', atEnd);
+        chevron.style.display = atEnd ? 'none' : 'flex';
     }
 
-    // Listen for scroll and resize events
     scroller.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
-    
-    // Run once after a small delay to ensure DOM is fully painted
     setTimeout(update, 200);
 }
 
-// ============================================
-// MEGA MENU CLICK HANDLER
-// ============================================
-function handleMegaIconClick(categorySlug, subtypeSlug) {
-    const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
-    
-    if (currentPage === categorySlug) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('subtype', subtypeSlug);
-        url.searchParams.delete('type');
-        window.history.replaceState({}, '', url);
-
-        if (typeof renderCategory === 'function') renderCategory(categorySlug, subtypeSlug, '');
-        
-        document.querySelectorAll('.subcat-item').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.subtype === subtypeSlug);
-        });
-        
-        document.querySelectorAll('.mega-dropdown').forEach(dd => {
-            dd.style.visibility = 'hidden';
-        });
-        return;
-    }
-
-    window.location.href = `${categorySlug}.html?subtype=${subtypeSlug}`;
-}
-
-// Run on load
+// Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(buildDynamicMegaMenu, 100);
 });
-
-let formCategories = [];

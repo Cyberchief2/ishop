@@ -16866,86 +16866,50 @@ html body .hero-carousel {
     z-index: 1 !important;
 }
 /* ============================================ */
-/* MEGA MENU - THE ACTUAL FINAL FIX             */
+/* MEGA MENU - JAVASCRIPT POSITIONING FIX       */
 /* ============================================ */
 
-/* 1. Allow the dropdown to escape the menu bar */
+/* 1. Force the menu to the top layer */
 html body header,
-html body nav.mega-menu,
-html body nav.mega-menu .mega-menu-content {
-    overflow: visible !important;
-}
-
-/* 2. Keep the scrollbar on the links, but hide the ugly scrollbar */
-html body nav.mega-menu .menu-links {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scrollbar-width: none !important;
-}
-html body nav.mega-menu .menu-links::-webkit-scrollbar {
-    display: none !important;
-}
-
-/* 3. Force the menu to the absolute front */
-html body header {
-    z-index: 999999 !important;
-    position: relative !important;
-}
-
 html body nav.mega-menu {
     z-index: 999999 !important;
     position: relative !important;
-    background: #ffffff !important;
+    overflow: visible !important;
 }
 
-/* 4. The Dropdown Container */
+/* 2. The Dropdown - Forced to Fixed Position so it escapes the scrollbar */
 html body nav.mega-menu .mega-dropdown {
     display: none !important;
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    
-    /* Forces it above the hero banner */
+    position: fixed !important; /* JS will position this */
+    top: 0; 
+    left: 0;
     z-index: 2147483647 !important; 
     
-    /* Styling */
     background: #ffffff !important;
     padding: 1.5rem !important;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2) !important;
     border-top: 3px solid #f9c74f !important;
     border-radius: 0 0 12px 12px !important;
     
-    /* THE FIX FOR SCREEN OVERFLOW: Keep it within 90% of the screen */
     width: max-content !important;
     min-width: 450px !important;
     max-width: 90vw !important;
-    
-    /* If there are a lot of items, allow internal scrolling */
-    max-height: 80vh !important;
-    overflow-y: auto !important;
 }
 
-/* 5. Show on hover */
+/* 3. Show on hover */
 html body nav.mega-menu .menu-links > li:hover > .mega-dropdown {
     display: block !important;
 }
 
-/* 6. Keep right-side dropdowns on screen */
-html body nav.mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
-    left: auto !important;
-    right: 0 !important;
-}
-
-/* 7. The 2-Column Grid - Forces perfect sizing */
+/* 4. Grid setup (fixes the empty spaces) */
 html body nav.mega-menu .mega-dropdown-content {
     display: grid !important;
-    /* 2 columns, max 240px wide each. Prevents the screen overflow. */
     grid-template-columns: repeat(2, minmax(180px, 240px)) !important; 
     gap: 1.5rem 2rem !important;
     align-items: start !important;
 }
 
-/* 8. Typography */
+/* 5. Typography */
 html body nav.mega-menu .mega-column h4 {
     font-size: 0.85rem !important;
     font-weight: 800 !important;
@@ -16970,8 +16934,7 @@ html body nav.mega-menu .mega-column a:hover {
     color: #d4a017 !important;
 }
 
-/* 9. Force Hero Carousel to stay in the background */
-html body .hero-carousel {
-    z-index: 1 !important;
-    position: relative !important;
+/* Hide the old CSS chevron logic, JS will handle it */
+html body nav.mega-menu .mega-menu-scroll-hint {
+    display: none !important; 
 }
