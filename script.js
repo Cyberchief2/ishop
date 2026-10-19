@@ -8325,6 +8325,100 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 // VENDOR PRODUCT FORM - FINAL FIX
 // ============================================
+
+// ============================================
+// MEGA MENU BUILDER - FINAL BULLETPROOF VERSION
+// ============================================
+async function buildDynamicMegaMenu() {
+    const menuLinks = document.getElementById('dynamic-menu-links');
+    if (!menuLinks) return;
+
+    try {
+        const urls = [
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
+        ];
+
+        const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
+        
+        let rawCategories = [];
+        responses.forEach(res => {
+            if (res.data) rawCategories = rawCategories.concat(res.data);
+        });
+
+        const seen = new Set();
+        const allCategories = rawCategories.filter(c => {
+            if (seen.has(c.documentId)) return false;
+            seen.add(c.documentId);
+            return true;
+        });
+
+        menuLinks.innerHTML = `
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+        `;
+
+        const majorCategories = allCategories.filter(c => !c.parentSlug || c.parentSlug === "");
+
+        majorCategories.forEach(major => {
+            const li = document.createElement('li');
+            li.className = 'dropdown-hover';
+
+            li.innerHTML = `
+                <a href="${major.slug}.html" class="nav-link">
+                    <i class="fas ${major.icon || 'fa-tag'}"></i> ${major.name}
+                    <i class="fas fa-chevron-down" style="font-size:0.6rem; margin-left:2px;"></i>
+                </a>
+                <div class="mega-dropdown">
+                    <div class="mega-dropdown-content"></div>
+                </div>
+            `;
+            menuLinks.appendChild(li);
+
+            const dropdownContent = li.querySelector('.mega-dropdown-content');
+            const mySubs = allCategories.filter(sub => sub.parentSlug === major.slug);
+
+            if (mySubs.length === 0) {
+                dropdownContent.innerHTML = `<div class="mega-column"><a href="${major.slug}.html">View All ${major.name}</a></div>`;
+                return;
+            }
+
+            mySubs.forEach(sub => {
+                const column = document.createElement('div');
+                column.className = 'mega-column';
+                // Header is clickable to trigger filter
+                let html = `<h4><a href="${major.slug}.html?subtype=${sub.slug}" onclick="event.preventDefault(); handleMegaIconClick('${major.slug}', '${sub.slug}')">${sub.name}</a></h4>`;
+                
+                const myTypes = allCategories.filter(type => type.parentSlug === sub.slug);
+
+                if (myTypes.length > 0) {
+                    myTypes.forEach(type => {
+                        html += `<a href="${major.slug}.html?subtype=${sub.slug}&type=${type.slug}">${type.name}</a>`;
+                    });
+                } else {
+                    html += `<a href="${major.slug}.html?subtype=${sub.slug}">View All</a>`;
+                }
+                column.innerHTML = html;
+                dropdownContent.appendChild(column);
+            });
+        });
+
+        setupMegaMenuScroller();
+
+    } catch (e) {
+        console.error("Failed to build mega menu:", e);
+        menuLinks.innerHTML = `
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+        `;
+        setupMegaMenuScroller();
+    }
+}
+
+// ============================================
+// MEGA MENU SCROLLER (Chevron)
+// ============================================
 function setupMegaMenuScroller() {
     const menu = document.querySelector('.mega-menu');
     const scroller = document.querySelector('.mega-menu .menu-links');
@@ -8363,122 +8457,36 @@ function setupMegaMenuScroller() {
     setTimeout(update, 200);
 }
 
-let formCategories = [];
+// ============================================
+// MEGA MENU CLICK HANDLER
+// ============================================
+function handleMegaIconClick(categorySlug, subtypeSlug) {
+    const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+    
+    if (currentPage === categorySlug) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('subtype', subtypeSlug);
+        url.searchParams.delete('type');
+        window.history.replaceState({}, '', url);
 
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('productForm');
-    if (!form) return;
-
-    // ========================================
-    // 1. LOAD CATEGORIES
-    // ========================================
-    const catDropdown = document.getElementById('productCategory');
-    const subDropdown = document.getElementById('productSubCategory');
-    const typeDropdown = document.getElementById('productTypeRef');
-
-    if (catDropdown) {
-        const urls = [
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
-        ];
+        if (typeof renderCategory === 'function') renderCategory(categorySlug, subtypeSlug, '');
         
-        Promise.all(urls.map(url => fetch(url).then(res => res.json())))
-            .then(responses => {
-                let raw = [];
-                responses.forEach(r => { if(r.data) raw = raw.concat(r.data); });
-                
-                const seen = new Set();
-                formCategories = raw.filter(c => {
-                    if(seen.has(c.documentId)) return false;
-                    seen.add(c.documentId);
-                    return true;
-                });
-
-                const mainCats = formCategories.filter(c => !c.parentSlug);
-                catDropdown.innerHTML = '<option value="">Select a category</option>';
-                mainCats.forEach(c => {
-                    catDropdown.innerHTML += `<option value="${c.slug}">${c.name}</option>`;
-                });
-            }).catch(err => console.error(err));
-
-        catDropdown.onchange = function() {
-            const slug = this.value;
-            subDropdown.innerHTML = '<option value="">Select a Sub-Category</option>';
-            typeDropdown.innerHTML = '<option value="">Select a Sub-category first</option>';
-            typeDropdown.disabled = true;
-            
-            if (!slug) { subDropdown.disabled = true; return; }
-            
-            const subs = formCategories.filter(c => c.parentSlug === slug);
-            subs.forEach(s => subDropdown.innerHTML += `<option value="${s.slug}">${s.name}</option>`);
-            subDropdown.disabled = false;
-        };
-
-        subDropdown.onchange = function() {
-            const slug = this.value;
-            typeDropdown.innerHTML = '<option value="">Select a Type</option>';
-            
-            if (!slug) { typeDropdown.disabled = true; return; }
-            
-            const types = formCategories.filter(c => c.parentSlug === slug);
-            types.forEach(t => typeDropdown.innerHTML += `<option value="${t.slug}">${t.name}</option>`);
-            typeDropdown.disabled = false;
-        };
-    }
-
-    // ========================================
-    // 2. MANUAL BUTTON NAVIGATION
-    // ========================================
-    let currentStep = 1;
-    const btnNext = document.getElementById('productNextBtn');
-    const btnBack = document.getElementById('productBackBtn');
-    const btnSubmit = document.getElementById('productSubmitBtn');
-    const progressBar = document.getElementById('productProgressBar');
-
-    function showStep(step) {
-        currentStep = step;
-        
-        document.querySelectorAll('.vendor-apply-step').forEach(el => el.classList.remove('active'));
-        const target = document.querySelector(`.vendor-apply-step[data-step="${step}"]`);
-        if (target) target.classList.add('active');
-
-        document.querySelectorAll('.vendor-progress-step').forEach(el => {
-            const n = parseInt(el.dataset.step);
-            el.classList.remove('active', 'completed');
-            if (n < step) el.classList.add('completed');
-            if (n === step) el.classList.add('active');
+        document.querySelectorAll('.subcat-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.subtype === subtypeSlug);
         });
-
-        if (btnBack) btnBack.style.display = step > 1 ? 'inline-flex' : 'none';
-        if (btnNext) btnNext.style.display = step < 3 ? 'inline-flex' : 'none';
-        if (btnSubmit) btnSubmit.style.display = step === 3 ? 'inline-flex' : 'none';
         
-        if (progressBar) progressBar.style.width = (step / 3) * 100 + '%';
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.querySelectorAll('.mega-dropdown').forEach(dd => {
+            dd.style.visibility = 'hidden';
+        });
+        return;
     }
 
-    if (btnNext) {
-        btnNext.onclick = function(e) {
-            e.preventDefault(); 
-            if (currentStep === 1) {
-                const name = document.getElementById('productName').value;
-                const cat = document.getElementById('productCategory').value;
-                const price = document.getElementById('productPrice').value;
-                if (!name || !cat || !price) {
-                    alert('Please fill in Product Name, Category, and Price before continuing.');
-                    return;
-                }
-            }
-            if (currentStep < 3) showStep(currentStep + 1);
-        };
-    }
+    window.location.href = `${categorySlug}.html?subtype=${subtypeSlug}`;
+}
 
-    if (btnBack) {
-        btnBack.onclick = function(e) {
-            e.preventDefault();
-            if (currentStep > 1) showStep(currentStep - 1);
-        };
-    }
+// Run on load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(buildDynamicMegaMenu, 100);
 });
+
+let formCategories = [];

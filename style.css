@@ -16422,16 +16422,16 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     .admin-bar-chart { height: 100px; }
 }
 /* ============================================ */
-/* MEGA MENU — CLEAN REBUILD                    */
+/* MEGA MENU — THE ONLY CSS YOU NEED            */
 /* ============================================ */
 
-/* The navigation bar itself */
+/* 1. The Menu Bar */
 html body nav.mega-menu {
     background: #ffffff !important;
     border-bottom: 1px solid #e8ecf0 !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
     position: relative !important;
-    z-index: 999 !important;
+    z-index: 9999 !important;
     padding: 0 !important;
     overflow: visible !important;
 }
@@ -16446,21 +16446,20 @@ html body nav.mega-menu .mega-menu-content {
     align-items: center !important;
 }
 
-/* Horizontal scroll row */
+/* 2. The Horizontal Scrollable List */
 html body nav.mega-menu .menu-links {
     display: flex !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0.25rem !important;
     width: 100% !important;
-    height: 50px !important; /* Forces height so chevron centers */
+    height: 100% !important;
     overflow-x: auto !important;
-    overflow-y: hidden !important; /* Prevents vertical scrolling */
-    padding: 0 3rem 0 0 !important;
+    overflow-y: hidden !important;
+    padding: 0 3.5rem 0 0 !important; /* Space for chevron */
     margin: 0 !important;
     list-style: none !important;
     scrollbar-width: none !important;
-    -webkit-overflow-scrolling: touch !important;
 }
 
 html body nav.mega-menu .menu-links::-webkit-scrollbar {
@@ -16470,7 +16469,7 @@ html body nav.mega-menu .menu-links::-webkit-scrollbar {
 html body nav.mega-menu .menu-links > li {
     flex: 0 0 auto !important;
     white-space: nowrap !important;
-    position: static !important;
+    position: relative !important; /* Important for dropdown positioning */
 }
 
 html body nav.mega-menu .menu-links > li > a {
@@ -16483,14 +16482,13 @@ html body nav.mega-menu .menu-links > li > a {
     color: #4a4a4a !important;
     text-decoration: none !important;
     border-radius: 6px !important;
-    transition: color 0.2s !important;
 }
 
 html body nav.mega-menu .menu-links > li > a:hover {
     color: #f9c74f !important;
 }
 
-/* Chevron indicator pinned to right edge */
+/* 3. The Yellow Chevron Indicator */
 html body nav.mega-menu .mega-menu-scroll-hint {
     position: absolute !important;
     top: 50% !important;
@@ -16516,16 +16514,15 @@ html body nav.mega-menu .mega-menu-scroll-hint.hidden {
     display: none !important;
 }
 
-/* Dropdown */
+/* 4. The Dropdown */
 html body nav.mega-menu .mega-dropdown {
     display: none !important;
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
-    z-index: 9999 !important;
+    z-index: 99999 !important;
     background: #ffffff !important;
-    width: 600px !important;
-    max-width: 95vw !important;
+    width: 580px !important; /* Forces 2 columns */
     padding: 1.5rem !important;
     box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
     border-top: 3px solid #f9c74f !important;
@@ -16538,21 +16535,24 @@ html body nav.mega-menu .menu-links > li:hover > .mega-dropdown {
     display: block !important;
 }
 
+/* Keep right-side dropdowns on screen */
 html body nav.mega-menu .menu-links > li:nth-last-child(-n+3) > .mega-dropdown {
     left: auto !important;
     right: 0 !important;
 }
 
-/* 2-column content */
+/* 5. The 2-Column Grid */
 html body nav.mega-menu .mega-dropdown-content {
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(180px, 1fr)) !important; /* Forces 2 columns if space allows */
+    grid-template-columns: repeat(2, 1fr) !important; /* EXACTLY 2 COLUMNS */
     gap: 1.5rem 2rem !important;
     align-items: start !important;
+    width: 100% !important;
 }
 
 html body nav.mega-menu .mega-column {
     display: block !important;
+    min-width: 0 !important;
 }
 
 html body nav.mega-menu .mega-column h4 {
@@ -16563,7 +16563,6 @@ html body nav.mega-menu .mega-column h4 {
     padding-bottom: 0.4rem !important;
     border-bottom: 2px solid #f9c74f !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
 }
 
 html body nav.mega-menu .mega-column h4 a {
@@ -16587,10 +16586,9 @@ html body nav.mega-menu .mega-column a {
 
 html body nav.mega-menu .mega-column a:hover {
     color: #d4a017 !important;
-    padding-left: 0.25rem !important;
 }
 
-/* Mobile: hide mega menu */
+/* 6. Mobile */
 @media (max-width: 768px) {
     html body nav.mega-menu {
         display: none !important;
