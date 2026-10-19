@@ -17036,3 +17036,65 @@ html body nav.mega-menu .mega-dropdown {
 html body nav.mega-menu {
     isolation: isolate !important;
 }
+/* ============================================ */
+/* TABLET & IPAD COMPATIBILITY FIXES            */
+/* ============================================ */
+
+/* 1. Show the horizontal mega menu on tablets (up to 1024px wide) */
+@media (max-width: 1024px) and (min-width: 769px) {
+    
+    /* Allow the menu to scroll horizontally on tablets */
+    html body nav.mega-menu {
+        display: block !important;
+    }
+
+    /* Tighten the gap on the menu links so more fit on screen */
+    html body nav.mega-menu .menu-links {
+        gap: 0.1rem !important;
+        padding-right: 3rem !important; /* Space for chevron */
+    }
+
+    /* Make the links slightly smaller to fit more on a tablet screen */
+    html body nav.mega-menu .menu-links > li > a {
+        padding: 0.5rem 0.6rem !important;
+        font-size: 0.78rem !important;
+    }
+
+    /* Hide the desktop chevron (we will use a custom one for tablets) */
+    html body nav.mega-menu .mega-menu-scroll-hint {
+        width: 28px !important;
+        height: 28px !important;
+        right: 5px !important;
+    }
+    
+    /* 2. Adjust the Dropdown for Tablet Screens */
+    html body nav.mega-menu .mega-dropdown {
+        min-width: 320px !important; /* Smaller minimum width */
+        width: max-content !important;
+        max-width: 85vw !important; /* Ensure it never goes off screen */
+        
+        /* Reduce internal padding */
+        padding: 1rem !important;
+        
+        /* Keep it from getting too tall on smaller screens */
+        max-height: 70vh !important; 
+    }
+
+    /* Tighten the grid columns for tablets */
+    html body nav.mega-menu .mega-dropdown-content {
+        /* Force 2 columns, but allow them to shrink smaller */
+        grid-template-columns: repeat(2, minmax(130px, 150px)) !important; 
+        gap: 1rem 1.2rem !important;
+    }
+
+    /* Reduce font size slightly for the headers and links */
+    html body nav.mega-menu .mega-column h4 {
+        font-size: 0.85rem !important;
+        margin-bottom: 0.4rem !important;
+    }
+
+    html body nav.mega-menu .mega-column a {
+        font-size: 0.78rem !important;
+        padding: 0.3rem 0 !important;
+    }
+}
