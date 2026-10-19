@@ -17106,3 +17106,17 @@ html body .subcat-icon img {
     padding: 8px; /* Adds breathing room inside the icon box */
     transform: scale(1.1); /* Slight zoom so they fill the space nicely */
 }
+/* Ensure custom SVGs look sharp and scale perfectly */
+html body .subcat-icon svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    display: block !important;
+}
+
+html body .subcat-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
