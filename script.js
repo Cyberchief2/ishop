@@ -8679,7 +8679,7 @@ window.addEventListener('scroll', function() {
 }, { passive: true });
 
 /* ============================================ */
-/* DYNAMIC CATEGORY PAGE ICON ROWS (CUSTOM SVG) */
+/* DYNAMIC CATEGORY PAGE ICON ROWS (3D STYLE)   */
 /* ============================================ */
 async function buildCategoryPageIcons(categorySlug) {
     const rowContainer = document.querySelector('.subcat-row');
@@ -8716,94 +8716,91 @@ async function buildCategoryPageIcons(categorySlug) {
         const subCats = allCategories.filter(c => c.parentSlug === categorySlug);
 
         // ============================================
-        // CUSTOM SVG ICON LIBRARY (Jumia-Style)
+        // HIGH-QUALITY 3D ICON LIBRARY (MS Fluent)
         // ============================================
-        // These are drawn with CSS/SVG, colored beautifully, and guaranteed to match
-        const svgIcons = {
-            'all': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
+        const baseUrl = 'https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/';
+        
+        const iconLibrary = {
+            'all': 'Sparkles/3D/sparkles_3d.png',
             
             // Electronics
-            'television': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="2" y="7" width="20" height="13" rx="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>`,
-            'tv': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="2" y="7" width="20" height="13" rx="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>`,
-            'audio': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>`,
-            'camera': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`,
-            'dvd': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>`,
-            'game': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>`,
-            'accessories': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>`,
+            'television': 'Television/3D/television_3d.png',
+            'tv': 'Television/3D/television_3d.png',
+            'audio': 'Headphone/3D/headphone_3d.png',
+            'camera': 'Camera/3D/camera_3d.png',
+            'dvd': 'Optical%20disk/3D/optical_disk_3d.png',
+            'game': 'Video%20game/3D/video_game_3d.png',
+            'accessories': 'Wrench/3D/wrench_3d.png',
             
-            // Phones & Tablets
-            'smartphone': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`,
-            'phone': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`,
-            'tablet': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`,
-            'power-bank': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"></rect><path d="M12 18v-6"></path><path d="M9 15h6"></path></svg>`,
-            
-            // Computers
-            'laptop': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>`,
-            'desktop': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`,
-            'computer': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`,
-            'printer': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>`,
-            'network': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>`,
+            // Phones & Computers
+            'phone': 'Mobile%20phone/3D/mobile_phone_3d.png',
+            'smartphone': 'Mobile%20phone/3D/mobile_phone_3d.png',
+            'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png', // Fallback to phone
+            'power': 'Battery/3D/battery_3d.png',
+            'laptop': 'Laptop/3D/laptop_3d.png',
+            'computer': 'Desktop%20computer/3D/desktop_computer_3d.png',
+            'desktop': 'Desktop%20computer/3D/desktop_computer_3d.png',
+            'printer': 'Printer/3D/printer_3d.png',
+            'network': 'Globe%20with%20meridians/3D/globe_with_meridians_3d.png',
             
             // Fashion
-            'clothing': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg>`,
-            'shirt': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg>`,
-            'shoe': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M2 18h20v-3c0-1.1-.9-2-2-2h-5l-2-3H5c-1.1 0-2 .9-2 2v6z"></path></svg>`,
-            'bag': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>`,
-            'jewelry': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+            'clothing': 'T-shirt/3D/t-shirt_3d.png',
+            'shirt': 'T-shirt/3D/t-shirt_3d.png',
+            'shoe': 'Running%20shoe/3D/running_shoe_3d.png',
+            'sneaker': 'Running%20shoe/3D/running_shoe_3d.png',
+            'bag': 'Handbag/3D/handbag_3d.png',
+            'jewelry': 'Gem%20stone/3D/gem_stone_3d.png',
+            'watch': 'Watch/3D/watch_3d.png',
             
             // Beauty
-            'skincare': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`,
-            'makeup': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>`,
-            'fragrance': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="6" y="8" width="12" height="14" rx="2"></rect><path d="M9 8V4h6v4"></path></svg>`,
-            'hair': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>`,
+            'skincare': 'Lotion%20bottle/3D/lotion_bottle_3d.png',
+            'makeup': 'Lipstick/3D/lipstick_3d.png',
+            'fragrance': 'Perfume/3D/perfume_3d.png',
+            'hair': 'Comb/3D/comb_3d.png',
             
             // Home
-            'furniture': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M20 9V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2"></path><path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0z"></path></svg>`,
-            'sofa': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M20 9V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2"></path><path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0z"></path></svg>`,
-            'cookware': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
-            'bedding': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M2 4v16"></path><path d="M2 8h18a2 2 0 0 1 2 2v10"></path><path d="M2 17h20"></path><path d="M6 8v9"></path></svg>`,
-            'decor': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
+            'furniture': 'Couch%20and%20lamp/3D/couch_and_lamp_3d.png',
+            'sofa': 'Couch%20and%20lamp/3D/couch_and_lamp_3d.png',
+            'cookware': 'Cooking/3D/cooking_3d.png',
+            'kitchen': 'Fork%20and%20knife%20with%20plate/3D/fork_and_knife_with_plate_3d.png',
+            'bedding': 'Bed/3D/bed_3d.png',
+            'decor': 'Framed%20picture/3D/framed_picture_3d.png',
             
             // Digital
-            'software': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`,
-            'ebook': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
-            'course': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>`,
-            'template': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`,
+            'software': 'Desktop%20computer/3D/desktop_computer_3d.png',
+            'ebook': 'Books/3D/books_3d.png',
+            'course': 'Graduation%20cap/3D/graduation_cap_3d.png',
+            'template': 'Page%20facing%20up/3D/page_facing_up_3d.png',
 
             // Traditional
-            'traditional': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"></path></svg>`,
-            'women': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><circle cx="12" cy="8" r="5"></circle><path d="M12 13v9"></path><path d="M9 18h6"></path></svg>`,
-            'men': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><circle cx="12" cy="8" r="5"></circle><path d="M12 13v9"></path><path d="M9 18h6"></path></svg>`,
-            'fabrics': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`
+            'traditional': 'Crown/3D/crown_3d.png',
+            'women': 'Woman/3D/woman_3d.png',
+            'men': 'Man/3D/man_3d.png',
+            'fabrics': 'Yarn/3D/yarn_3d.png'
         };
 
-        // Smart matcher function (matches exact words)
-        function getSvgIcon(name, slug) {
+        function get3DIcon(name, slug) {
             const lowerName = name.toLowerCase();
             const lowerSlug = slug.toLowerCase();
             
-            if (lowerSlug === 'all' || lowerName === 'all') return svgIcons['all'];
+            if (lowerSlug === 'all') return baseUrl + iconLibrary['all'];
 
-            // Check exact matches first
-            for (const key in svgIcons) {
-                if (lowerSlug === key || lowerName === key) {
-                    return svgIcons[key];
-                }
-            }
-            // Then check for partial matches
-            for (const key in svgIcons) {
+            // Exact keyword check
+            for (const key in iconLibrary) {
                 if (lowerSlug.includes(key) || lowerName.includes(key)) {
-                    return svgIcons[key];
+                    return baseUrl + encodeURI(iconLibrary[key]);
                 }
             }
-            // Absolute fallback
-            return svgIcons['all']; 
+            // Fallback to a generic shopping bag if no match
+            return baseUrl + 'Shopping%20bags/3D/shopping_bags_3d.png'; 
         }
 
         // Start building the HTML string
         let html = `
             <button class="subcat-item active" data-subtype="all">
-                <div class="subcat-icon" style="color:#f9c74f;">${svgIcons['all']}</div>
+                <div class="subcat-icon">
+                    <img src="${baseUrl + iconLibrary['all']}" alt="All" loading="lazy" />
+                </div>
                 <span class="subcat-label">All</span>
             </button>
         `;
@@ -8811,16 +8808,14 @@ async function buildCategoryPageIcons(categorySlug) {
         subCats.forEach(sub => {
             let iconHTML = '';
             
-            // If Strapi has an uploaded image, use it
+            // 1. If Strapi has an uploaded image, use it (Top priority)
             if (sub.image && sub.image.url) {
                 const imgUrl = sub.image.url.startsWith('http') ? sub.image.url : 'https://ishop-cms-production.up.railway.app' + sub.image.url;
                 iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" />`;
             } else {
-                // Use the custom matching SVG
-                const svgString = getSvgIcon(sub.name, sub.slug);
-                // Colorize the "All" icon differently, others stay dark
-                const colorStyle = sub.slug === 'all' ? 'color: #f9c74f;' : 'color: #0d1b2a;';
-                iconHTML = `<div style="width: 32px; height: 32px; ${colorStyle}">${svgString}</div>`;
+                // 2. Otherwise, use our 3D Emoji Library
+                const imgUrl = get3DIcon(sub.name, sub.slug);
+                iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" />`;
             }
 
             html += `

@@ -17120,3 +17120,16 @@ html body .subcat-icon {
     align-items: center !important;
     justify-content: center !important;
 }
+/* Ensure 3D images fit perfectly */
+html body .subcat-icon img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important; 
+    padding: 8px; 
+    transform: scale(1.1); 
+}
+
+html body .subcat-icon {
+    background: #f8fafc !important; /* Light grey background makes 3D pop */
+    border-radius: 16px !important;
+}
