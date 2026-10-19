@@ -3859,8 +3859,23 @@ function initializeApp() {
         const urlParams = new URLSearchParams(window.location.search);
         const subType = urlParams.get('subtype') || '';
         const typeSlug = urlParams.get('type') || '';
+        
+        // Render the products
         renderCategory(category, subType, typeSlug);
-        setupSubcategoryButtons(category);
+        
+        // Build the icons dynamically from the database
+        buildCategoryPageIcons(category);
+
+        // If a subtype was clicked from the top menu, set it as active visually
+        setTimeout(() => {
+            if (subType) {
+                const targetBtn = document.querySelector(`.subcat-item[data-subtype="${subType}"]`);
+                if (targetBtn) {
+                    document.querySelectorAll('.subcat-item').forEach(b => b.classList.remove('active'));
+                    targetBtn.classList.add('active');
+                }
+            }
+        }, 500);
     } else if (page === 'vendor-orders.html') {
         initVendorOrdersPage();
     } else if (page === 'vendor-products.html') {
@@ -8446,7 +8461,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
 function attachMegaMenuPositioning() {
     function positionDropdown(li) {
         const dd = li.querySelector('.mega-dropdown');
@@ -8663,3 +8677,95 @@ window.addEventListener('scroll', function() {
         }
     });
 }, { passive: true });
+
+/* ============================================ */
+/* DYNAMIC CATEGORY PAGE ICON ROWS              */
+/* ============================================ */
+async function buildCategoryPageIcons(categorySlug) {
+    const rowContainer = document.querySelector('.subcat-row');
+    if (!rowContainer) return; // Not on a category page
+
+    // Show a loading skeleton for the icons
+    rowContainer.innerHTML = `
+        <div class="subcat-item"><div class="subcat-icon skeleton-block"></div></div>
+        <div class="subcat-item"><div class="subcat-icon skeleton-block"></div></div>
+        <div class="subcat-item"><div class="subcat-icon skeleton-block"></div></div>
+        <div class="subcat-item"><div class="subcat-icon skeleton-block"></div></div>
+    `;
+
+    try {
+        // Fetch categories (using the same cache logic as the menu)
+        const urls = [
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
+        ];
+
+        const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
+        let rawCategories = [];
+        responses.forEach(res => { if (res.data) rawCategories = rawCategories.concat(res.data); });
+        
+        const seen = new Set();
+        const allCategories = rawCategories.filter(c => {
+            if (seen.has(c.documentId)) return false;
+            seen.add(c.documentId);
+            return true;
+        });
+
+        // Find the current category in the DB
+        const currentCategory = allCategories.find(c => c.slug === categorySlug);
+        if (!currentCategory) return;
+
+        // Find all subcategories that belong to this main category
+        const subCats = allCategories.filter(c => c.parentSlug === categorySlug);
+
+        // Start building the HTML string
+        let html = `
+            <button class="subcat-item active" data-subtype="all">
+                <div class="subcat-icon" style="background:#fef9e7; color:#d4a017; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+                    <i class="fas fa-th-large"></i>
+                </div>
+                <span class="subcat-label">All</span>
+            </button>
+        `;
+
+        // Add each subcategory
+        subCats.forEach(sub => {
+            // Use the image from Strapi if available, otherwise use the icon class
+            let iconHTML = '';
+            if (sub.image && sub.image.url) {
+                const imgUrl = sub.image.url.startsWith('http') ? sub.image.url : 'https://ishop-cms-production.up.railway.app' + sub.image.url;
+                iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" />`;
+            } else {
+                iconHTML = `<i class="fas ${sub.icon || 'fa-tag'}" style="color:#0d1b2a; font-size:1.5rem;"></i>`;
+            }
+
+            html += `
+                <button class="subcat-item" data-subtype="${sub.slug}">
+                    <div class="subcat-icon">${iconHTML}</div>
+                    <span class="subcat-label">${sub.name}</span>
+                </button>
+            `;
+        });
+
+        // Inject into the page
+        rowContainer.innerHTML = html;
+
+        // Wire up the click events to filter products instantly
+        const buttons = rowContainer.querySelectorAll('.subcat-item');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active state
+                buttons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Get the subtype slug and filter
+                const subType = this.dataset.subtype;
+                filterSubcategory(categorySlug, subType);
+            });
+        });
+
+    } catch (err) {
+        console.error('Error building category icons:', err);
+    }
+}
