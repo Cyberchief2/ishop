@@ -7324,9 +7324,10 @@ footer {
     max-width: 1300px;
     margin: 1.5rem auto;
     padding: 0 2rem;
-    overflow: visible;
+    overflow: visible !important;
     border-radius: 0;
     min-height: 0;
+    z-index: 1 !important; /* Lowers the hero below the menu */
 }
 
 .hero-slide {
@@ -16426,14 +16427,14 @@ html body .hero-slide[data-theme="home"] .hero-cta {
 /* ============================================ */
 
 /* 1. The Menu Bar */
-html body nav.mega-menu {
-    background: #ffffff !important;
-    border-bottom: 1px solid #e8ecf0 !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
-    position: relative !important;
-    z-index: 9999 !important;
-    padding: 0 !important;
-    overflow: visible !important;
+header {
+    background: #ffffff;
+    padding: 1.15rem 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    overflow: visible !important; /* Forces the dropdown to escape */
 }
 
 html body nav.mega-menu .mega-menu-content {
@@ -16520,9 +16521,12 @@ html body nav.mega-menu .mega-dropdown {
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
-    z-index: 99999 !important;
+    
+    /* Forces it above the hero banner and everything else */
+    z-index: 999999 !important; 
+    
     background: #ffffff !important;
-    width: 580px !important; /* Forces 2 columns */
+    width: 580px !important; 
     padding: 1.5rem !important;
     box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
     border-top: 3px solid #f9c74f !important;
