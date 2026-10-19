@@ -8683,7 +8683,7 @@ window.addEventListener('scroll', function() {
 /* ============================================ */
 async function buildCategoryPageIcons(categorySlug) {
     const rowContainer = document.querySelector('.subcat-row');
-    if (!rowContainer) return; // Not on a category page
+    if (!rowContainer) return; 
 
     // Show a loading skeleton for the icons
     rowContainer.innerHTML = `
@@ -8694,7 +8694,6 @@ async function buildCategoryPageIcons(categorySlug) {
     `;
 
     try {
-        // Fetch categories (using the same cache logic as the menu)
         const urls = [
             'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
             'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
@@ -8712,12 +8711,72 @@ async function buildCategoryPageIcons(categorySlug) {
             return true;
         });
 
-        // Find the current category in the DB
         const currentCategory = allCategories.find(c => c.slug === categorySlug);
         if (!currentCategory) return;
 
-        // Find all subcategories that belong to this main category
         const subCats = allCategories.filter(c => c.parentSlug === categorySlug);
+
+        // --- ICON MATCHER DICTIONARY ---
+        // We match keywords in the subcategory name to a specific FontAwesome icon
+        const iconMap = {
+            'skincare': 'fa-spa',
+            'makeup': 'fa-magic',
+            'fragrance': 'fa-spray-can',
+            'perfume': 'fa-spray-can',
+            'hair': 'fa-cut',
+            'wig': 'fa-user-tie',
+            'conditioner': 'fa-pump-soap',
+            'clothing': 'fa-tshirt',
+            'shirt': 'fa-tshirt',
+            'shoe': 'fa-shoe-prints',
+            'sneaker': 'fa-shoe-prints',
+            'bag': 'fa-shopping-bag',
+            'jewelry': 'fa-gem',
+            'watch': 'fa-clock',
+            'phone': 'fa-mobile-alt',
+            'tablet': 'fa-tablet-alt',
+            'laptop': 'fa-laptop',
+            'computer': 'fa-desktop',
+            'tv': 'fa-tv',
+            'audio': 'fa-headphones',
+            'camera': 'fa-camera',
+            'game': 'fa-gamepad',
+            'console': 'fa-gamepad',
+            'furniture': 'fa-couch',
+            'sofa': 'fa-couch',
+            'bed': 'fa-bed',
+            'cookware': 'fa-utensils',
+            'kitchen': 'fa-blender',
+            'decor': 'fa-paint-roller',
+            'clean': 'fa-broom',
+            'software': 'fa-compact-disc',
+            'ebook': 'fa-book',
+            'course': 'fa-graduation-cap',
+            'template': 'fa-file-alt',
+            'traditional': 'fa-crown',
+            'women': 'fa-female',
+            'men': 'fa-male',
+            'accessories': 'fa-gem',
+            'footwear': 'fa-shoe-prints',
+            'fabric': 'fa-cut',
+            'all': 'fa-th-large'
+        };
+
+        // Helper function to find the right icon
+        function getIconClass(name, slug) {
+            const lowerName = name.toLowerCase();
+            const lowerSlug = slug.toLowerCase();
+            
+            if (lowerSlug === 'all') return 'fa-th-large';
+
+            // Check if the slug or name contains any of our keywords
+            for (const key in iconMap) {
+                if (lowerSlug.includes(key) || lowerName.includes(key)) {
+                    return iconMap[key];
+                }
+            }
+            return 'fa-tag'; // Default fallback
+        }
 
         // Start building the HTML string
         let html = `
@@ -8729,15 +8788,17 @@ async function buildCategoryPageIcons(categorySlug) {
             </button>
         `;
 
-        // Add each subcategory
         subCats.forEach(sub => {
-            // Use the image from Strapi if available, otherwise use the icon class
             let iconHTML = '';
+            
+            // If Strapi has an actual image, use it
             if (sub.image && sub.image.url) {
                 const imgUrl = sub.image.url.startsWith('http') ? sub.image.url : 'https://ishop-cms-production.up.railway.app' + sub.image.url;
                 iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" />`;
             } else {
-                iconHTML = `<i class="fas ${sub.icon || 'fa-tag'}" style="color:#0d1b2a; font-size:1.5rem;"></i>`;
+                // If no image, use our smart icon matcher
+                const iconClass = getIconClass(sub.name, sub.slug);
+                iconHTML = `<i class="fas ${iconClass}" style="color:#0d1b2a; font-size:1.5rem;"></i>`;
             }
 
             html += `
@@ -8748,18 +8809,14 @@ async function buildCategoryPageIcons(categorySlug) {
             `;
         });
 
-        // Inject into the page
         rowContainer.innerHTML = html;
 
         // Wire up the click events to filter products instantly
         const buttons = rowContainer.querySelectorAll('.subcat-item');
         buttons.forEach(btn => {
             btn.addEventListener('click', function() {
-                // Update active state
                 buttons.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                
-                // Get the subtype slug and filter
                 const subType = this.dataset.subtype;
                 filterSubcategory(categorySlug, subType);
             });
