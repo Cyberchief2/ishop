@@ -8325,6 +8325,127 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 // VENDOR PRODUCT FORM - FINAL FIX
 // ============================================
+let formCategories = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('productForm');
+    if (!form) return;
+
+    // ========================================
+    // 1. LOAD CATEGORIES
+    // ========================================
+    const catDropdown = document.getElementById('productCategory');
+    const subDropdown = document.getElementById('productSubCategory');
+    const typeDropdown = document.getElementById('productTypeRef');
+
+    if (catDropdown) {
+        const urls = [
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
+            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
+        ];
+        
+        Promise.all(urls.map(url => fetch(url).then(res => res.json())))
+            .then(responses => {
+                let raw = [];
+                responses.forEach(r => { if(r.data) raw = raw.concat(r.data); });
+                
+                const seen = new Set();
+                formCategories = raw.filter(c => {
+                    if(seen.has(c.documentId)) return false;
+                    seen.add(c.documentId);
+                    return true;
+                });
+
+                const mainCats = formCategories.filter(c => !c.parentSlug);
+                catDropdown.innerHTML = '<option value="">Select a category</option>';
+                mainCats.forEach(c => {
+                    catDropdown.innerHTML += `<option value="${c.slug}">${c.name}</option>`;
+                });
+            }).catch(err => console.error(err));
+
+        catDropdown.onchange = function() {
+            const slug = this.value;
+            subDropdown.innerHTML = '<option value="">Select a Sub-Category</option>';
+            typeDropdown.innerHTML = '<option value="">Select a Sub-category first</option>';
+            typeDropdown.disabled = true;
+            
+            if (!slug) { subDropdown.disabled = true; return; }
+            
+            const subs = formCategories.filter(c => c.parentSlug === slug);
+            subs.forEach(s => subDropdown.innerHTML += `<option value="${s.slug}">${s.name}</option>`);
+            subDropdown.disabled = false;
+        };
+
+        subDropdown.onchange = function() {
+            const slug = this.value;
+            typeDropdown.innerHTML = '<option value="">Select a Type</option>';
+            
+            if (!slug) { typeDropdown.disabled = true; return; }
+            
+            const types = formCategories.filter(c => c.parentSlug === slug);
+            types.forEach(t => typeDropdown.innerHTML += `<option value="${t.slug}">${t.name}</option>`);
+            typeDropdown.disabled = false;
+        };
+    }
+
+    // ========================================
+    // 2. MANUAL BUTTON NAVIGATION
+    // ========================================
+    let currentStep = 1;
+    const btnNext = document.getElementById('productNextBtn');
+    const btnBack = document.getElementById('productBackBtn');
+    const btnSubmit = document.getElementById('productSubmitBtn');
+    const progressBar = document.getElementById('productProgressBar');
+
+    function showStep(step) {
+        currentStep = step;
+        
+        document.querySelectorAll('.vendor-apply-step').forEach(el => el.classList.remove('active'));
+        const target = document.querySelector(`.vendor-apply-step[data-step="${step}"]`);
+        if (target) target.classList.add('active');
+
+        document.querySelectorAll('.vendor-progress-step').forEach(el => {
+            const n = parseInt(el.dataset.step);
+            el.classList.remove('active', 'completed');
+            if (n < step) el.classList.add('completed');
+            if (n === step) el.classList.add('active');
+        });
+
+        if (btnBack) btnBack.style.display = step > 1 ? 'inline-flex' : 'none';
+        if (btnNext) btnNext.style.display = step < 3 ? 'inline-flex' : 'none';
+        if (btnSubmit) btnSubmit.style.display = step === 3 ? 'inline-flex' : 'none';
+        
+        if (progressBar) progressBar.style.width = (step / 3) * 100 + '%';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (btnNext) {
+        btnNext.onclick = function(e) {
+            e.preventDefault(); 
+            if (currentStep === 1) {
+                const name = document.getElementById('productName').value;
+                const cat = document.getElementById('productCategory').value;
+                const price = document.getElementById('productPrice').value;
+                if (!name || !cat || !price) {
+                    alert('Please fill in Product Name, Category, and Price before continuing.');
+                    return;
+                }
+            }
+            if (currentStep < 3) showStep(currentStep + 1);
+        };
+    }
+
+    if (btnBack) {
+        btnBack.onclick = function(e) {
+            e.preventDefault();
+            if (currentStep > 1) showStep(currentStep - 1);
+        };
+    }
+});
+
+
 
 function attachMegaMenuPositioning() {
     function positionDropdown(li) {
@@ -8358,9 +8479,6 @@ function attachMegaMenuPositioning() {
         window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
     });
 }
-// ============================================
-// MEGA MENU BUILDER - FINAL BULLETPROOF VERSION
-// ============================================
 // ============================================
 // MEGA MENU BUILDER & POSITIONER (FINAL)
 // ============================================
