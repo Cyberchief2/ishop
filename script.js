@@ -3826,12 +3826,22 @@ function initializeApp() {
         renderHomepage();
     } else if (page === 'shop.html') {
         initShopPage();
-     } else if (page === 'digital-products.html') {
-        // Render the products
+         } else if (page === 'digital.html' || page === 'digital-products.html') {
         renderCategory('digital');
-        
-        // Build the dynamic 3D icons
         buildCategoryPageIcons('digital');
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const subType = urlParams.get('type') || urlParams.get('subtype') || '';
+        setTimeout(() => {
+            if (subType) {
+                const targetBtn = document.querySelector(`.subcat-item[data-subtype="${subType}"]`);
+                if (targetBtn) {
+                    document.querySelectorAll('.subcat-item').forEach(b => b.classList.remove('active'));
+                    targetBtn.classList.add('active');
+                }
+            }
+        }, 500);
+    } else if (page === 'product-detail.html') {
         
         // If a subtype is in the URL, highlight it
         const urlParams = new URLSearchParams(window.location.search);
@@ -8886,6 +8896,35 @@ window.addEventListener('pageshow', function (event) {
         megaDropdowns.forEach(dd => {
             dd.style.setProperty('display', 'none', 'important');
             setTimeout(() => dd.style.removeProperty('display'), 100);
+        });
+    }
+});
+/* ============================================ */
+/* FIX: CLOSE DROPDOWNS ON BROWSER BACK BUTTON  */
+/* ============================================ */
+window.addEventListener('pageshow', function (event) {
+    // If the page is loaded from the back/forward cache (user clicked Back)
+    if (event.persisted) {
+        
+        // 1. Remove focus from any element (breaks the hover state)
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+
+        // 2. Force close the Account Dropdown
+        const accountWrap = document.getElementById('accountDropdownWrap');
+        if (accountWrap) accountWrap.classList.remove('open');
+        
+        // 3. Force close the Mega Menu dropdowns
+        const megaDropdowns = document.querySelectorAll('.mega-dropdown');
+        megaDropdowns.forEach(dd => {
+            // Temporarily hide it
+            dd.style.setProperty('display', 'none', 'important');
+            
+            // Restore the CSS rule after a split second so hover works next time
+            setTimeout(() => {
+                dd.style.removeProperty('display');
+            }, 100);
         });
     }
 });
