@@ -17133,3 +17133,37 @@ html body .subcat-icon {
     background: #f8fafc !important; /* Light grey background makes 3D pop */
     border-radius: 16px !important;
 }
+/* ============================================ */
+/* FIX: ACCOUNT DROPDOWN Z-INDEX                 */
+/* ============================================ */
+
+/* 1. Ensure the Account panel is forced above the mega menu */
+html body .account-dropdown-panel {
+    z-index: 2147483647 !important; /* Maximum possible z-index */
+    position: absolute !important;
+    background: #ffffff !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
+}
+
+/* 2. Ensure the parent header is above the mega menu */
+html body header {
+    z-index: 1000000 !important; 
+}
+
+html body nav.mega-menu {
+    z-index: 999999 !important; 
+}
+
+/* 3. On mobile, ensure the account panel is fixed and centered */
+@media (max-width: 768px) {
+    html body .account-dropdown-panel {
+        position: fixed !important;
+        top: 70px !important;
+        right: 8px !important;
+        left: auto !important;
+        width: 240px !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: 70vh !important;
+        overflow-y: auto !important;
+    }
+}
