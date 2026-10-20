@@ -1982,13 +1982,13 @@ async function renderCategory(category, subType = '', type = '') {
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct);
 
-        // Aggressive category matching
+        // Exact category matching for phones
         if (category === 'phones-tablets') {
             products = products.filter(p => 
                 p.category === 'phones' || 
                 p.category === 'tablets' || 
                 p.category === 'phones-tablets' ||
-                p.category === 'electronics'
+                (p.subType && ['smartphones', 'tablets', 'phone-accessories', 'power-banks'].includes(p.subType))
             );
         } else {
             products = products.filter(p => p.category === category);
@@ -2622,35 +2622,32 @@ async function filterSubcategory(category, subType = 'all') {
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct);
 
-        // 1. Filter by Main Category first
+        // 1. Isolate the main category first
         if (category === 'phones-tablets') {
             products = products.filter(p => 
                 p.category === 'phones' || 
                 p.category === 'tablets' || 
                 p.category === 'phones-tablets' ||
-                p.category === 'electronics' // Fallback if phones are stored under electronics
+                (p.subType && ['smartphones', 'tablets', 'phone-accessories', 'power-banks'].includes(p.subType))
             );
         } else {
             products = products.filter(p => p.category === category);
         }
 
-        // 2. Filter by Subcategory (The aggressive way)
+        // 2. Filter by the specific subcategory clicked
         if (subType !== 'all') {
             const cleanSubType = subType.toLowerCase().replace(/-/g, '');
             
             products = products.filter(p => {
                 const pSub = (p.subType || '').toLowerCase().replace(/-/g, '');
                 const pMinor = (p.minorType || '').toLowerCase().replace(/-/g, '');
-                const pCat = (p.category || '').toLowerCase().replace(/-/g, '');
                 const pName = (p.name || '').toLowerCase().replace(/-/g, '');
                 
-                // If ANY of the fields contain the subType, keep it
-                return pSub.includes(cleanSubType) || 
-                       pMinor.includes(cleanSubType) || 
-                       pCat.includes(cleanSubType) || 
-                       pName.includes(cleanSubType) ||
-                       cleanSubType.includes(pSub) ||
-                       cleanSubType.includes(pMinor);
+                return pSub === cleanSubType || 
+                       pMinor === cleanSubType ||
+                       pSub.includes(cleanSubType) ||
+                       pMinor.includes(cleanSubType) ||
+                       pName.includes(cleanSubType);
             });
         }
 
@@ -8807,7 +8804,7 @@ async function buildCategoryPageIcons(categorySlug) {
             'accessories': 'Wrench/3D/wrench_3d.png',
             
                        // Phones & Tablets (Fixed paths)
-            'phone': 'Mobile%20phone/3D/mobile_phone_3d.png',
+            'phone': 'Mobile_phone/3D/mobile_phone_3d.png',
             'smartphone': 'Mobile%20phone/3D/mobile_phone_3d.png',
             'tablets': 'Mobile%20phone/3D/mobile_phone_3d.png',
             'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png',
