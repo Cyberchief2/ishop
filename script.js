@@ -3826,7 +3826,7 @@ function initializeApp() {
         renderHomepage();
     } else if (page === 'shop.html') {
         initShopPage();
-    } else if (page === 'digital-products.html') {
+    } else if (page === 'digital-products.html' || page === 'digital.html') {
         renderCategory('digital');
         setupSubcategoryButtons('digital');
     } else if (page === 'product-detail.html') {
