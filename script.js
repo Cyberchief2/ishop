@@ -1982,21 +1982,29 @@ async function renderCategory(category, subType = '', type = '') {
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct);
 
-        // Handle the phones-tablets category mapping
+        // Aggressive category matching
         if (category === 'phones-tablets') {
-            products = products.filter(p => p.category === 'phones' || p.category === 'tablets' || p.category === 'phones-tablets');
+            products = products.filter(p => 
+                p.category === 'phones' || 
+                p.category === 'tablets' || 
+                p.category === 'phones-tablets' ||
+                p.category === 'electronics'
+            );
         } else {
             products = products.filter(p => p.category === category);
         }
 
         if (subType) {
-            products = products.filter(p => p.subType === subType.toLowerCase());
-            console.log(`🔎 Filtered by subtype "${subType}": ${products.length} products`);
+            const cleanSub = subType.toLowerCase().replace(/-/g, '');
+            products = products.filter(p => 
+                (p.subType || '').includes(cleanSub) || 
+                (p.minorType || '').includes(cleanSub) ||
+                (p.name || '').toLowerCase().includes(cleanSub)
+            );
         }
         
         if (type) {
             products = products.filter(p => p.minorType === type.toLowerCase());
-            console.log(`🔎 Filtered by type "${type}": ${products.length} products`);
         }
 
         const containerId = containerMap[category] || null;
@@ -2614,31 +2622,39 @@ async function filterSubcategory(category, subType = 'all') {
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct);
 
-        // --- FIX 1: Handle the phones-tablets category mapping ---
-        let targetCategory = category;
+        // 1. Filter by Main Category first
         if (category === 'phones-tablets') {
-            // If the user is on the phones page, look for 'phones' or 'tablets' in Strapi
-            products = products.filter(p => p.category === 'phones' || p.category === 'tablets' || p.category === 'phones-tablets');
+            products = products.filter(p => 
+                p.category === 'phones' || 
+                p.category === 'tablets' || 
+                p.category === 'phones-tablets' ||
+                p.category === 'electronics' // Fallback if phones are stored under electronics
+            );
         } else {
             products = products.filter(p => p.category === category);
         }
 
-        // --- FIX 2: Handle the subcategory filtering ---
+        // 2. Filter by Subcategory (The aggressive way)
         if (subType !== 'all') {
             const cleanSubType = subType.toLowerCase().replace(/-/g, '');
             
             products = products.filter(p => {
                 const pSub = (p.subType || '').toLowerCase().replace(/-/g, '');
                 const pMinor = (p.minorType || '').toLowerCase().replace(/-/g, '');
+                const pCat = (p.category || '').toLowerCase().replace(/-/g, '');
+                const pName = (p.name || '').toLowerCase().replace(/-/g, '');
                 
-                return pSub === cleanSubType || 
-                       pMinor === cleanSubType || 
-                       (pSub && cleanSubType.includes(pSub)) ||
-                       (pMinor && cleanSubType.includes(pMinor));
+                // If ANY of the fields contain the subType, keep it
+                return pSub.includes(cleanSubType) || 
+                       pMinor.includes(cleanSubType) || 
+                       pCat.includes(cleanSubType) || 
+                       pName.includes(cleanSubType) ||
+                       cleanSubType.includes(pSub) ||
+                       cleanSubType.includes(pMinor);
             });
         }
 
-        // Render the results to the correct container
+        // 3. Render to the correct container
         const containerId = category === 'digital' ? 'digitalProductsGrid' : category + 'Products';
         renderProducts(containerId, products);
         
@@ -8790,14 +8806,14 @@ async function buildCategoryPageIcons(categorySlug) {
             'camera': 'Camera/3D/camera_3d.png',
             'accessories': 'Wrench/3D/wrench_3d.png',
             
-                        // Phones & Tablets
-            'phone': 'Mobile%20phone%20with%20arrow/3D/mobile_phone_with_arrow_3d.png',
-            'smartphone': 'Mobile%20phone%20with%20arrow/3D/mobile_phone_with_arrow_3d.png',
-            'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png', 
+                       // Phones & Tablets (Fixed paths)
+            'phone': 'Mobile%20phone/3D/mobile_phone_3d.png',
+            'smartphone': 'Mobile%20phone/3D/mobile_phone_3d.png',
+            'tablets': 'Mobile%20phone/3D/mobile_phone_3d.png',
+            'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png',
             'power': 'Battery/3D/battery_3d.png',
             'power-bank': 'Battery/3D/battery_3d.png',
-            'phone-accessories': 'Headphone/3D/headphone_3d.png', 
-            'tablets': 'Mobile%20phone/3D/mobile_phone_3d.png',
+            'phone-accessories': 'Headphone/3D/headphone_3d.png',
             
             // Computers
             'laptop': 'Laptop/3D/laptop_3d.png',
