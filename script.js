@@ -3822,13 +3822,29 @@ function initializeApp() {
         });
     }
 
-    if (page === 'index.html' || page === '') {
+        if (page === 'index.html' || page === '') {
         renderHomepage();
     } else if (page === 'shop.html') {
         initShopPage();
     } else if (page === 'digital-products.html' || page === 'digital.html') {
+        // Render the products
         renderCategory('digital');
-        setupSubcategoryButtons('digital');
+        
+        // Build the dynamic 3D icons
+        buildCategoryPageIcons('digital');
+        
+        // If a subtype is in the URL, highlight it
+        const urlParams = new URLSearchParams(window.location.search);
+        const subType = urlParams.get('type') || urlParams.get('subtype') || '';
+        setTimeout(() => {
+            if (subType) {
+                const targetBtn = document.querySelector(`.subcat-item[data-subtype="${subType}"]`);
+                if (targetBtn) {
+                    document.querySelectorAll('.subcat-item').forEach(b => b.classList.remove('active'));
+                    targetBtn.classList.add('active');
+                }
+            }
+        }, 500);
     } else if (page === 'product-detail.html') {
         renderProductDetail();
     } else if (page === 'cart.html') {
