@@ -8873,7 +8873,13 @@ async function buildCategoryPageIcons(categorySlug) {
                 buttons.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 const subType = this.dataset.subtype;
-                filterSubcategory(categorySlug, subType);
+                
+                // If we are on the digital page, use the digital container ID
+                if (categorySlug === 'digital' || categorySlug === 'digital-products') {
+                    filterSubcategory('digital', subType);
+                } else {
+                    filterSubcategory(categorySlug, subType);
+                }
             });
         });
 
