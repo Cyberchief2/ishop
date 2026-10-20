@@ -959,7 +959,8 @@ function convertStrapiProduct(strapiProduct) {
         name: strapiProduct.Product_Name || 'Unnamed Product',
         vendorName: (strapiProduct.vendor && strapiProduct.vendor.businessName) ? strapiProduct.vendor.businessName : '',
         category: (strapiProduct.categoryRef && strapiProduct.categoryRef.slug) ? strapiProduct.categoryRef.slug.toLowerCase() : 'uncategorized',
-        subType: (strapiProduct.subCategoryRef && strapiProduct.subCategoryRef.slug) ? strapiProduct.subCategoryRef.slug.toLowerCase() : '',
+        // FIX: Added fallbacks in case Strapi returns it without the 'Ref' suffix
+        subType: (strapiProduct.subCategoryRef?.slug || strapiProduct.subCategoryRef?.Name || strapiProduct.subCategory?.slug) ? (strapiProduct.subCategoryRef?.slug || strapiProduct.subCategoryRef?.Name || strapiProduct.subCategory?.slug).toLowerCase() : '',
         minorType: (strapiProduct.typeRef && strapiProduct.typeRef.slug) ? strapiProduct.typeRef.slug.toLowerCase() : '',
         type: (strapiProduct.Type || 'physical').toLowerCase(),
         price: parseFloat(strapiProduct.Price || 0),
@@ -2634,9 +2635,9 @@ async function filterSubcategory(category, subType = 'all') {
             products = products.filter(p => p.category === category);
         }
 
-        // 2. Filter by the specific subcategory clicked
+                // 2. Filter by the specific subcategory clicked
         if (subType !== 'all') {
-            // Normalize the clicked button (e.g., "smartphones" -> "smartphone")
+            // Remove hyphens and plural 's' for a fuzzy match (e.g. "smartphones" -> "smartphone")
             const cleanSubType = subType.toLowerCase().replace(/-/g, '').replace(/s$/, '');
             
             products = products.filter(p => {
@@ -2644,7 +2645,6 @@ async function filterSubcategory(category, subType = 'all') {
                 const pMinor = (p.minorType || '').toLowerCase().replace(/-/g, '');
                 const pName = (p.name || '').toLowerCase();
                 
-                // Check if the product data contains the clean subType
                 return pSub.includes(cleanSubType) || 
                        pMinor.includes(cleanSubType) ||
                        pName.includes(cleanSubType);
