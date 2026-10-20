@@ -8770,11 +8770,14 @@ async function buildCategoryPageIcons(categorySlug) {
             'accessories': 'Wrench/3D/wrench_3d.png',
             
             // Phones & Tablets
+                        // Phones & Tablets
             'phone': 'Mobile%20phone/3D/mobile_phone_3d.png',
             'smartphone': 'Mobile%20phone/3D/mobile_phone_3d.png',
-            'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png', 
+            'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png', // We will override this with SVG
             'power': 'Battery/3D/battery_3d.png',
             'power-bank': 'Battery/3D/battery_3d.png',
+            'phone-accessories': 'Headphone/3D/headphone_3d.png', // Better than a wrench
+            'tablets': 'Mobile%20phone/3D/mobile_phone_3d.png',
             
             // Computers
             'laptop': 'Laptop/3D/laptop_3d.png',
@@ -8786,10 +8789,10 @@ async function buildCategoryPageIcons(categorySlug) {
             // Fashion
             'clothing': 'T-shirt/3D/t-shirt_3d.png',
             'shirt': 'T-shirt/3D/t-shirt_3d.png',
-            'shoe': 'Running%20shoe/3D/running_shoe_3d.png',
-            'sneaker': 'Running%20shoe/3D/running_shoe_3d.png',
+            'shoe': 'Womans%20boot/3D/womans_boot_3d.png',
+            'sneaker': 'Womans%20boot/3D/womans_boot_3d.png',
             'bag': 'Handbag/3D/handbag_3d.png',
-            'jewelry': 'Gem%20stone/3D/gem_stone_3d.png',
+            'jewelry': 'Ring/3D/ring_3d.png',
             'watch': 'Watch/3D/watch_3d.png',
             
             // Beauty (Fixed!)
@@ -8809,10 +8812,10 @@ async function buildCategoryPageIcons(categorySlug) {
             'cleaning': 'Sponge/3D/sponge_3d.png',
             'appliances': 'Countertop/3D/countertop_3d.png',
             
-            // Digital
+            // Digital (Fixed!)
             'ebook': 'Books/3D/books_3d.png',
-            'course': 'Graduation%20cap/3D/graduation_cap_3d.png',
-            'template': 'Page%20facing%20up/3D/page_facing_up_3d.png',
+            'course': 'Graduation%20cap/3D/graduation_cap_3d.png', 
+            'template': 'Card%20index%20dividers/3D/card_index_dividers_3d.png',
             
             // Traditional (Fixed!)
             'traditional': 'Crown/3D/crown_3d.png',
@@ -8822,7 +8825,8 @@ async function buildCategoryPageIcons(categorySlug) {
         };
 
         // SVG Fallbacks for items Microsoft doesn't have in 3D
-        const svgIcons = {
+                const svgIcons = {
+            'tablet': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`,
             'dvd': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>`,
             'game': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>`,
             'console': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>`,
