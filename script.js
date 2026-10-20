@@ -2606,11 +2606,21 @@ async function filterSubcategory(category, subType = 'all') {
     try {
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct).filter(p => p.category === category);
+
         if (subType !== 'all') {
-            products = products.filter(p => p.subType === subType);
+            // Check both subType and minorType so it works for digital products
+            products = products.filter(p => 
+                p.subType === subType || 
+                p.minorType === subType ||
+                (p.subType && p.subType.includes(subType)) ||
+                (p.minorType && p.minorType.includes(subType))
+            );
         }
-        const containerId = category + 'Products';
+
+        // Ensure we are targeting the correct container
+        const containerId = category === 'digital' ? 'digitalProductsGrid' : category + 'Products';
         renderProducts(containerId, products);
+        
     } catch (error) {
         console.error('❌ Error filtering subcategory:', error);
     }
@@ -3772,7 +3782,7 @@ window.addEventListener('scroll', function () {
 // ============================================
 // INITIALIZE PAGE
 // ============================================
-function initializeApp() {
+async function initializeApp() {
     // Detect admin page first
     const page = window.location.pathname.split('/').pop().split('?')[0];
 
@@ -3827,9 +3837,13 @@ function initializeApp() {
     } else if (page === 'shop.html') {
         initShopPage();
          } else if (page === 'digital.html' || page === 'digital-products.html') {
+        // 1. Render the products normally
         renderCategory('digital');
+        
+        // 2. Build the dynamic 3D icons
         buildCategoryPageIcons('digital');
         
+        // 3. If a subtype is in the URL, highlight it
         const urlParams = new URLSearchParams(window.location.search);
         const subType = urlParams.get('type') || urlParams.get('subtype') || '';
         setTimeout(() => {
