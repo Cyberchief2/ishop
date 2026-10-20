@@ -3826,7 +3826,7 @@ function initializeApp() {
         renderHomepage();
     } else if (page === 'shop.html') {
         initShopPage();
-    } else if (page === 'digital-products.html' || page === 'digital-products.html') {
+     } else if (page === 'digital-products.html') {
         // Render the products
         renderCategory('digital');
         
@@ -8871,3 +8871,21 @@ async function buildCategoryPageIcons(categorySlug) {
         console.error('Error building category icons:', err);
     }
 }
+/* ============================================ */
+/* FIX: CLOSE DROPDOWNS ON BROWSER BACK BUTTON  */
+/* ============================================ */
+window.addEventListener('pageshow', function (event) {
+    // If the page is loaded from the back/forward cache
+    if (event.persisted) {
+        // Remove the open class from the account menu
+        const accountWrap = document.getElementById('accountDropdownWrap');
+        if (accountWrap) accountWrap.classList.remove('open');
+        
+        // Hide any hovered mega menu dropdowns
+        const megaDropdowns = document.querySelectorAll('.mega-dropdown');
+        megaDropdowns.forEach(dd => {
+            dd.style.setProperty('display', 'none', 'important');
+            setTimeout(() => dd.style.removeProperty('display'), 100);
+        });
+    }
+});
