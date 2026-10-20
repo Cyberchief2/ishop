@@ -2636,16 +2636,16 @@ async function filterSubcategory(category, subType = 'all') {
 
         // 2. Filter by the specific subcategory clicked
         if (subType !== 'all') {
-            const cleanSubType = subType.toLowerCase().replace(/-/g, '');
+            // Normalize the clicked button (e.g., "smartphones" -> "smartphone")
+            const cleanSubType = subType.toLowerCase().replace(/-/g, '').replace(/s$/, '');
             
             products = products.filter(p => {
                 const pSub = (p.subType || '').toLowerCase().replace(/-/g, '');
                 const pMinor = (p.minorType || '').toLowerCase().replace(/-/g, '');
-                const pName = (p.name || '').toLowerCase().replace(/-/g, '');
+                const pName = (p.name || '').toLowerCase();
                 
-                return pSub === cleanSubType || 
-                       pMinor === cleanSubType ||
-                       pSub.includes(cleanSubType) ||
+                // Check if the product data contains the clean subType
+                return pSub.includes(cleanSubType) || 
                        pMinor.includes(cleanSubType) ||
                        pName.includes(cleanSubType);
             });
