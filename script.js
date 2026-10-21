@@ -8869,7 +8869,7 @@ async function buildCategoryPageIcons(categorySlug) {
             'bedding': 'Bed/3D/bed_3d.png',
             'decor': 'Artist%20palette/3D/artist_palette_3d.png',
             'cleaning': 'Sponge/3D/sponge_3d.png',
-            'appliances': 'icons/home-appliances.png',
+            'appliances': 'icon/home-appliances.png',
             
             // Digital (Fixed!)
             'ebook': 'Books/3D/books_3d.png',
@@ -8878,8 +8878,8 @@ async function buildCategoryPageIcons(categorySlug) {
             
             // Traditional (Fixed!)
             'traditional': 'Crown/3D/crown_3d.png',
-            'women': 'icons/women.jpg',
-            'men': 'icons/men.jpg',
+            'women': 'icon/women.jpg',
+            'men': 'icon/men.jpg',
             'fabrics': 'Yarn/3D/yarn_3d.png'
         };
 
