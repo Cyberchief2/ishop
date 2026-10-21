@@ -1988,20 +1988,19 @@ async function renderCategory(category, subType = '', type = '') {
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct);
 
-        // Robust category matching
+               // Exact category matching for phones
         if (category === 'phones-tablets') {
             products = products.filter(p => 
                 p.category === 'phones' || 
                 p.category === 'tablets' || 
                 p.category === 'phones-tablets' ||
-                ['smartphones', 'tablets', 'phone-accessories', 'power-banks'].includes(p.subType)
+                (p.subType && ['smartphones', 'tablets', 'phone-accessories', 'power-banks'].includes(p.subType))
             );
         } else {
-            // For all other categories, match the category name
             products = products.filter(p => p.category === category);
         }
 
-        // Only filter by subtype if it's passed AND not 'all'
+        // Only apply subtype filter if it's NOT 'all'
         if (subType && subType !== 'all') {
             const target = subType.toLowerCase().replace(/-/g, '').replace(/s$/, '');
             products = products.filter(p => {
@@ -2641,21 +2640,20 @@ async function filterSubcategory(category, subType = 'all') {
             products = products.filter(p => p.category === category);
         }
 
-                // 2. Filter by the specific subcategory clicked
+        // 2. Filter by the specific subcategory clicked
         if (subType !== 'all' && subType !== '') {
-            // Normalize the clicked subtype (e.g. "smartphones" -> "smartphone", "tablets" -> "tablet")
+            // Normalize the clicked subtype (e.g. "smartphones" -> "smartphone")
             const target = subType.toLowerCase().replace(/-/g, '').replace(/s$/, '');
             
             products = products.filter(p => {
                 const pSub = (p.subType || '').toLowerCase().replace(/-/g, '').replace(/s$/, '');
-                const pMin = (p.minorType || '').toLowerCase().replace(/-/g, '');
+                const pMinor = (p.minorType || '').toLowerCase().replace(/-/g, '');
                 const pName = (p.name || '').toLowerCase();
 
-                // If the product's subtype matches, OR the minor type matches, OR the name contains the word
-                return pSub === target || pMin.includes(target) || pName.includes(target);
+                // Check if the subtype matches exactly, or if the name contains the word
+                return pSub === target || pMinor.includes(target) || pName.includes(target);
             });
         }
-
         // 3. Render to the correct container
         const containerId = category === 'digital' ? 'digitalProductsGrid' : category + 'Products';
         renderProducts(containerId, products);
@@ -3936,18 +3934,18 @@ async function initializeApp() {
     ) {
         const category = page.replace('.html', '');
         const urlParams = new URLSearchParams(window.location.search);
-        const subType = urlParams.get('subtype') || '';
+        const subType = urlParams.get('subtype') || 'all'; // Default to 'all'
         const typeSlug = urlParams.get('type') || '';
         
-        // Render the products
+        // Render the products using the URL subtype (or 'all')
         renderCategory(category, subType, typeSlug);
         
         // Build the icons dynamically from the database
         buildCategoryPageIcons(category);
 
-        // If a subtype was clicked from the top menu, set it as active visually
+        // Set the visual active state based on the URL
         setTimeout(() => {
-            if (subType) {
+            if (subType && subType !== 'all') {
                 const targetBtn = document.querySelector(`.subcat-item[data-subtype="${subType}"]`);
                 if (targetBtn) {
                     document.querySelectorAll('.subcat-item').forEach(b => b.classList.remove('active'));
