@@ -3939,20 +3939,6 @@ async function initializeApp() {
             }
         }, 500);
     } else if (page === 'product-detail.html') {
-        
-        // If a subtype is in the URL, highlight it
-        const urlParams = new URLSearchParams(window.location.search);
-        const subType = urlParams.get('type') || urlParams.get('subtype') || '';
-        setTimeout(() => {
-            if (subType) {
-                const targetBtn = document.querySelector(`.subcat-item[data-subtype="${subType}"]`);
-                if (targetBtn) {
-                    document.querySelectorAll('.subcat-item').forEach(b => b.classList.remove('active'));
-                    targetBtn.classList.add('active');
-                }
-            }
-        }, 500);
-    } else if (page === 'product-detail.html') {
         renderProductDetail();
     } else if (page === 'cart.html') {
         renderCart();
@@ -8997,24 +8983,6 @@ async function buildCategoryPageIcons(categorySlug) {
         console.error('Error building category icons:', err);
     }
 }
-/* ============================================ */
-/* FIX: CLOSE DROPDOWNS ON BROWSER BACK BUTTON  */
-/* ============================================ */
-window.addEventListener('pageshow', function (event) {
-    // If the page is loaded from the back/forward cache
-    if (event.persisted) {
-        // Remove the open class from the account menu
-        const accountWrap = document.getElementById('accountDropdownWrap');
-        if (accountWrap) accountWrap.classList.remove('open');
-        
-        // Hide any hovered mega menu dropdowns
-        const megaDropdowns = document.querySelectorAll('.mega-dropdown');
-        megaDropdowns.forEach(dd => {
-            dd.style.setProperty('display', 'none', 'important');
-            setTimeout(() => dd.style.removeProperty('display'), 100);
-        });
-    }
-});
 /* ============================================ */
 /* FIX: CLOSE DROPDOWNS ON BROWSER BACK BUTTON  */
 /* ============================================ */
