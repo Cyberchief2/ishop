@@ -8852,7 +8852,7 @@ async function buildCategoryPageIcons(categorySlug) {
             'bag': 'Handbag/3D/handbag_3d.png',
             'jewelry': 'Ring/3D/ring_3d.png',
             'watch': 'Watch/3D/watch_3d.png',
-            'fashion-accessories': 'icons/fashion-accessories.jpg',
+            'fashion': 'icons/fashion-accessories.png',
             
             // Beauty (Fixed!)
             'skincare': 'Lotion%20bottle/3D/lotion_bottle_3d.png',
