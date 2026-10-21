@@ -4655,14 +4655,20 @@ footer {
 }
 
 /* ============================================ */
-/* BEAUTY & DIGITAL — 5 ICONS CENTERED */
+/* BEAUTY & DIGITAL — 7 ICONS IN ONE ROW        */
 /* ============================================ */
 @media (min-width: 769px) {
     .beauty-page .subcat-row,
     .digital-page .subcat-row {
-        grid-template-columns: repeat(5, 1fr) !important;
-        max-width: 720px !important;
-        margin: 0 auto !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        max-width: 100% !important; /* Removes the 720px limit */
+        margin: 0 !important;
+    }
+    
+    .beauty-page .subcat-label,
+    .digital-page .subcat-label {
+        font-size: 0.72rem !important; /* Slightly smaller text to fit perfectly */
+        white-space: nowrap; /* Prevents the text from breaking into 3 lines */
     }
 }
 /* ============================================ */

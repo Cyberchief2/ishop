@@ -8854,9 +8854,9 @@ async function buildCategoryPageIcons(categorySlug) {
             
                        // Phones & Tablets (Fixed paths)
             'phone': 'Mobile_phone/3D/mobile_phone_3d.png',
-            'smartphone': 'Mobile%20phone/3D/mobile_phone_3d.png',
-            'tablets': 'Mobile%20phone/3D/mobile_phone_3d.png',
-            'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png',
+            'smartphone': 'Mobile%20phone/3D/mobile_phone_3d.png?v=2',
+            'tablets': 'Mobile%20phone/3D/mobile_phone_3d.png?v=2',
+            'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png?v=2',
             'power': 'Battery/3D/battery_3d.png',
             'power-bank': 'Battery/3D/battery_3d.png',
             'phone-accessories': 'Headphone/3D/headphone_3d.png',
@@ -8871,38 +8871,38 @@ async function buildCategoryPageIcons(categorySlug) {
             // Fashion
             'clothing': 'T-shirt/3D/t-shirt_3d.png',
             'shirt': 'T-shirt/3D/t-shirt_3d.png',
-            'shoe': 'Womans%20boot/3D/womans_boot_3d.png',
-            'sneaker': 'Womans%20boot/3D/womans_boot_3d.png',
+            'shoe': 'Running%20shoe/3D/running_shoe_3d.png',
+            'sneaker': 'Running%20shoe/3D/running_shoe_3d.png',
             'bag': 'Handbag/3D/handbag_3d.png',
             'jewelry': 'Ring/3D/ring_3d.png',
             'watch': 'Watch/3D/watch_3d.png',
             
             // Beauty (Fixed!)
-            'skincare': 'Lotion/3D/lotion_3d.png',
+            'skincare': 'Lotion%20bottle/3D/lotion_bottle_3d.png',
             'makeup': 'Lipstick/3D/lipstick_3d.png',
-            'fragrance': 'Perfume/3D/perfume_3d.png',
+            'fragrance': 'Spray%20bottle/3D/spray_bottle_3d.png',
             'perfume': 'Perfume/3D/perfume_3d.png',
-            'hair': 'Comb/3D/comb_3d.png',
+            'hair': 'Hair%20pick/3D/hair_pick_3d.png',
             
             // Home & Kitchen (Fixed!)
-            'furniture': 'Couch%20and%20lamp/3D/couch_and_lamp_3d.png',
+            'furniture': 'Chair/3D/chair_3d.png',
             'sofa': 'Couch%20and%20lamp/3D/couch_and_lamp_3d.png',
             'cookware': 'Cooking/3D/cooking_3d.png',
             'kitchen': 'Fork%20and%20knife%20with%20plate/3D/fork_and_knife_with_plate_3d.png',
             'bedding': 'Bed/3D/bed_3d.png',
-            'decor': 'Framed%20picture/3D/framed_picture_3d.png',
+            'decor': 'Artist%20palette/3D/artist_palette_3d.png',
             'cleaning': 'Sponge/3D/sponge_3d.png',
-            'appliances': 'Countertop/3D/countertop_3d.png',
+            'appliances': 'Television/3D/television_3d.png',
             
             // Digital (Fixed!)
             'ebook': 'Books/3D/books_3d.png',
-            'course': 'Graduation%20cap/3D/graduation_cap_3d.png', 
-            'template': 'Card%20index%20dividers/3D/card_index_dividers_3d.png',
+            'course': 'Books/3D/books_3d.png', 
+            'template': 'Memo/3D/memo_3d.png',
             
             // Traditional (Fixed!)
             'traditional': 'Crown/3D/crown_3d.png',
-            'women': 'Woman/3D/woman_3d.png',
-            'men': 'Man/3D/man_3d.png',
+            'women': 'Womans%20clothes/3D/womans_clothes_3d.png',
+            'men': 'Mans%20clothes/3D/mans_clothes_3d.png',
             'fabrics': 'Yarn/3D/yarn_3d.png'
         };
 
