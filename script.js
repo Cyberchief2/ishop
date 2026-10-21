@@ -806,7 +806,7 @@ function toggleDrawerDropdown(linkEl) {
 // ============================================
 // iShop API CONFIGURATION
 // ============================================
-const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications&populate[2]=vendor&populate[3]=categoryRef&populate[4]=subCategoryRef&populate[5]=typeRef&pagination[pageSize]=100';
+const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate=*&pagination[pageSize]=100';
 const IMAGE_BASE_URL = 'https://ishop-cms-production.up.railway.app';
 const PAYMENT_API = 'https://ishop-payments-production.up.railway.app/api/orders/initialize';
 const FREE_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/free-download';
@@ -953,14 +953,19 @@ function convertStrapiProduct(strapiProduct) {
             .map(s => ({ name: s.spec_name, value: s.spec_value }));
     }
 
+    // Extract the subcategory name safely (Strapi might return Name, name, or slug)
+    let subCategoryName = '';
+    if (strapiProduct.subCategoryRef) {
+        subCategoryName = strapiProduct.subCategoryRef.Name || strapiProduct.subCategoryRef.name || strapiProduct.subCategoryRef.slug || '';
+    }
+
     return {
         id: strapiProduct.id,
         documentId: strapiProduct.documentId || String(strapiProduct.id),
         name: strapiProduct.Product_Name || 'Unnamed Product',
         vendorName: (strapiProduct.vendor && strapiProduct.vendor.businessName) ? strapiProduct.vendor.businessName : '',
         category: (strapiProduct.categoryRef && strapiProduct.categoryRef.slug) ? strapiProduct.categoryRef.slug.toLowerCase() : 'uncategorized',
-        // FIX: Added fallbacks in case Strapi returns it without the 'Ref' suffix
-        subType: (strapiProduct.subCategoryRef?.slug || strapiProduct.subCategoryRef?.Name || strapiProduct.subCategory?.slug) ? (strapiProduct.subCategoryRef?.slug || strapiProduct.subCategoryRef?.Name || strapiProduct.subCategory?.slug).toLowerCase() : '',
+        subType: subCategoryName.toLowerCase(),
         minorType: (strapiProduct.typeRef && strapiProduct.typeRef.slug) ? strapiProduct.typeRef.slug.toLowerCase() : '',
         type: (strapiProduct.Type || 'physical').toLowerCase(),
         price: parseFloat(strapiProduct.Price || 0),
@@ -2637,17 +2642,14 @@ async function filterSubcategory(category, subType = 'all') {
 
                 // 2. Filter by the specific subcategory clicked
         if (subType !== 'all') {
-            // Remove hyphens and plural 's' for a fuzzy match (e.g. "smartphones" -> "smartphone")
-            const cleanSubType = subType.toLowerCase().replace(/-/g, '').replace(/s$/, '');
+            const targetSubType = subType.toLowerCase().replace(/-/g, ''); // e.g., "smartphones"
             
             products = products.filter(p => {
-                const pSub = (p.subType || '').toLowerCase().replace(/-/g, '');
-                const pMinor = (p.minorType || '').toLowerCase().replace(/-/g, '');
-                const pName = (p.name || '').toLowerCase();
+                const productSubType = (p.subType || '').toLowerCase().replace(/-/g, ''); // e.g., "smartphones"
                 
-                return pSub.includes(cleanSubType) || 
-                       pMinor.includes(cleanSubType) ||
-                       pName.includes(cleanSubType);
+                // We check if the product's subType contains the target, OR vice versa.
+                // This handles "smartphone" matching "smartphones".
+                return productSubType.includes(targetSubType) || targetSubType.includes(productSubType);
             });
         }
 
