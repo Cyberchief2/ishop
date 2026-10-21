@@ -8830,7 +8830,7 @@ async function buildCategoryPageIcons(categorySlug) {
             
                        // Phones & Tablets (Fixed paths)
             'phone': 'Mobile_phone/3D/mobile_phone_3d.png',
-            'smartphone': 'Mobile%20phone/3D/mobile_phone_3d.png?v=2',
+            'smartphone': 'icons/smartphone.png',
             'tablets': 'Mobile%20phone/3D/mobile_phone_3d.png?v=2',
             'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png?v=2',
             'power': 'Battery/3D/battery_3d.png',
@@ -8852,11 +8852,12 @@ async function buildCategoryPageIcons(categorySlug) {
             'bag': 'Handbag/3D/handbag_3d.png',
             'jewelry': 'Ring/3D/ring_3d.png',
             'watch': 'Watch/3D/watch_3d.png',
+            'fashion-accessories': 'icons/fashion-accessories.jpg',
             
             // Beauty (Fixed!)
             'skincare': 'Lotion%20bottle/3D/lotion_bottle_3d.png',
             'makeup': 'Lipstick/3D/lipstick_3d.png',
-            'fragrance': 'Spray%20bottle/3D/spray_bottle_3d.png',
+            'fragrance': 'icon/fragrances.png',
             'perfume': 'Perfume/3D/perfume_3d.png',
             'hair': 'Hair%20pick/3D/hair_pick_3d.png',
             
@@ -8868,7 +8869,7 @@ async function buildCategoryPageIcons(categorySlug) {
             'bedding': 'Bed/3D/bed_3d.png',
             'decor': 'Artist%20palette/3D/artist_palette_3d.png',
             'cleaning': 'Sponge/3D/sponge_3d.png',
-            'appliances': 'Television/3D/television_3d.png',
+            'appliances': 'icons/home-appliances.png',
             
             // Digital (Fixed!)
             'ebook': 'Books/3D/books_3d.png',
@@ -8877,8 +8878,8 @@ async function buildCategoryPageIcons(categorySlug) {
             
             // Traditional (Fixed!)
             'traditional': 'Crown/3D/crown_3d.png',
-            'women': 'Womans%20clothes/3D/womans_clothes_3d.png',
-            'men': 'Mans%20clothes/3D/mans_clothes_3d.png',
+            'women': 'icons/women.jpg',
+            'men': 'icons/men.jpg',
             'fabrics': 'Yarn/3D/yarn_3d.png'
         };
 
