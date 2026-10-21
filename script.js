@@ -2625,41 +2625,63 @@ function setupSubcategoryButtons(category) {
 
 async function filterSubcategory(category, subType = 'all') {
     try {
+        // Use the same container map as renderCategory — this is the fix for the
+        // "nothing renders" bug on phones-tablets / computers-accessories.
+        const containerMap = {
+            digital: 'digitalProductsGrid',
+            electronics: 'electronicsProducts',
+            fashion: 'fashionProducts',
+            beauty: 'beautyProducts',
+            home: 'homeProducts',
+            traditional: 'traditionalProducts',
+            'phones-tablets': 'phonesTabletsProducts',
+            'computers-accessories': 'computersAccessoriesProducts',
+        };
+        const containerId = containerMap[category];
+        if (!containerId) {
+            console.warn('filterSubcategory: unknown category', category);
+            return;
+        }
+
+        // Skeleton while we filter
+        renderProductSkeletons(containerId, 12);
+
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct);
 
-        // 1. Isolate the main category first
+        // 1. Isolate the main category first (same logic as renderCategory)
         if (category === 'phones-tablets') {
-            products = products.filter(p => 
-                p.category === 'phones' || 
-                p.category === 'tablets' || 
+            products = products.filter(p =>
+                p.category === 'phones' ||
+                p.category === 'tablets' ||
                 p.category === 'phones-tablets' ||
                 (p.subType && ['smartphones', 'tablets', 'phone-accessories', 'power-banks'].includes(p.subType))
+            );
+        } else if (category === 'computers-accessories') {
+            products = products.filter(p =>
+                p.category === 'computers' ||
+                p.category === 'computers-accessories' ||
+                (p.subType && ['laptops', 'desktops', 'monitors', 'computer-accessories', 'printers-scanners', 'networking'].includes(p.subType))
             );
         } else {
             products = products.filter(p => p.category === category);
         }
 
-        // 2. Filter by the specific subcategory clicked
-        if (subType !== 'all' && subType !== '') {
-            // Normalize the clicked subtype (e.g. "smartphones" -> "smartphone")
+        // 2. Filter by the clicked subcategory, using the SAME normalization
+        //    as renderCategory so the initial page load and icon clicks agree.
+        if (subType && subType !== 'all') {
             const target = subType.toLowerCase().replace(/-/g, '').replace(/s$/, '');
-            
             products = products.filter(p => {
                 const pSub = (p.subType || '').toLowerCase().replace(/-/g, '').replace(/s$/, '');
                 const pMinor = (p.minorType || '').toLowerCase().replace(/-/g, '');
                 const pName = (p.name || '').toLowerCase();
-
-                // Check if the subtype matches exactly, or if the name contains the word
                 return pSub === target || pMinor.includes(target) || pName.includes(target);
             });
         }
-        // 3. Render to the correct container
-        const containerId = category === 'digital' ? 'digitalProductsGrid' : category + 'Products';
+
         renderProducts(containerId, products);
-        
-    } catch (error) {
-        console.error('❌ Error filtering subcategory:', error);
+    } catch (err) {
+        console.error('❌ Error filtering subcategory:', err);
     }
 }
 
