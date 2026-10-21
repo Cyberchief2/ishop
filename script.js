@@ -2625,8 +2625,6 @@ function setupSubcategoryButtons(category) {
 
 async function filterSubcategory(category, subType = 'all') {
     try {
-        // Use the same container map as renderCategory — this is the fix for the
-        // "nothing renders" bug on phones-tablets / computers-accessories.
         const containerMap = {
             digital: 'digitalProductsGrid',
             electronics: 'electronicsProducts',
@@ -2649,7 +2647,7 @@ async function filterSubcategory(category, subType = 'all') {
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct);
 
-        // 1. Isolate the main category first (same logic as renderCategory)
+        // 1. Isolate the main category first
         if (category === 'phones-tablets') {
             products = products.filter(p =>
                 p.category === 'phones' ||
@@ -2667,21 +2665,47 @@ async function filterSubcategory(category, subType = 'all') {
             products = products.filter(p => p.category === category);
         }
 
-        // 2. Filter by the clicked subcategory, using the SAME normalization
-        //    as renderCategory so the initial page load and icon clicks agree.
+        // 2. Filter by the clicked subcategory with robust normalization
         if (subType && subType !== 'all') {
-            const target = subType.toLowerCase().replace(/-/g, '').replace(/s$/, '');
+            const normalize = (str) => {
+                if (!str) return '';
+                return String(str)
+                    .toLowerCase()
+                    .replace(/&/g, 'and') // Convert "&" to "and"
+                    .replace(/[^a-z0-9]/g, '') // Remove ALL spaces, hyphens, symbols
+                    .replace(/s$/, ''); // Strip trailing 's'
+            };
+
+            const target = normalize(subType);
+            
             products = products.filter(p => {
-                const pSub = (p.subType || '').toLowerCase().replace(/-/g, '').replace(/s$/, '');
-                const pMinor = (p.minorType || '').toLowerCase().replace(/-/g, '');
-                const pName = (p.name || '').toLowerCase();
-                return pSub === target || pMinor.includes(target) || pName.includes(target);
+                const pSub = normalize(p.subType);       
+                const pMinor = normalize(p.minorType);   
+                const pName = normalize(p.name);         
+
+                // 1. Exact match on subcategory or typeRef
+                if (pSub === target || pMinor === target) return true;
+
+                // 2. Contains match (handles slightly different naming conventions)
+                if (pSub.includes(target) || pMinor.includes(target)) return true;
+
+                // 3. Fallback: If the product name has the word
+                if (target.length > 2 && pName.includes(target)) return true;
+
+                // 4. Specific Audio fallback
+                if (target.includes('audio')) {
+                    return pSub.includes('audio') || pMinor.includes('audio') || pName.includes('headphone') || pName.includes('speaker');
+                }
+
+                return false;
             });
         }
 
+        // 3. Render to the correct container
         renderProducts(containerId, products);
-    } catch (err) {
-        console.error('❌ Error filtering subcategory:', err);
+        
+    } catch (error) {
+        console.error('❌ Error filtering subcategory:', error);
     }
 }
 
