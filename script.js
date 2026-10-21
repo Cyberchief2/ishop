@@ -8830,7 +8830,7 @@ async function buildCategoryPageIcons(categorySlug) {
             
                        // Phones & Tablets (Fixed paths)
             'phone': 'Mobile_phone/3D/mobile_phone_3d.png',
-            'smartphone': 'icons/smartphone.png',
+            'smartphones': 'icons/smartphone.png',
             'tablets': 'Mobile%20phone/3D/mobile_phone_3d.png?v=2',
             'tablet': 'Mobile%20phone/3D/mobile_phone_3d.png?v=2',
             'power': 'Battery/3D/battery_3d.png',
