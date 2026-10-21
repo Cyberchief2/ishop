@@ -8904,10 +8904,17 @@ async function buildCategoryPageIcons(categorySlug) {
                 }
             }
 
-            // 2. Check 3D images
+            // 2. Check images
             for (const key in imgIcons) {
                 if (lowerSlug.includes(key) || lowerName.includes(key)) {
-                    return `<img src="${baseUrl + imgIcons[key]}" alt="${name}" loading="lazy" />`;
+                    const iconPath = imgIcons[key];
+                    // If the path starts with "icons/", use it directly. 
+                    // Otherwise, attach the Microsoft CDN base URL.
+                    const fullUrl = iconPath.startsWith('icons/') 
+                        ? iconPath 
+                        : `${baseUrl}${iconPath}`;
+                        
+                    return `<img src="${fullUrl}" alt="${name}" loading="lazy" />`;
                 }
             }
 
