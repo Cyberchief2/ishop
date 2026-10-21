@@ -8916,26 +8916,75 @@ async function buildCategoryPageIcons(categorySlug) {
             'accessories': `<svg viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>`
         };
 
-        function getIconHTML(name, slug) {
+                function getIconHTML(name, slug) {
             const lowerName = name.toLowerCase();
             const lowerSlug = slug.toLowerCase();
-            
-            // 1. Check SVG fallbacks first for specific edge cases
-            for (const key in svgIcons) {
-                if (lowerSlug.includes(key) || lowerName.includes(key)) {
-                    return `<div style="width: 32px; height: 32px; color: #0d1b2a;">${svgIcons[key]}</div>`;
+            const cleanKey = lowerSlug.replace(/-/g, '');
+
+            // Base URL for high-quality 3D icons
+            const baseUrl = 'https://img.icons8.com/3d-fluent/512/';
+
+            // Super reliable icon map using Icons8 3D library
+            const iconMap = {
+                'all': 'sparkling.png',
+                'smartphone': 'smartphone-tablet.png',
+                'tablet': 'ipad.png',
+                'phoneaccessorie': 'headphones.png',
+                'accessorie': 'headphones.png',
+                'powerbank': 'battery.png',
+                'television': 'tv.png',
+                'tv': 'tv.png',
+                'homeaudio': 'headphones.png',
+                'audio': 'headphones.png',
+                'camera': 'camera.png',
+                'photo': 'camera.png',
+                'dvd': 'cd.png',
+                'game': 'controller.png',
+                'console': 'controller.png',
+                'laptop': 'laptop.png',
+                'desktop': 'imac.png',
+                'monitor': 'monitor.png',
+                'printer': 'printer.png',
+                'network': 'wifi.png',
+                'clothing': 't-shirt.png',
+                'traditional': 'clothes.png',
+                'shoe': 'sneakers.png',
+                'bag': 'handbag.png',
+                'jewelry': 'diamond-ring.png',
+                'watch': 'watch.png',
+                'skincare': 'lotion.png',
+                'makeup': 'lipstick.png',
+                'fragrance': 'perfume.png',
+                'hair': 'comb.png',
+                'ebook': 'books.png',
+                'course': 'graduation-cap.png',
+                'template': 'file.png',
+                'software': 'laptop-coding.png',
+                'sofa': 'sofa.png',
+                'furniture': 'sofa.png',
+                'cookware': 'frying-pan.png',
+                'kitchen': 'fork-and-knife.png',
+                'bedding': 'bed.png',
+                'decor': 'picture.png',
+                'cleaning': 'sponge.png',
+                'women': 'woman.png',
+                'men': 'man.png',
+                'fabric': 'yarn.png'
+            };
+
+            // Find the matching icon by checking if the slug/name includes our key
+            let iconFile = 'box.png'; // Default fallback
+            for (const key in iconMap) {
+                if (lowerSlug.includes(key) || lowerName.includes(key) || cleanKey.includes(key)) {
+                    iconFile = iconMap[key];
+                    break; // Stop searching once we find a match
                 }
             }
 
-            // 2. Check 3D images
-            for (const key in imgIcons) {
-                if (lowerSlug.includes(key) || lowerName.includes(key)) {
-                    return `<img src="${baseUrl + encodeURI(imgIcons[key])}" alt="${name}" loading="lazy" />`;
-                }
-            }
+            // The SVG fallback ensures if the internet drops or URL fails, it shows a neat box, not a broken image
+            const fallbackSvg = `this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%230d1b2a" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';`;
 
-            // 3. Fallback for anything else
-            return `<img src="${baseUrl + 'Shopping%20bags/3D/shopping_bags_3d.png'}" alt="${name}" loading="lazy" />`;
+            return `<img src="${baseUrl + iconFile}" alt="${name}" loading="lazy" onerror="${fallbackSvg}" />`;
         }
 
         let html = `
