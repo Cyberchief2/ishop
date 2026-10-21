@@ -8935,8 +8935,17 @@ async function buildCategoryPageIcons(categorySlug) {
             let iconHTML = '';
             
             if (sub.image && sub.image.url) {
-                const imgUrl = sub.image.url.startsWith('http') ? sub.image.url : 'https://ishop-cms-production.up.railway.app' + sub.image.url;
-                iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" />`;
+                // Safely construct the URL, ensuring there's always a slash
+                let imgUrl = sub.image.url;
+                if (!imgUrl.startsWith('http')) {
+                    const base = 'https://ishop-cms-production.up.railway.app';
+                    // If the URL doesn't start with a slash, add one
+                    const path = imgUrl.startsWith('/') ? imgUrl : '/' + imgUrl;
+                    imgUrl = base + path;
+                }
+                
+                // Add a fallback so if the Strapi image fails, it tries the local icon
+                iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" onerror="this.onerror=null; this.src='icons/${sub.slug}.png'; this.src='${getIconHTML(sub.name, sub.slug).match(/src='([^']+)'/)?.[1] || ''}'" />`;
             } else {
                 iconHTML = getIconHTML(sub.name, sub.slug);
             }
