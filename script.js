@@ -3866,10 +3866,8 @@ window.addEventListener('scroll', function () {
 // INITIALIZE PAGE
 // ============================================
 async function initializeApp() {
-    // Detect admin page first
     const page = window.location.pathname.split('/').pop().split('?')[0];
 
-    // On the admin page, only run admin init — skip all site-wide setup
     if (page === 'admin.html') {
         console.log('🔍 Admin page — running admin init only');
         if (typeof initAdminPanel === 'function') initAdminPanel();
@@ -3915,18 +3913,15 @@ async function initializeApp() {
         });
     }
 
-        if (page === 'index.html' || page === '') {
+    // ⬇️ THIS IS THE BLOCK YOU NEED — REPLACE EVERYTHING FROM HERE ⬇️
+    if (page === 'index.html' || page === '') {
         renderHomepage();
     } else if (page === 'shop.html') {
         initShopPage();
-         } else if (page === 'digital.html' || page === 'digital-products.html') {
-        // 1. Render the products normally
+    } else if (page === 'digital.html' || page === 'digital-products.html') {
         renderCategory('digital');
-        
-        // 2. Build the dynamic 3D icons
         buildCategoryPageIcons('digital');
-        
-        // 3. If a subtype is in the URL, highlight it
+
         const urlParams = new URLSearchParams(window.location.search);
         const subType = urlParams.get('type') || urlParams.get('subtype') || '';
         setTimeout(() => {
@@ -3966,16 +3961,12 @@ async function initializeApp() {
     ) {
         const category = page.replace('.html', '');
         const urlParams = new URLSearchParams(window.location.search);
-        const subType = urlParams.get('subtype') || 'all'; // Default to 'all'
+        const subType = urlParams.get('subtype') || 'all';
         const typeSlug = urlParams.get('type') || '';
-        
-        // Render the products using the URL subtype (or 'all')
+
         renderCategory(category, subType, typeSlug);
-        
-        // Build the icons dynamically from the database
         buildCategoryPageIcons(category);
 
-        // Set the visual active state based on the URL
         setTimeout(() => {
             if (subType && subType !== 'all') {
                 const targetBtn = document.querySelector(`.subcat-item[data-subtype="${subType}"]`);
@@ -3999,7 +3990,6 @@ async function initializeApp() {
         initProductFormPage();
     }
 }
-
 // ============================================
 // ROBUST INIT — runs even if extensions break DOMContentLoaded
 // ============================================
