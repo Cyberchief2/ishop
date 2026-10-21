@@ -2001,13 +2001,13 @@ async function renderCategory(category, subType = '', type = '') {
             products = products.filter(p => p.category === category);
         }
 
-        if (subType) {
-            const cleanSub = subType.toLowerCase().replace(/-/g, '');
-            products = products.filter(p => 
-                (p.subType || '').includes(cleanSub) || 
-                (p.minorType || '').includes(cleanSub) ||
-                (p.name || '').toLowerCase().includes(cleanSub)
-            );
+        // Only filter by subtype if it's passed AND not 'all'
+        if (subType && subType !== 'all') {
+            const target = subType.toLowerCase().replace(/-/g, '').replace(/s$/, '');
+            products = products.filter(p => {
+                const pSub = (p.subType || '').toLowerCase().replace(/-/g, '').replace(/s$/, '');
+                return pSub === target || (p.name || '').toLowerCase().includes(target);
+            });
         }
         
         if (type) {
@@ -2642,22 +2642,17 @@ async function filterSubcategory(category, subType = 'all') {
         }
 
                 // 2. Filter by the specific subcategory clicked
-        if (subType !== 'all') {
-            const target = subType.toLowerCase().replace(/-/g, ''); // e.g. "smartphones" or "tablets"
+        if (subType !== 'all' && subType !== '') {
+            // Normalize the clicked subtype (e.g. "smartphones" -> "smartphone", "tablets" -> "tablet")
+            const target = subType.toLowerCase().replace(/-/g, '').replace(/s$/, '');
             
             products = products.filter(p => {
-                const pSub = (p.subType || '').toLowerCase().replace(/-/g, ''); // The sub-category name
-                const pMin = (p.minorType || '').toLowerCase().replace(/-/g, ''); // The type name
-                const pCat = (p.category || '').toLowerCase().replace(/-/g, '');
-                const pName = (p.name || '').toLowerCase().replace(/-/g, '');
+                const pSub = (p.subType || '').toLowerCase().replace(/-/g, '').replace(/s$/, '');
+                const pMin = (p.minorType || '').toLowerCase().replace(/-/g, '');
+                const pName = (p.name || '').toLowerCase();
 
-                // We do a broad check. If the product has 'smartphones' anywhere, it matches.
-                // We also match the singular/plural 's' just in case.
-                return pSub.includes(target) || 
-                       target.includes(pSub) ||
-                       pMin.includes(target) ||
-                       pCat.includes(target) ||
-                       pName.includes(target);
+                // If the product's subtype matches, OR the minor type matches, OR the name contains the word
+                return pSub === target || pMin.includes(target) || pName.includes(target);
             });
         }
 
@@ -8935,7 +8930,17 @@ async function buildCategoryPageIcons(categorySlug) {
                 this.classList.add('active');
                 const subType = this.dataset.subtype;
                 
-                // If we are on the digital page, use the digital container ID
+                // Update the URL to remove old parameters when 'All' is clicked
+                const url = new URL(window.location);
+                if (subType === 'all') {
+                    url.searchParams.delete('subtype');
+                    url.searchParams.delete('type');
+                } else {
+                    url.searchParams.set('subtype', subType);
+                }
+                window.history.pushState({}, '', url);
+
+                // Call the filter function
                 if (categorySlug === 'digital' || categorySlug === 'digital-products') {
                     filterSubcategory('digital', subType);
                 } else {
