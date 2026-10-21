@@ -8917,8 +8917,8 @@ async function buildCategoryPageIcons(categorySlug) {
         };
 
         function getIconHTML(name, slug) {
-            const lowerName = name.toLowerCase();
-            const lowerSlug = slug.toLowerCase();
+            const lowerName = (name || '').toLowerCase();
+            const lowerSlug = (slug || '').toLowerCase();
             
             // 1. Check SVG fallbacks first for specific edge cases
             for (const key in svgIcons) {
@@ -8930,7 +8930,7 @@ async function buildCategoryPageIcons(categorySlug) {
             // 2. Check 3D images
             for (const key in imgIcons) {
                 if (lowerSlug.includes(key) || lowerName.includes(key)) {
-                    return `<img src="${baseUrl + encodeURI(imgIcons[key])}" alt="${name}" loading="lazy" />`;
+                    return `<img src="${baseUrl + imgIcons[key]}" alt="${name}" loading="lazy" />`;
                 }
             }
 
