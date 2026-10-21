@@ -806,7 +806,7 @@ function toggleDrawerDropdown(linkEl) {
 // ============================================
 // iShop API CONFIGURATION
 // ============================================
-const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate=*&pagination[pageSize]=100';
+const API_URL = 'https://ishop-cms-production.up.railway.app/api/products?populate[0]=Image&populate[1]=Specifications&populate[2]=vendor&populate[3]=categoryRef&populate[4]=subCategoryRef&populate[5]=typeRef&pagination[pageSize]=100';
 const IMAGE_BASE_URL = 'https://ishop-cms-production.up.railway.app';
 const PAYMENT_API = 'https://ishop-payments-production.up.railway.app/api/orders/initialize';
 const FREE_DOWNLOAD_API = 'https://ishop-payments-production.up.railway.app/api/free-download';
@@ -1988,15 +1988,16 @@ async function renderCategory(category, subType = '', type = '') {
         const productData = await fetchProducts();
         let products = productData.map(convertStrapiProduct);
 
-        // Exact category matching for phones
+        // Robust category matching
         if (category === 'phones-tablets') {
             products = products.filter(p => 
                 p.category === 'phones' || 
                 p.category === 'tablets' || 
                 p.category === 'phones-tablets' ||
-                (p.subType && ['smartphones', 'tablets', 'phone-accessories', 'power-banks'].includes(p.subType))
+                ['smartphones', 'tablets', 'phone-accessories', 'power-banks'].includes(p.subType)
             );
         } else {
+            // For all other categories, match the category name
             products = products.filter(p => p.category === category);
         }
 
@@ -2642,14 +2643,21 @@ async function filterSubcategory(category, subType = 'all') {
 
                 // 2. Filter by the specific subcategory clicked
         if (subType !== 'all') {
-            const targetSubType = subType.toLowerCase().replace(/-/g, ''); // e.g., "smartphones"
+            const target = subType.toLowerCase().replace(/-/g, ''); // e.g. "smartphones" or "tablets"
             
             products = products.filter(p => {
-                const productSubType = (p.subType || '').toLowerCase().replace(/-/g, ''); // e.g., "smartphones"
-                
-                // We check if the product's subType contains the target, OR vice versa.
-                // This handles "smartphone" matching "smartphones".
-                return productSubType.includes(targetSubType) || targetSubType.includes(productSubType);
+                const pSub = (p.subType || '').toLowerCase().replace(/-/g, ''); // The sub-category name
+                const pMin = (p.minorType || '').toLowerCase().replace(/-/g, ''); // The type name
+                const pCat = (p.category || '').toLowerCase().replace(/-/g, '');
+                const pName = (p.name || '').toLowerCase().replace(/-/g, '');
+
+                // We do a broad check. If the product has 'smartphones' anywhere, it matches.
+                // We also match the singular/plural 's' just in case.
+                return pSub.includes(target) || 
+                       target.includes(pSub) ||
+                       pMin.includes(target) ||
+                       pCat.includes(target) ||
+                       pName.includes(target);
             });
         }
 
