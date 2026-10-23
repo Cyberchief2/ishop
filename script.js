@@ -8690,9 +8690,18 @@ async function buildDynamicMegaMenu() {
 
     } catch (e) {
         console.error("Failed to build mega menu:", e);
+        // Bulletproof Fallback: If Strapi fails (CORS, network, etc), show hardcoded links
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+            <li><a href="electronics.html"><i class="fas fa-tv"></i> Electronics</a></li>
+            <li><a href="phones-tablets.html"><i class="fas fa-mobile-alt"></i> Phones & Tablets</a></li>
+            <li><a href="computers-accessories.html"><i class="fas fa-laptop"></i> Computers</a></li>
+            <li><a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion</a></li>
+            <li><a href="beauty.html"><i class="fas fa-spa"></i> Beauty</a></li>
+            <li><a href="digital-products.html"><i class="fas fa-download"></i> Digital</a></li>
+            <li><a href="home.html"><i class="fas fa-couch"></i> Home & Kitchen</a></li>
+            <li><a href="traditional.html"><i class="fas fa-crown"></i> Traditional</a></li>
         `;
         initMegaMenuScroller();
     }
