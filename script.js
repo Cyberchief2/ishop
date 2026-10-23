@@ -8690,40 +8690,162 @@ async function buildDynamicMegaMenu() {
 
         } catch (e) {
         console.error("Failed to build mega menu:", e);
-        // Bulletproof Fallback: If Strapi fails, show hardcoded links with full dropdowns
+        
+        // MASSIVE BULLETPROOF FALLBACK — shows full menus even if Strapi (Railway) is asleep
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+            
             <li class="dropdown-hover">
                 <a href="electronics.html" class="nav-link"><i class="fas fa-tv"></i> Electronics <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
-                <div class="mega-dropdown" style="width: 250px;">
+                <div class="mega-dropdown">
                     <div class="mega-dropdown-content">
                         <div class="mega-column">
-                            <h4><a href="electronics.html">All Electronics</a></h4>
+                            <h4><a href="electronics.html">Electronics</a></h4>
                             <a href="electronics.html?subtype=televisions">Televisions</a>
-                            <a href="electronics.html?subtype=audio">Audio</a>
-                            <a href="electronics.html?subtype=cameras">Cameras</a>
+                            <a href="electronics.html?subtype=home-audio-theatre">Home Audio & Theatre</a>
+                            <a href="electronics.html?subtype=cameras-photo">Cameras & Photo</a>
+                        </div>
+                        <div class="mega-column">
+                            <h4><a href="electronics.html">More</a></h4>
+                            <a href="electronics.html?subtype=dvd-players-recorders">DVD Players</a>
+                            <a href="electronics.html?subtype=games-consoles">Games & Consoles</a>
+                            <a href="electronics.html?subtype=electronics-accessories">Accessories</a>
                         </div>
                     </div>
                 </div>
             </li>
+
             <li class="dropdown-hover">
-                <a href="phones-tablets.html" class="nav-link"><i class="fas fa-mobile-alt"></i> Phones <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
-                <div class="mega-dropdown" style="width: 250px;">
+                <a href="phones-tablets.html" class="nav-link"><i class="fas fa-mobile-alt"></i> Phones & Tablets <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
+                <div class="mega-dropdown">
                     <div class="mega-dropdown-content">
                         <div class="mega-column">
-                            <h4><a href="phones-tablets.html">All Phones</a></h4>
+                            <h4><a href="phones-tablets.html">Phones</a></h4>
                             <a href="phones-tablets.html?subtype=smartphones">Smartphones</a>
                             <a href="phones-tablets.html?subtype=tablets">Tablets</a>
-                            <a href="phones-tablets.html?subtype=accessories">Accessories</a>
+                        </div>
+                        <div class="mega-column">
+                            <h4><a href="phones-tablets.html">Accessories</a></h4>
+                            <a href="phones-tablets.html?subtype=phone-accessories">Phone Accessories</a>
+                            <a href="phones-tablets.html?subtype=power-banks">Power Banks</a>
                         </div>
                     </div>
                 </div>
             </li>
-            <li><a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion</a></li>
-            <li><a href="beauty.html"><i class="fas fa-spa"></i> Beauty</a></li>
-            <li><a href="home.html"><i class="fas fa-couch"></i> Home & Kitchen</a></li>
-            <li><a href="traditional.html"><i class="fas fa-crown"></i> Traditional</a></li>
+
+            <li class="dropdown-hover">
+                <a href="computers-accessories.html" class="nav-link"><i class="fas fa-laptop"></i> Computers <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
+                <div class="mega-dropdown">
+                    <div class="mega-dropdown-content">
+                        <div class="mega-column">
+                            <h4><a href="computers-accessories.html">Computers</a></h4>
+                            <a href="computers-accessories.html?subtype=laptops">Laptops</a>
+                            <a href="computers-accessories.html?subtype=desktops">Desktops</a>
+                            <a href="computers-accessories.html?subtype=monitors">Monitors</a>
+                        </div>
+                        <div class="mega-column">
+                            <h4><a href="computers-accessories.html">More</a></h4>
+                            <a href="computers-accessories.html?subtype=computer-accessories">Accessories</a>
+                            <a href="computers-accessories.html?subtype=printers-scanners">Printers & Scanners</a>
+                            <a href="computers-accessories.html?subtype=networking">Networking</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="dropdown-hover">
+                <a href="fashion.html" class="nav-link"><i class="fas fa-tshirt"></i> Fashion <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
+                <div class="mega-dropdown">
+                    <div class="mega-dropdown-content">
+                        <div class="mega-column">
+                            <h4><a href="fashion.html">Fashion</a></h4>
+                            <a href="fashion.html?subtype=clothing">Clothing</a>
+                            <a href="fashion.html?subtype=traditional">Traditional</a>
+                        </div>
+                        <div class="mega-column">
+                            <h4><a href="fashion.html">Accessories</a></h4>
+                            <a href="fashion.html?subtype=shoes">Shoes</a>
+                            <a href="fashion.html?subtype=bags">Bags</a>
+                            <a href="fashion.html?subtype=jewelry">Jewelry</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="dropdown-hover">
+                <a href="beauty.html" class="nav-link"><i class="fas fa-spa"></i> Beauty <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
+                <div class="mega-dropdown">
+                    <div class="mega-dropdown-content">
+                        <div class="mega-column">
+                            <h4><a href="beauty.html">Beauty</a></h4>
+                            <a href="beauty.html?subtype=skincare">Skincare</a>
+                            <a href="beauty.html?subtype=makeup">Makeup</a>
+                        </div>
+                        <div class="mega-column">
+                            <h4><a href="beauty.html">More</a></h4>
+                            <a href="beauty.html?subtype=fragrances">Fragrances</a>
+                            <a href="beauty.html?subtype=haircare">Hair Care</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="dropdown-hover">
+                <a href="home.html" class="nav-link"><i class="fas fa-couch"></i> Home & Kitchen <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
+                <div class="mega-dropdown">
+                    <div class="mega-dropdown-content">
+                        <div class="mega-column">
+                            <h4><a href="home.html">Home</a></h4>
+                            <a href="home.html?subtype=sofas">Sofas</a>
+                            <a href="home.html?subtype=bedding">Bedding</a>
+                            <a href="home.html?subtype=decor">Décor</a>
+                        </div>
+                        <div class="mega-column">
+                            <h4><a href="home.html">Kitchen</a></h4>
+                            <a href="home.html?subtype=cookware">Cookware</a>
+                            <a href="home.html?subtype=cleaning">Cleaning</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="dropdown-hover">
+                <a href="traditional.html" class="nav-link"><i class="fas fa-crown"></i> Traditional <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
+                <div class="mega-dropdown">
+                    <div class="mega-dropdown-content">
+                        <div class="mega-column">
+                            <h4><a href="traditional.html">Traditional</a></h4>
+                            <a href="traditional.html?subtype=women">Women's</a>
+                            <a href="traditional.html?subtype=men">Men's</a>
+                        </div>
+                        <div class="mega-column">
+                            <h4><a href="traditional.html">More</a></h4>
+                            <a href="traditional.html?subtype=accessories">Accessories</a>
+                            <a href="traditional.html?subtype=footwear">Footwear</a>
+                            <a href="traditional.html?subtype=fabrics">Fabrics</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            
+            <li class="dropdown-hover">
+                <a href="digital-products.html" class="nav-link"><i class="fas fa-download"></i> Digital <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
+                <div class="mega-dropdown">
+                    <div class="mega-dropdown-content">
+                        <div class="mega-column">
+                            <h4><a href="digital-products.html">Digital</a></h4>
+                            <a href="digital-products.html?type=software">Software</a>
+                            <a href="digital-products.html?type=ebook">E-Books</a>
+                        </div>
+                        <div class="mega-column">
+                            <h4><a href="digital-products.html">More</a></h4>
+                            <a href="digital-products.html?type=course">Courses</a>
+                            <a href="digital-products.html?type=template">Templates</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
         `;
         initMegaMenuPositioning();
         initMegaMenuScroller();
