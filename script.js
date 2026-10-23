@@ -2077,6 +2077,20 @@ async function renderProductDetail() {
 
         const product = convertStrapiProduct(strapiProduct);
 
+        // --- RECENTLY VIEWED TRACKING ---
+        try {
+            let recent = JSON.parse(localStorage.getItem('iShopRecentlyViewed')) || [];
+            // Remove if it already exists so we can move it to the front
+            recent = recent.filter(id => String(id) !== String(product.id));
+            // Add to the front
+            recent.unshift(product.id);
+            // Keep only the last 10 viewed
+            localStorage.setItem('iShopRecentlyViewed', JSON.stringify(recent.slice(0, 10)));
+        } catch (e) {
+            console.warn('Could not save recently viewed', e);
+        }
+        // --------------------------------
+
         const fullStars = Math.floor(product.rating);
         const halfStar = product.rating % 1 >= 0.5 ? 1 : 0;
         const emptyStars = 5 - fullStars - halfStar;
@@ -3916,6 +3930,7 @@ async function initializeApp() {
     // ⬇️ THIS IS THE BLOCK YOU NEED — REPLACE EVERYTHING FROM HERE ⬇️
     if (page === 'index.html' || page === '') {
         renderHomepage();
+        renderRecentlyViewed();
     } else if (page === 'shop.html') {
         initShopPage();
     } else if (page === 'digital.html' || page === 'digital-products.html') {
@@ -3935,6 +3950,7 @@ async function initializeApp() {
         }, 500);
     } else if (page === 'product-detail.html') {
         renderProductDetail();
+        renderRecentlyViewed();
     } else if (page === 'cart.html') {
         renderCart();
     } else if (page === 'checkout.html') {
@@ -9019,3 +9035,82 @@ window.addEventListener('pageshow', function (event) {
         });
     }
 });
+
+/* ============================================ */
+/* SMART STICKY HEADER (Hide on Scroll Down)    */
+/* ============================================ */
+let lastScrollTop = 0;
+const smartHeader = document.querySelector('header');
+const topBar = document.querySelector('.top-bar');
+
+if (smartHeader) {
+    window.addEventListener('scroll', function() {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        // 1. If we are at the very top of the page, ALWAYS show the top bar and header
+        if (scrollTop <= 50) {
+            smartHeader.style.transform = 'translateY(0)';
+            smartHeader.style.transition = 'transform 0.3s ease-in-out';
+            if (topBar) {
+                topBar.style.transform = 'translateY(0)';
+                topBar.style.transition = 'transform 0.3s ease-in-out';
+            }
+        } 
+        // 2. If we scroll down (past 50px), hide the top bar completely and slide the header up
+        else if (scrollTop > lastScrollTop && scrollTop > 50) {
+            smartHeader.style.transform = 'translateY(-100%)';
+            smartHeader.style.transition = 'transform 0.3s ease-in-out';
+            if (topBar) {
+                topBar.style.transform = 'translateY(-100%)';
+                topBar.style.transition = 'transform 0.3s ease-in-out';
+            }
+        } 
+        // 3. If we scroll up, slide the header back down to view
+        else {
+            smartHeader.style.transform = 'translateY(0)';
+            smartHeader.style.transition = 'transform 0.3s ease-in-out';
+        }
+
+        lastScrollTop = scrollTop;
+    }, { passive: true });
+}
+// ============================================
+// RENDER RECENTLY VIEWED PRODUCTS
+// ============================================
+async function renderRecentlyViewed() {
+    const container = document.getElementById('recentlyViewedProducts');
+    if (!container) return;
+
+    try {
+        const recentIds = JSON.parse(localStorage.getItem('iShopRecentlyViewed')) || [];
+        
+        // If no items viewed, hide the section entirely
+        if (recentIds.length === 0) {
+            const section = container.closest('section');
+            if (section) section.style.display = 'none';
+            return;
+        }
+
+        // Fetch all products (uses your cache)
+        const productData = await fetchProducts();
+        const allProducts = productData.map(convertStrapiProduct);
+        
+        // Find the products that match the recent IDs
+        const recentProducts = recentIds
+            .map(id => allProducts.find(p => String(p.id) === String(id)))
+            .filter(Boolean) // Remove any products that were deleted
+            .slice(0, 5); // Show max 5 items
+
+        if (recentProducts.length === 0) {
+            const section = container.closest('section');
+            if (section) section.style.display = 'none';
+            return;
+        }
+
+        // Render them using your existing product grid logic
+        renderProducts('recentlyViewedProducts', recentProducts);
+
+    } catch (err) {
+        console.error('Error rendering recently viewed:', err);
+    }
+}
