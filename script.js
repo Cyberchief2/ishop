@@ -8688,21 +8688,44 @@ async function buildDynamicMegaMenu() {
         initMegaMenuPositioning();
         initMegaMenuScroller();
 
-    } catch (e) {
+        } catch (e) {
         console.error("Failed to build mega menu:", e);
-        // Bulletproof Fallback: If Strapi fails (CORS, network, etc), show hardcoded links
+        // Bulletproof Fallback: If Strapi fails, show hardcoded links with full dropdowns
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
-            <li><a href="electronics.html"><i class="fas fa-tv"></i> Electronics</a></li>
-            <li><a href="phones-tablets.html"><i class="fas fa-mobile-alt"></i> Phones & Tablets</a></li>
-            <li><a href="computers-accessories.html"><i class="fas fa-laptop"></i> Computers</a></li>
+            <li class="dropdown-hover">
+                <a href="electronics.html" class="nav-link"><i class="fas fa-tv"></i> Electronics <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
+                <div class="mega-dropdown" style="width: 250px;">
+                    <div class="mega-dropdown-content">
+                        <div class="mega-column">
+                            <h4><a href="electronics.html">All Electronics</a></h4>
+                            <a href="electronics.html?subtype=televisions">Televisions</a>
+                            <a href="electronics.html?subtype=audio">Audio</a>
+                            <a href="electronics.html?subtype=cameras">Cameras</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="dropdown-hover">
+                <a href="phones-tablets.html" class="nav-link"><i class="fas fa-mobile-alt"></i> Phones <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></a>
+                <div class="mega-dropdown" style="width: 250px;">
+                    <div class="mega-dropdown-content">
+                        <div class="mega-column">
+                            <h4><a href="phones-tablets.html">All Phones</a></h4>
+                            <a href="phones-tablets.html?subtype=smartphones">Smartphones</a>
+                            <a href="phones-tablets.html?subtype=tablets">Tablets</a>
+                            <a href="phones-tablets.html?subtype=accessories">Accessories</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
             <li><a href="fashion.html"><i class="fas fa-tshirt"></i> Fashion</a></li>
             <li><a href="beauty.html"><i class="fas fa-spa"></i> Beauty</a></li>
-            <li><a href="digital-products.html"><i class="fas fa-download"></i> Digital</a></li>
             <li><a href="home.html"><i class="fas fa-couch"></i> Home & Kitchen</a></li>
             <li><a href="traditional.html"><i class="fas fa-crown"></i> Traditional</a></li>
         `;
+        initMegaMenuPositioning();
         initMegaMenuScroller();
     }
 }
@@ -8718,20 +8741,35 @@ function initMegaMenuPositioning() {
         if (!dd) return;
 
         li.addEventListener('mouseenter', () => {
+            // If the page has scrolled, the header is hidden by the smart sticky script.
+            // We force the header to stay visible if they hover the menu.
+            const header = document.querySelector('header');
+            if (header) {
+                header.style.transform = 'translateY(0)';
+                header.style.transition = 'none';
+            }
+
             const rect = li.getBoundingClientRect();
             const ddWidth = dd.offsetWidth || 450;
             const vw = window.innerWidth;
 
-            // Calculate horizontal position
             let left = rect.left;
             if (left + ddWidth > vw - 20) {
-                left = rect.right - ddWidth; // Flip to the left if it goes off-screen
+                left = rect.right - ddWidth;
             }
             if (left < 20) left = 20;
 
-            // Apply fixed positioning right below the hovered link
+            // Use absolute positioning relative to the page
             dd.style.setProperty('top', rect.bottom + 'px', 'important');
             dd.style.setProperty('left', left + 'px', 'important');
+            dd.style.setProperty('position', 'fixed', 'important');
+            dd.style.setProperty('z-index', '99999', 'important');
+        });
+        
+        li.addEventListener('mouseleave', () => {
+            // Restore the smart sticky behavior when the mouse leaves
+            const header = document.querySelector('header');
+            if (header) header.style.transition = 'transform 0.3s ease-in-out';
         });
     });
 }

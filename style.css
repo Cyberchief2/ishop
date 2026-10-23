@@ -309,7 +309,7 @@ header {
     z-index: 999;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     margin: 0;
-    overflow: visible;
+    overflow: visible !important; /* CRITICAL: Prevents dropdown from being clipped */
 }
 
 .mega-menu-content {
