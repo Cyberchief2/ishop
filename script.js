@@ -560,39 +560,87 @@ function getHeaderHTML(activePage = '') {
             <ul>
                 <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="shop.html"><i class="fas fa-store"></i> All Products</a></li>
+                
+                <!-- ELECTRONICS -->
                 <li class="drawer-dropdown">
                     <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
                         <i class="fas fa-tv"></i> Electronics
                         <i class="fas fa-chevron-down drawer-chevron"></i>
                     </a>
                     <ul class="drawer-submenu">
-                        <li><a href="electronics.html?subtype=televisions">Televisions</a></li>
-                        <li><a href="electronics.html?subtype=home-audio-theatre">Home Audio & Theatre</a></li>
+                        <li class="drawer-sub-dropdown">
+                            <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                                Televisions <i class="fas fa-chevron-down drawer-sub-chevron"></i>
+                            </a>
+                            <ul class="drawer-sub-submenu">
+                                <li><a href="electronics.html?subtype=televisions&type=smart-tvs">Smart TVs</a></li>
+                                <li><a href="electronics.html?subtype=televisions&type=led-tvs">LED TVs</a></li>
+                                <li><a href="electronics.html?subtype=televisions&type=oled-tvs">OLED TVs</a></li>
+                            </ul>
+                        </li>
+                        <li class="drawer-sub-dropdown">
+                            <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                                Home Audio & Theatre <i class="fas fa-chevron-down drawer-sub-chevron"></i>
+                            </a>
+                            <ul class="drawer-sub-submenu">
+                                <li><a href="electronics.html?subtype=home-audio-theatre&type=speakers">Speakers</a></li>
+                                <li><a href="electronics.html?subtype=home-audio-theatre&type=soundbars">Soundbars</a></li>
+                                <li><a href="electronics.html?subtype=home-audio-theatre&type=home-theatre">Home Theatre Systems</a></li>
+                            </ul>
+                        </li>
                         <li><a href="electronics.html?subtype=cameras-photo">Cameras & Photo</a></li>
                         <li><a href="electronics.html?subtype=dvd-players-recorders">DVD Players</a></li>
                         <li><a href="electronics.html?subtype=games-consoles">Games & Consoles</a></li>
                         <li><a href="electronics.html?subtype=electronics-accessories">Accessories</a></li>
                     </ul>
                 </li>
+
+                <!-- PHONES & TABLETS -->
                 <li class="drawer-dropdown">
                     <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
                         <i class="fas fa-mobile-alt"></i> Phones & Tablets
                         <i class="fas fa-chevron-down drawer-chevron"></i>
                     </a>
                     <ul class="drawer-submenu">
-                        <li><a href="phones-tablets.html?subtype=smartphones">Smartphones</a></li>
-                        <li><a href="phones-tablets.html?subtype=tablets">Tablets</a></li>
+                        <li class="drawer-sub-dropdown">
+                            <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                                Smartphones <i class="fas fa-chevron-down drawer-sub-chevron"></i>
+                            </a>
+                            <ul class="drawer-sub-submenu">
+                                <li><a href="phones-tablets.html?subtype=smartphones&type=android">Android Phones</a></li>
+                                <li><a href="phones-tablets.html?subtype=smartphones&type=ios">iOS (iPhone)</a></li>
+                            </ul>
+                        </li>
+                        <li class="drawer-sub-dropdown">
+                            <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                                Tablets <i class="fas fa-chevron-down drawer-sub-chevron"></i>
+                            </a>
+                            <ul class="drawer-sub-submenu">
+                                <li><a href="phones-tablets.html?subtype=tablets&type=android-tablets">Android Tablets</a></li>
+                                <li><a href="phones-tablets.html?subtype=tablets&type=ipads">iPads</a></li>
+                            </ul>
+                        </li>
                         <li><a href="phones-tablets.html?subtype=phone-accessories">Phone Accessories</a></li>
                         <li><a href="phones-tablets.html?subtype=power-banks">Power Banks</a></li>
                     </ul>
                 </li>
+
+                <!-- COMPUTERS -->
                 <li class="drawer-dropdown">
                     <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
                         <i class="fas fa-laptop"></i> Computers & Accessories
                         <i class="fas fa-chevron-down drawer-chevron"></i>
                     </a>
                     <ul class="drawer-submenu">
-                        <li><a href="computers-accessories.html?subtype=laptops">Laptops</a></li>
+                        <li class="drawer-sub-dropdown">
+                            <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                                Laptops <i class="fas fa-chevron-down drawer-sub-chevron"></i>
+                            </a>
+                            <ul class="drawer-sub-submenu">
+                                <li><a href="computers-accessories.html?subtype=laptops&type=macbooks">MacBooks</a></li>
+                                <li><a href="computers-accessories.html?subtype=laptops&type=windows">Windows Laptops</a></li>
+                            </ul>
+                        </li>
                         <li><a href="computers-accessories.html?subtype=desktops">Desktops</a></li>
                         <li><a href="computers-accessories.html?subtype=monitors">Monitors</a></li>
                         <li><a href="computers-accessories.html?subtype=computer-accessories">Accessories</a></li>
@@ -600,19 +648,39 @@ function getHeaderHTML(activePage = '') {
                         <li><a href="computers-accessories.html?subtype=networking">Networking</a></li>
                     </ul>
                 </li>
+
+                <!-- FASHION -->
                 <li class="drawer-dropdown">
                     <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
                         <i class="fas fa-tshirt"></i> Fashion
                         <i class="fas fa-chevron-down drawer-chevron"></i>
                     </a>
                     <ul class="drawer-submenu">
-                        <li><a href="fashion.html?subtype=clothing">Clothing</a></li>
+                        <li class="drawer-sub-dropdown">
+                            <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                                Clothing <i class="fas fa-chevron-down drawer-sub-chevron"></i>
+                            </a>
+                            <ul class="drawer-sub-submenu">
+                                <li><a href="fashion.html?subtype=clothing&type=mens">Men's Wear</a></li>
+                                <li><a href="fashion.html?subtype=clothing&type=womens">Women's Wear</a></li>
+                            </ul>
+                        </li>
+                        <li class="drawer-sub-dropdown">
+                            <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
+                                Shoes <i class="fas fa-chevron-down drawer-sub-chevron"></i>
+                            </a>
+                            <ul class="drawer-sub-submenu">
+                                <li><a href="fashion.html?subtype=shoes&type=sneakers">Sneakers</a></li>
+                                <li><a href="fashion.html?subtype=shoes&type=formal">Formal Shoes</a></li>
+                            </ul>
+                        </li>
                         <li><a href="fashion.html?subtype=traditional">Traditional</a></li>
-                        <li><a href="fashion.html?subtype=shoes">Shoes</a></li>
                         <li><a href="fashion.html?subtype=bags">Bags</a></li>
                         <li><a href="fashion.html?subtype=jewelry">Jewelry</a></li>
                     </ul>
                 </li>
+
+                <!-- BEAUTY -->
                 <li class="drawer-dropdown">
                     <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
                         <i class="fas fa-spa"></i> Beauty
@@ -625,6 +693,8 @@ function getHeaderHTML(activePage = '') {
                         <li><a href="beauty.html?subtype=haircare">Hair Care</a></li>
                     </ul>
                 </li>
+
+                <!-- DIGITAL -->
                 <li class="drawer-dropdown">
                     <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
                         <i class="fas fa-download"></i> Digital
@@ -637,6 +707,8 @@ function getHeaderHTML(activePage = '') {
                         <li><a href="digital-products.html?type=template">Templates</a></li>
                     </ul>
                 </li>
+
+                <!-- HOME & KITCHEN -->
                 <li class="drawer-dropdown">
                     <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
                         <i class="fas fa-couch"></i> Home & Kitchen
@@ -650,6 +722,8 @@ function getHeaderHTML(activePage = '') {
                         <li><a href="home.html?subtype=cleaning">Cleaning</a></li>
                     </ul>
                 </li>
+
+                <!-- TRADITIONAL -->
                 <li class="drawer-dropdown">
                     <a href="javascript:void(0)" onclick="toggleDrawerDropdown(this)">
                         <i class="fas fa-crown"></i> Traditional Attire

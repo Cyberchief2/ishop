@@ -17230,3 +17230,65 @@ body.has-sticky-header {
         padding-top: 64px !important; 
     }
 }
+/* ============================================ */
+/* MOBILE DRAWER - LEVEL 3 SUBMENU (TYPES)      */
+/* ============================================ */
+
+/* The Level 2 links that have a sub-menu */
+.drawer-submenu .drawer-sub-dropdown > a {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 1rem !important;
+    font-size: 0.85rem;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+/* The mini chevron icon */
+.drawer-sub-chevron {
+    font-size: 0.65rem;
+    color: #999;
+    transition: transform 0.25s ease;
+}
+
+/* Rotate chevron when open */
+.drawer-sub-dropdown.open > a .drawer-sub-chevron {
+    transform: rotate(180deg);
+}
+
+/* The Level 3 Container (Hidden by default) */
+.drawer-sub-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: #fbfbfb; /* Slightly off-white to differentiate from level 2 */
+    padding-left: 0;
+    margin: 0;
+    list-style: none;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Open state for Level 3 */
+.drawer-sub-dropdown.open .drawer-sub-submenu {
+    max-height: 400px;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+/* Level 3 Links */
+.drawer-sub-submenu li a {
+    display: block;
+    padding: 0.45rem 1rem 0.45rem 2.5rem !important; /* Deep indentation */
+    font-size: 0.8rem;
+    color: #777;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.drawer-sub-submenu li a:hover {
+    color: #f9c74f;
+    font-weight: 600;
+}
