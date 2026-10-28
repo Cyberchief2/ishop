@@ -9213,7 +9213,6 @@ let lastScrollTop = 0;
 let stickyHeaderBound = false;
 
 function initSmartStickyHeader() {
-    // Prevent double-binding
     if (stickyHeaderBound) return;
 
     const header = document.querySelector('header');
@@ -9221,60 +9220,56 @@ function initSmartStickyHeader() {
     const topBar = document.querySelector('.top-bar');
 
     if (!header) {
-        // Header not injected yet — retry shortly
         setTimeout(initSmartStickyHeader, 100);
         return;
     }
 
     stickyHeaderBound = true;
 
-    // The element we slide together with the header (mega menu sits below header)
-    const stickyGroup = [header, megaMenu].filter(Boolean);
-
-    const showHeader = () => {
-        stickyGroup.forEach(el => {
-            el.style.transform = 'translateY(0)';
-            el.style.transition = 'transform 0.3s ease-in-out';
-        });
-        if (topBar) {
-            topBar.style.transform = 'translateY(0)';
-            topBar.style.transition = 'transform 0.3s ease-in-out';
-        }
-    };
-
-    const hideHeader = () => {
-        stickyGroup.forEach(el => {
-            el.style.transform = 'translateY(-100%)';
-            el.style.transition = 'transform 0.3s ease-in-out';
-        });
-        if (topBar) {
-            topBar.style.transform = 'translateY(-100%)';
-            topBar.style.transition = 'transform 0.3s ease-in-out';
-        }
-    };
+    // 1. Create a wrapper to hold everything together
+    let wrapper = document.querySelector('.sticky-header-wrapper');
+    
+    if (!wrapper && topBar) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'sticky-header-wrapper';
+        
+        // Insert the wrapper right before the top bar
+        topBar.parentNode.insertBefore(wrapper, topBar);
+        
+        // Move the top bar, header, and mega menu INSIDE the wrapper
+        wrapper.appendChild(topBar);
+        wrapper.appendChild(header);
+        if (megaMenu) wrapper.appendChild(megaMenu);
+    }
 
     window.addEventListener('scroll', function () {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollDiff = scrollTop - lastScrollTop;
 
-        // 1. At the very top → always show everything
+        // Ignore tiny scrolls to prevent stuttering
+        if (Math.abs(scrollDiff) < 10) return;
+
+        // 1. At the very top -> always show everything
         if (scrollTop <= 50) {
-            showHeader();
-        }
-        // 2. Scrolling DOWN past 50px → hide header + mega menu + top bar
-        else if (scrollTop > lastScrollTop) {
-            hideHeader();
-        }
-        // 3. Scrolling UP → slide header + mega menu back into view
+            if (wrapper) wrapper.style.transform = 'translateY(0)';
+            if (topBar) topBar.style.marginTop = '0';
+        } 
+        // 2. Scrolling DOWN past 50px -> slide the wrapper up, but pull the top bar up out of view
+        else if (scrollTop > lastScrollTop && scrollTop > 50) {
+            if (wrapper) wrapper.style.transform = 'translateY(-100%)';
+            if (topBar) topBar.style.marginTop = `-${topBar.offsetHeight}px`;
+        } 
+        // 3. Scrolling UP -> bring the wrapper back, but keep the top bar hidden
         else {
-            showHeader();
+            if (wrapper) wrapper.style.transform = 'translateY(0)';
+            // Leave top bar hidden (margin-top stays negative)
         }
 
         lastScrollTop = scrollTop;
     }, { passive: true });
 
-    console.log('🎯 Smart sticky header initialized');
+    console.log('🎯 Smart sticky header initialized and wrapped');
 }
-
 // Call this inside initializeApp(), right after injectHeaderAndFooter()
 // ============================================
 // RENDER RECENTLY VIEWED PRODUCTS

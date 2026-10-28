@@ -68,8 +68,7 @@ header {
     background: #ffffff;
     padding: 1.15rem 2rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-    position: sticky;
-    top: 0;
+    position: relative;
     z-index: 1000;
 }
 
@@ -16447,6 +16446,21 @@ nav.mega-menu {
     z-index: 99999 !important;
     padding: 0 !important;
     overflow: visible !important;
+}
+
+/* ADD THIS NEW WRAPPER STYLE */
+.sticky-header-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    width: 100%;
+    transition: transform 0.3s ease-in-out;
+    background: #ffffff; /* Prevents transparency issues */
+}
+
+/* Hide the top bar smoothly */
+.top-bar {
+    transition: margin-top 0.3s ease-in-out;
 }
 
 nav.mega-menu .mega-menu-content {
