@@ -1,7 +1,13 @@
 // Global state for vendor product form
 window.productFormState = {
     images: [],
-    currentStep: 1
+    currentStep: 1,
+    totalSteps: 3,
+    uploadedImages: [],
+    existingImages: [],
+    uploadedBookFile: null,
+    existingBookFile: null,
+    editProductId: null,
 };
 // ============================================
 // SITE CONFIG — edit once, used everywhere
@@ -1036,11 +1042,11 @@ async function syncCartToServer() {
 }
 
 function updateCartCount() {
-    const countElement = document.getElementById('cartCount');
-    if (countElement) {
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        countElement.textContent = totalItems;
-    }
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    ['cartCount', 'mobileCartCount'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = totalItems;
+    });
 }
 
 function addToCart(productId) {
@@ -1154,7 +1160,7 @@ function renderProducts(containerId, productList, limit = null) {
                 <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f8fafc%22/><rect x=%2275%22 y=%2270%22 width=%2250%22 height=%2240%22 rx=%224%22 fill=%22%23e0e0e0%22/><circle cx=%2288%22 cy=%2284%22 r=%225%22 fill=%22%23f9c74f%22/></svg>'" />
             </div>
             <div class="product-info">
-                <h3>${product.name}</h3>
+                <h3 style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 44px;">${product.name}</h3>
                 <p class="product-meta-row">
                     ${product.vendorName ? `<span class="product-vendor"><i class="fas fa-store"></i> ${escapeHtml(product.vendorName)}</span>` : ''}
                     <span class="product-category">${product.category}</span>
@@ -1449,14 +1455,14 @@ function renderFlashSales(products) {
         const claimed = 40 + ((Number(product.id) * 13) % 50);
 
         return `
-        <a href="product-detail.html?id=${product.id}" class="flash-card">
+        <a href="product-detail.html?id=${product.id}" class="flash-card"> style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;">${product.name}</a>
             <div class="flash-badge">-${disc}%</div>
             <div class="flash-image">
                 <img src="${product.image}" alt="${product.name}" loading="lazy"
                      onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f8fafc%22/><rect x=%2275%22 y=%2270%22 width=%2250%22 height=%2240%22 rx=%224%22 fill=%22%23e0e0e0%22/><circle cx=%2288%22 cy=%2284%22 r=%225%22 fill=%22%23f9c74f%22/></svg>'" />
             </div>
             <div class="flash-info">
-                <h4 class="flash-name">${product.name}</h4>
+                <h4 class="flash-name" style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 32px;">${product.name}</h4>
                 <div class="flash-prices">
                     <span class="flash-now">₦${product.price.toLocaleString()}</span>
                     <span class="flash-was">₦${originalPrice.toLocaleString()}</span>
@@ -2588,34 +2594,7 @@ function startCountdown() {
 // ============================================
 // FILTERS & TABS
 // ============================================
-function setupFilters() {
-    const buttons = document.querySelectorAll('.digital-tabs .tab-btn');
-    if (!buttons.length) return;
-
-    buttons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            buttons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            const filter = this.dataset.type || 'all';
-            const searchInput = document.getElementById('shopSearch');
-            const search = searchInput ? searchInput.value.trim() : '';
-            renderShopPage(filter, search);
-        });
-    });
-
-    const shopSearch = document.getElementById('shopSearch');
-    if (shopSearch) {
-        let debounce;
-        shopSearch.addEventListener('input', function() {
-            clearTimeout(debounce);
-            debounce = setTimeout(() => {
-                const activeBtn = document.querySelector('.digital-tabs .tab-btn.active');
-                const filter = activeBtn ? activeBtn.dataset.type : 'all';
-                renderShopPage(filter, this.value.trim());
-            }, 250);
-        });
-    }
-}
+/* (Removed setupFilters — setupShopFilters + initShopPage handle shop filters) */
 
 function filterBySearch() {
     const searchInput = document.getElementById('shopSearch');
@@ -3006,24 +2985,6 @@ function updateWishlistUI() {
     }
 }
 
-// ============================================
-// TRACK ORDER (legacy)
-// ============================================
-function trackOrder() {
-    const orderNumber = document.getElementById('orderNumber');
-    const result = document.getElementById('trackResult');
-    if (orderNumber && orderNumber.value.trim()) {
-        result.style.display = 'block';
-        const steps = document.querySelectorAll('.track-step');
-        steps.forEach((step, index) => {
-            setTimeout(() => {
-                step.classList.add('active');
-            }, index * 1000);
-        });
-    } else {
-        alert('Please enter an order number');
-    }
-}
 
 // ============================================
 // GALLERY + QUANTITY + TAB SWITCHER + BUY NOW
@@ -5229,7 +5190,7 @@ function renderVendorProducts(products) {
                     <img src="${mainImage}" alt="${escapeHtml(product.name)}" loading="lazy" />
                 </div>
                 <div class="vendor-product-body">
-                    <h3 class="vendor-product-name">${escapeHtml(product.name || 'Untitled')}</h3>
+                    <h3 class="vendor-product-name" style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;">${escapeHtml(product.name || 'Untitled')}</h3>
                     <p class="vendor-product-category">${escapeHtml(product.category || 'Uncategorized')}</p>
                     <p class="vendor-product-price">₦${price}</p>
                     <div class="vendor-product-meta">
@@ -8575,39 +8536,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-
-function attachMegaMenuPositioning() {
-    function positionDropdown(li) {
-        const dd = li.querySelector('.mega-dropdown');
-        if (!dd) return;
-        
-        const rect = li.getBoundingClientRect();
-        const ddWidth = dd.offsetWidth || 460;
-        const vw = window.innerWidth;
-        const gutter = 8;
-
-        let left = rect.left;
-        if (left + ddWidth + gutter > vw) {
-            left = rect.right - ddWidth;
-        }
-        if (left < gutter) left = gutter;
-
-        dd.style.setProperty('top', rect.bottom + 'px', 'important');
-        dd.style.setProperty('left', left + 'px', 'important');
-    }
-
-    const items = document.querySelectorAll('.mega-menu .menu-links > li');
-    items.forEach(li => {
-        if (li.dataset.mmBound === '1') return;
-        li.dataset.mmBound = '1';
-        
-        const onEnter = () => positionDropdown(li);
-        li.addEventListener('mouseenter', onEnter);
-        li.addEventListener('focusin', onEnter);
-        window.addEventListener('resize', () => { if (li.matches(':hover')) positionDropdown(li); });
-        window.addEventListener('scroll', () => { if (li.matches(':hover')) positionDropdown(li); }, { passive: true });
-    });
-}
 // ============================================
 // MEGA MENU BUILDER & POSITIONER (FINAL)
 // ============================================
@@ -8671,7 +8599,11 @@ async function buildDynamicMegaMenu() {
                 column.className = 'mega-column';
                 let html = `<h4><a href="${major.slug}.html?subtype=${sub.slug}">${sub.name}</a></h4>`;
                 
-                const myTypes = allCategories.filter(type => type.parentSlug === sub.slug);
+                // Fetch the specific types (e.g., Smartphones, Tablets)
+                const myTypes = allCategories.filter(type => 
+                    type.parentSlug === sub.slug || 
+                    type.parentId === sub.id
+                );
 
                 if (myTypes.length > 0) {
                     myTypes.forEach(type => {
@@ -8853,45 +8785,30 @@ async function buildDynamicMegaMenu() {
 }
 
 // ============================================
-// POSITIONING LOGIC (Fixes the hidden dropdown)
+// POSITIONING LOGIC — absolute (anchored to <li>)
 // ============================================
 function initMegaMenuPositioning() {
     const items = document.querySelectorAll('.mega-menu .menu-links > li');
-    
+
     items.forEach(li => {
         const dd = li.querySelector('.mega-dropdown');
         if (!dd) return;
 
         li.addEventListener('mouseenter', () => {
-            // If the page has scrolled, the header is hidden by the smart sticky script.
-            // We force the header to stay visible if they hover the menu.
-            const header = document.querySelector('header');
-            if (header) {
-                header.style.transform = 'translateY(0)';
-                header.style.transition = 'none';
-            }
-
             const rect = li.getBoundingClientRect();
             const ddWidth = dd.offsetWidth || 450;
             const vw = window.innerWidth;
 
-            let left = rect.left;
-            if (left + ddWidth > vw - 20) {
-                left = rect.right - ddWidth;
+            // Anchor dropdown to the <li>; flip left if it overflows the right edge
+            let left = 0;
+            if (rect.left + ddWidth > vw - 20) {
+                left = Math.max(0, li.offsetWidth - ddWidth);
             }
-            if (left < 20) left = 20;
 
-            // Use absolute positioning relative to the page
-            dd.style.setProperty('top', rect.bottom + 'px', 'important');
+            dd.style.setProperty('top', '100%', 'important');
             dd.style.setProperty('left', left + 'px', 'important');
-            dd.style.setProperty('position', 'fixed', 'important');
+            dd.style.setProperty('position', 'absolute', 'important');
             dd.style.setProperty('z-index', '99999', 'important');
-        });
-        
-        li.addEventListener('mouseleave', () => {
-            // Restore the smart sticky behavior when the mouse leaves
-            const header = document.querySelector('header');
-            if (header) header.style.transition = 'transform 0.3s ease-in-out';
         });
     });
 }
@@ -9129,8 +9046,9 @@ async function buildCategoryPageIcons(categorySlug) {
                     imgUrl = base + path;
                 }
                 
-                // Add a fallback so if the Strapi image fails, it tries the local icon
-                iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy" onerror="this.onerror=null; this.src='icons/${sub.slug}.png'; this.src='${getIconHTML(sub.name, sub.slug).match(/src='([^']+)'/)?.[1] || ''}'" />`;
+                // Fallback to the local icon if the Strapi image fails
+                iconHTML = `<img src="${imgUrl}" alt="${sub.name}" loading="lazy"
+                    onerror="this.onerror=null;this.src='icons/${sub.slug}.png';" />`;
             } else {
                 iconHTML = getIconHTML(sub.name, sub.slug);
             }
@@ -9208,41 +9126,8 @@ window.addEventListener('pageshow', function (event) {
 /* ============================================ */
 /* SMART STICKY HEADER (Hide on Scroll Down)    */
 /* ============================================ */
-let lastScrollTop = 0;
-const smartHeader = document.querySelector('header');
-const topBar = document.querySelector('.top-bar');
-
-if (smartHeader) {
-    window.addEventListener('scroll', function() {
-        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-        // 1. If we are at the very top of the page, ALWAYS show the top bar and header
-        if (scrollTop <= 50) {
-            smartHeader.style.transform = 'translateY(0)';
-            smartHeader.style.transition = 'transform 0.3s ease-in-out';
-            if (topBar) {
-                topBar.style.transform = 'translateY(0)';
-                topBar.style.transition = 'transform 0.3s ease-in-out';
-            }
-        } 
-        // 2. If we scroll down (past 50px), hide the top bar completely and slide the header up
-        else if (scrollTop > lastScrollTop && scrollTop > 50) {
-            smartHeader.style.transform = 'translateY(-100%)';
-            smartHeader.style.transition = 'transform 0.3s ease-in-out';
-            if (topBar) {
-                topBar.style.transform = 'translateY(-100%)';
-                topBar.style.transition = 'transform 0.3s ease-in-out';
-            }
-        } 
-        // 3. If we scroll up, slide the header back down to view
-        else {
-            smartHeader.style.transform = 'translateY(0)';
-            smartHeader.style.transition = 'transform 0.3s ease-in-out';
-        }
-
-        lastScrollTop = scrollTop;
-    }, { passive: true });
-}
+/* Header is always sticky via CSS position: sticky.
+   No JS hide/show behaviour needed. */
 // ============================================
 // RENDER RECENTLY VIEWED PRODUCTS
 // ============================================
