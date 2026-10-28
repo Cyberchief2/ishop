@@ -17187,17 +17187,46 @@ html body nav.mega-menu {
         overflow-y: auto !important;
     }
 }
-/* Make sure the sticky header slides cleanly */
-header {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000000 !important;
-    will-change: transform;
+/* ============================================ */
+/* FIXED STICKY HEADER - FINAL SOLUTION        */
+/* ============================================ */
+
+/* 1. The Wrapper that JavaScript creates */
+.sticky-header-wrapper {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999999 !important;
+    background: #ffffff;
+    transition: transform 0.3s ease-in-out;
+    /* Border to separate it from the page content */
+    border-bottom: 1px solid #e8ecf0;
 }
 
-nav.mega-menu {
-    position: sticky !important;
-    top: 56px; /* adjust to header height */
-    z-index: 999999 !important;
-    will-change: transform;
+/* 2. Force the inner elements to fit normally inside the wrapper */
+.sticky-header-wrapper header {
+    position: relative !important;
+    top: auto !important;
+    z-index: auto !important;
+    box-shadow: none !important;
+}
+
+.sticky-header-wrapper nav.mega-menu {
+    position: relative !important;
+    top: auto !important;
+    z-index: auto !important;
+    box-shadow: none !important;
+}
+
+/* 3. Push the page content down so the fixed header doesn't cover it */
+body.has-sticky-header {
+    padding-top: 120px !important; /* Adjusts for top-bar + header + menu */
+}
+
+/* On mobile, the top-bar is hidden, so we need less padding */
+@media (max-width: 768px) {
+    body.has-sticky-header {
+        padding-top: 64px !important; 
+    }
 }

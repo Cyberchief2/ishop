@@ -9226,49 +9226,57 @@ function initSmartStickyHeader() {
 
     stickyHeaderBound = true;
 
-    // 1. Create a wrapper to hold everything together
+    // 1. Create the wrapper and move elements into it
     let wrapper = document.querySelector('.sticky-header-wrapper');
     
-    if (!wrapper && topBar) {
+    if (!wrapper) {
         wrapper = document.createElement('div');
         wrapper.className = 'sticky-header-wrapper';
         
-        // Insert the wrapper right before the top bar
-        topBar.parentNode.insertBefore(wrapper, topBar);
+        // Insert wrapper right before the top bar
+        const insertBeforeEl = topBar || header;
+        insertBeforeEl.parentNode.insertBefore(wrapper, insertBeforeEl);
         
-        // Move the top bar, header, and mega menu INSIDE the wrapper
-        wrapper.appendChild(topBar);
+        // Move them inside the wrapper
+        if (topBar) wrapper.appendChild(topBar);
         wrapper.appendChild(header);
         if (megaMenu) wrapper.appendChild(megaMenu);
+        
+        // Add body class to push content down
+        document.body.classList.add('has-sticky-header');
     }
 
+    // 2. The Scroll Logic
     window.addEventListener('scroll', function () {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const scrollDiff = scrollTop - lastScrollTop;
 
-        // Ignore tiny scrolls to prevent stuttering
+        // Ignore micro-scrolls
         if (Math.abs(scrollDiff) < 10) return;
 
-        // 1. At the very top -> always show everything
         if (scrollTop <= 50) {
-            if (wrapper) wrapper.style.transform = 'translateY(0)';
-            if (topBar) topBar.style.marginTop = '0';
+            // AT TOP: Show everything completely
+            wrapper.style.transform = 'translateY(0)';
+            if (topBar) topBar.style.display = 'block'; // show top bar
+            document.body.style.paddingTop = ''; // reset padding
         } 
-        // 2. Scrolling DOWN past 50px -> slide the wrapper up, but pull the top bar up out of view
         else if (scrollTop > lastScrollTop && scrollTop > 50) {
-            if (wrapper) wrapper.style.transform = 'translateY(-100%)';
-            if (topBar) topBar.style.marginTop = `-${topBar.offsetHeight}px`;
+            // SCROLLING DOWN: Hide the whole wrapper
+            wrapper.style.transform = 'translateY(-100%)';
         } 
-        // 3. Scrolling UP -> bring the wrapper back, but keep the top bar hidden
         else {
-            if (wrapper) wrapper.style.transform = 'translateY(0)';
-            // Leave top bar hidden (margin-top stays negative)
+            // SCROLLING UP: Show the wrapper, but hide the top-bar
+            wrapper.style.transform = 'translateY(0)';
+            if (topBar) topBar.style.display = 'none'; // hide top bar permanently until top
+            
+            // Adjust body padding since top-bar is gone
+            document.body.style.paddingTop = (header.offsetHeight + (megaMenu ? megaMenu.offsetHeight : 0)) + 'px';
         }
 
         lastScrollTop = scrollTop;
     }, { passive: true });
 
-    console.log('🎯 Smart sticky header initialized and wrapped');
+    console.log('🎯 Sticky Header Fixed & Locked');
 }
 // Call this inside initializeApp(), right after injectHeaderAndFooter()
 // ============================================
