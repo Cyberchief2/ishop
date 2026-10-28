@@ -17173,3 +17173,17 @@ html body nav.mega-menu {
         overflow-y: auto !important;
     }
 }
+/* Make sure the sticky header slides cleanly */
+header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000000 !important;
+    will-change: transform;
+}
+
+nav.mega-menu {
+    position: sticky !important;
+    top: 56px; /* adjust to header height */
+    z-index: 999999 !important;
+    will-change: transform;
+}

@@ -3889,6 +3889,7 @@ async function initializeApp() {
     }
 
     injectHeaderAndFooter();
+    initSmartStickyHeader();
     initHeroCarousel();
 
     console.log('🔍 Current page:', page);
@@ -9206,43 +9207,75 @@ window.addEventListener('pageshow', function (event) {
 });
 
 /* ============================================ */
-/* SMART STICKY HEADER (Hide on Scroll Down)    */
+/* SMART STICKY HEADER (Hide on Scroll Down, Show on Scroll Up) */
 /* ============================================ */
 let lastScrollTop = 0;
-const smartHeader = document.querySelector('header');
-const topBar = document.querySelector('.top-bar');
+let stickyHeaderBound = false;
 
-if (smartHeader) {
-    window.addEventListener('scroll', function() {
-        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+function initSmartStickyHeader() {
+    // Prevent double-binding
+    if (stickyHeaderBound) return;
 
-        // 1. If we are at the very top of the page, ALWAYS show the top bar and header
+    const header = document.querySelector('header');
+    const megaMenu = document.querySelector('nav.mega-menu');
+    const topBar = document.querySelector('.top-bar');
+
+    if (!header) {
+        // Header not injected yet — retry shortly
+        setTimeout(initSmartStickyHeader, 100);
+        return;
+    }
+
+    stickyHeaderBound = true;
+
+    // The element we slide together with the header (mega menu sits below header)
+    const stickyGroup = [header, megaMenu].filter(Boolean);
+
+    const showHeader = () => {
+        stickyGroup.forEach(el => {
+            el.style.transform = 'translateY(0)';
+            el.style.transition = 'transform 0.3s ease-in-out';
+        });
+        if (topBar) {
+            topBar.style.transform = 'translateY(0)';
+            topBar.style.transition = 'transform 0.3s ease-in-out';
+        }
+    };
+
+    const hideHeader = () => {
+        stickyGroup.forEach(el => {
+            el.style.transform = 'translateY(-100%)';
+            el.style.transition = 'transform 0.3s ease-in-out';
+        });
+        if (topBar) {
+            topBar.style.transform = 'translateY(-100%)';
+            topBar.style.transition = 'transform 0.3s ease-in-out';
+        }
+    };
+
+    window.addEventListener('scroll', function () {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        // 1. At the very top → always show everything
         if (scrollTop <= 50) {
-            smartHeader.style.transform = 'translateY(0)';
-            smartHeader.style.transition = 'transform 0.3s ease-in-out';
-            if (topBar) {
-                topBar.style.transform = 'translateY(0)';
-                topBar.style.transition = 'transform 0.3s ease-in-out';
-            }
-        } 
-        // 2. If we scroll down (past 50px), hide the top bar completely and slide the header up
-        else if (scrollTop > lastScrollTop && scrollTop > 50) {
-            smartHeader.style.transform = 'translateY(-100%)';
-            smartHeader.style.transition = 'transform 0.3s ease-in-out';
-            if (topBar) {
-                topBar.style.transform = 'translateY(-100%)';
-                topBar.style.transition = 'transform 0.3s ease-in-out';
-            }
-        } 
-        // 3. If we scroll up, slide the header back down to view
+            showHeader();
+        }
+        // 2. Scrolling DOWN past 50px → hide header + mega menu + top bar
+        else if (scrollTop > lastScrollTop) {
+            hideHeader();
+        }
+        // 3. Scrolling UP → slide header + mega menu back into view
         else {
-            smartHeader.style.transform = 'translateY(0)';
-            smartHeader.style.transition = 'transform 0.3s ease-in-out';
+            showHeader();
         }
 
         lastScrollTop = scrollTop;
     }, { passive: true });
+
+    console.log('🎯 Smart sticky header initialized');
 }
+
+// Call this inside initializeApp(), right after injectHeaderAndFooter()
 // ============================================
 // RENDER RECENTLY VIEWED PRODUCTS
 // ============================================
