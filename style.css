@@ -68,10 +68,9 @@ header {
     background: #ffffff;
     padding: 1.15rem 2rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 99999 !important;
-    overflow: visible !important;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .header-content {
@@ -306,19 +305,11 @@ header {
     background: #ffffff;
     border-bottom: 1px solid #e8ecf0;
     padding: 0 2rem;
-    position: sticky !important;
-    top: 88px !important; /* matches header height (1.15rem*2 padding + 56px min-height) */
-    z-index: 99998 !important;
+    position: relative;
+    z-index: 999;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     margin: 0;
     overflow: visible !important; /* CRITICAL: Prevents dropdown from being clipped */
-}
-
-/* Adjust top offset on smaller screens where header is shorter */
-@media (max-width: 768px) {
-    .mega-menu {
-        display: none !important; /* hidden on mobile — drawer handles nav */
-    }
 }
 
 .mega-menu-content {
@@ -689,6 +680,12 @@ header {
     margin: 2rem 0;
 }
 
+..product-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+}
+
 .product-card {
     background: white;
     border-radius: 16px;
@@ -735,9 +732,8 @@ header {
     font-weight: 600;
     margin-bottom: 0.3rem;
     display: -webkit-box;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2; /* Keep the original number here */
-    line-clamp: 2;          /* Add this line to clear the VS Code warning */
     overflow: hidden;
     min-height: 44px;
 }
@@ -2008,9 +2004,8 @@ footer {
     margin-bottom: 0.3rem;
     line-height: 1.3;
     display: -webkit-box;
-    -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    line-clamp: 2; /* <-- Add this standard property */
+    -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 38px;
     color: #1a2a3a;
@@ -3612,9 +3607,8 @@ footer {
     color: #0d1b2a;
     margin: 0;
     display: -webkit-box;
-    -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    line-clamp: 2; /* <-- Add this standard property */
+    -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.3;
 }
@@ -6405,9 +6399,8 @@ footer {
     margin: 0 0 0.4rem;
     color: #1a2a3a;
     display: -webkit-box;
-    -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    line-clamp: 2; /* <-- Add this standard property */
+    -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 32px;
 }
@@ -8159,9 +8152,8 @@ footer {
     text-decoration: none;
     line-height: 1.35;
     display: -webkit-box;
-    -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    line-clamp: 2; /* <-- Add this standard property */
+    -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 2.4em;
 }
@@ -9460,10 +9452,9 @@ footer {
 /* FIX: OVERFLOW + EMPTY SPACE + WHATSAPP */
 /* ============================================ */
 
-/* Kill horizontal scroll globally WITHOUT breaking position: sticky.
-   'clip' does not create a scroll container; 'hidden' does and breaks sticky. */
+/* Kill horizontal scroll globally */
 html, body {
-    overflow-x: clip !important;
+    overflow-x: hidden !important;
     width: 100% !important;
     max-width: 100% !important;
     position: relative !important;
@@ -13057,9 +13048,8 @@ html body .hero-slide[data-theme="home"] .hero-cta {
     line-height: 1.35;
     margin: 0;
     display: -webkit-box;
-    -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    line-clamp: 2; /* <-- Add this standard property */
+    -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 2.5em;
 }
@@ -17182,10 +17172,4 @@ html body nav.mega-menu {
         max-height: 70vh !important;
         overflow-y: auto !important;
     }
-}
-/* Prevent layout jitter on scroll for the sticky header + mega menu */
-header,
-nav.mega-menu {
-    will-change: transform;
-    backface-visibility: hidden;
 }
