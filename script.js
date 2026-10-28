@@ -871,9 +871,23 @@ function closeMobileDrawer() {
 function toggleDrawerDropdown(linkEl) {
     const parentLi = linkEl.parentElement;
     const isOpen = parentLi.classList.contains('open');
-    document.querySelectorAll('.mobile-drawer-nav .drawer-dropdown.open').forEach(el => {
-        if (el !== parentLi) el.classList.remove('open');
-    });
+    
+    // If this is a Level 3 subcategory, we don't want to close the Level 2 parent
+    const isSubCategory = parentLi.classList.contains('drawer-sub-dropdown');
+
+    if (!isSubCategory) {
+        // Close all other Level 1 and Level 2 menus
+        document.querySelectorAll('.mobile-drawer-nav .drawer-dropdown.open, .mobile-drawer-nav .drawer-sub-dropdown.open').forEach(el => {
+            if (el !== parentLi) el.classList.remove('open');
+        });
+    } else {
+        // Close other Level 3 menus inside the SAME Level 2 parent
+        const siblingSubs = parentLi.parentElement.querySelectorAll('.drawer-sub-dropdown.open');
+        siblingSubs.forEach(el => {
+            if (el !== parentLi) el.classList.remove('open');
+        });
+    }
+    
     parentLi.classList.toggle('open', !isOpen);
 }
 

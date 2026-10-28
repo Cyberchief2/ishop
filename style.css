@@ -17292,3 +17292,93 @@ body.has-sticky-header {
     color: #f9c74f;
     font-weight: 600;
 }
+/* ============================================ */
+/* FINAL MOBILE DRAWER 3-LEVEL FIX              */
+/* ============================================ */
+
+/* 1. Increase the height limit so nested items don't get cut off */
+.drawer-dropdown.open > .drawer-submenu {
+    max-height: 2500px !important; /* Allows plenty of room for nested items */
+    padding-bottom: 1rem !important;
+}
+
+/* 2. Style the Level 2 subcategories (Televisions, Home Audio, etc.) */
+.drawer-submenu .drawer-sub-dropdown > a {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.8rem 1rem 0.8rem 2rem !important; /* Indent slightly more */
+    font-size: 0.85rem !important;
+    color: #333 !important;
+    font-weight: 600 !important;
+    background: #fcfcfc !important; /* Subtle background difference */
+    border-bottom: 1px solid #eaeaea !important;
+    border-radius: 6px !important;
+    margin-bottom: 2px !important;
+}
+
+/* 3. The small chevron next to Level 2 */
+.drawer-sub-chevron {
+    font-size: 0.7rem !important;
+    color: #999 !important;
+    transition: transform 0.3s ease !important;
+}
+
+.drawer-sub-dropdown.open > a .drawer-sub-chevron {
+    transform: rotate(180deg) !important; /* Flips upside down when open */
+    color: #f9c74f !important;
+}
+
+/* 4. The Level 3 container (Smart TVs, LED TVs, etc.) */
+.drawer-sub-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.drawer-sub-dropdown.open .drawer-sub-submenu {
+    max-height: 600px; /* Enough for type links */
+    padding-bottom: 0.5rem;
+}
+
+/* 5. Style the Level 3 links */
+.drawer-sub-submenu li a {
+    display: block !important;
+    padding: 0.6rem 1rem 0.6rem 3.5rem !important; /* Deep indentation to show it's a type */
+    font-size: 0.8rem !important;
+    color: #666 !important;
+    font-weight: 400 !important;
+    border-bottom: 1px dashed #f0f0f0 !important;
+    position: relative;
+}
+
+/* Add a small line/circle to show hierarchy on Level 3 links */
+.drawer-sub-submenu li a::before {
+    content: '';
+    position: absolute;
+    left: 2.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: #dcdcdc;
+    border-radius: 50%;
+}
+
+.drawer-sub-submenu li a:hover {
+    color: #0d1b2a !important;
+    background: #fef9e7 !important;
+}
+
+.drawer-sub-submenu li a:hover::before {
+    background: #f9c74f;
+}
+
+/* Remove the dashed border from the last item for a clean look */
+.drawer-sub-submenu li:last-child a {
+    border-bottom: none !important;
+}
