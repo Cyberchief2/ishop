@@ -17388,3 +17388,17 @@ body.has-sticky-header {
         box-shadow: 0 15px 50px rgba(0,0,0,0.3) !important; /* Stronger shadow for visibility */
     }
 }
+/* Improve perceived performance with a background placeholder */
+.image-container, 
+.flash-image {
+    background-color: #f8fafc;
+    /* Optional: A tiny grey blurry square so it doesn't look empty */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="%23f1f5f9"/></svg>');
+    background-size: cover;
+}
+
+/* Make the image fade in smoothly when it loads */
+.image-container img, 
+.flash-image img {
+    transition: opacity 0.4s ease-in-out;
+}

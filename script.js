@@ -407,6 +407,7 @@ function getHeaderHTML(activePage = '') {
     </div>
 
     <header>
+    <link rel="preload" href="electronics-image.png" as="image" fetchpriority="high">
         <div class="header-content">
             <button class="hamburger-btn" onclick="openMobileDrawer()" aria-label="Open menu">
                 <i class="fas fa-bars"></i>
@@ -535,7 +536,7 @@ function getHeaderHTML(activePage = '') {
             <a href="shop.html" class="cat-chip cat-chip-flash">⚡ Flash</a>
         </div>
     </header>
-
+    <link rel="preload" href="electronics-image.png" as="image" fetchpriority="high">
     <nav class="mega-menu">
         <div class="mega-menu-content">
             <ul class="menu-links" id="dynamic-menu-links">
@@ -1000,11 +1001,14 @@ function extractDescriptionText(blocks) {
 function optimizeCloudinaryUrl(url) {
     if (!url || typeof url !== 'string') return url;
     if (!url.includes('res.cloudinary.com')) return url;
-    if (url.includes('/w_600,') || url.includes('f_auto') || url.includes('q_auto')) return url;
+    
+    // If it's already optimized by Cloudinary, leave it
+    if (url.includes('f_auto')) return url;
 
+    // f_auto = WebP/AVIF format, q_auto = smart compression, c_fill = crops to exact size
     return url.replace(
         /\/upload\//,
-        '/upload/w_600,f_auto,q_auto/'
+        '/upload/w_400,h_400,c_fill,f_auto,q_auto:eco/'
     );
 }
 
@@ -1239,7 +1243,7 @@ function renderProducts(containerId, productList, limit = null) {
             </button>
             ${product.type === 'digital' ? '<span class="digital-badge">💻 Instant Download</span>' : ''}
             <div class="image-container">
-                <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f8fafc%22/><rect x=%2275%22 y=%2270%22 width=%2250%22 height=%2240%22 rx=%224%22 fill=%22%23e0e0e0%22/><circle cx=%2288%22 cy=%2284%22 r=%225%22 fill=%22%23f9c74f%22/></svg>'" />
+                <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f8fafc%22/><rect x=%2275%22 y=%2270%22 width=%2２50%２ height=%２40%２ rx=%２4%２ fill=%２%23e0e0e0%２/><circle cx=%２88%２ cy=%２84%２ r=%２5%２ fill=%２%23f9c74f%２/></svg>'" />
             </div>
             <div class="product-info">
                 <h3>${product.name}</h3>
