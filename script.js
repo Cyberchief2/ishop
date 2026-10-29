@@ -1001,11 +1001,9 @@ function extractDescriptionText(blocks) {
 function optimizeCloudinaryUrl(url) {
     if (!url || typeof url !== 'string') return url;
     if (!url.includes('res.cloudinary.com')) return url;
-    
-    // If it's already optimized by Cloudinary, leave it
-    if (url.includes('f_auto')) return url;
+    // If it's already optimized by the fetch route or previously, leave it alone
+    if (url.includes('f_auto') || url.includes('q_auto')) return url;
 
-    // f_auto = WebP/AVIF format, q_auto = smart compression, c_fill = crops to exact size
     return url.replace(
         /\/upload\//,
         '/upload/w_400,h_400,c_fill,f_auto,q_auto:eco/'
@@ -1024,7 +1022,15 @@ function convertStrapiProduct(strapiProduct) {
                 const rawUrl = img.url.startsWith('http://') || img.url.startsWith('https://')
                     ? img.url
                     : `${IMAGE_BASE_URL}${img.url}`;
-                return optimizeCloudinaryUrl(rawUrl);
+                
+                // If it's already on Cloudinary, just optimize it
+                if (rawUrl.includes('res.cloudinary.com')) {
+                    return optimizeCloudinaryUrl(rawUrl);
+                }
+                
+                // If it's an old Railway image, fetch it through Cloudinary
+                const myCloudName = 'your_cloud_name'; // <-- PUT YOUR CLOUD NAME HERE
+                return `https://res.cloudinary.com/${myCloudName}/image/fetch/w_400,h_400,c_fill,f_auto,q_auto:eco/${encodeURIComponent(rawUrl)}`;
             });
         if (imageUrls.length === 0) {
             imageUrls = ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#f8fafc"/><rect x="75" y="70" width="50" height="40" rx="4" fill="#e0e0e0"/><circle cx="88" cy="84" r="5" fill="#f9c74f"/></svg>'];
