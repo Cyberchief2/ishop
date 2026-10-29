@@ -17296,28 +17296,45 @@ body.has-sticky-header {
 /* FINAL MOBILE DRAWER 3-LEVEL FIX              */
 /* ============================================ */
 
-/* 1. Increase the height limit so nested items don't get cut off */
+/* 1. Only expand the FIRST level of submenu */
 .drawer-dropdown.open > .drawer-submenu {
-    max-height: 2500px !important; /* Allows plenty of room for nested items */
+    max-height: 2000px !important; /* Huge height for parent */
     padding-bottom: 1rem !important;
 }
 
-/* 2. Style the Level 2 subcategories (Televisions, Home Audio, etc.) */
+/* 2. Ensure the THIRD level (Types) stays hidden by default */
+.drawer-submenu .drawer-sub-submenu {
+    max-height: 0 !important; 
+    overflow: hidden;
+    transition: max-height 0.3s ease !important;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 2px solid #f9c74f; /* A subtle yellow line to show hierarchy */
+    margin-left: 1.5rem; /* Indent the whole block */
+}
+
+/* 3. When the Level 2 subcategory is clicked, expand the Level 3 Types */
+.drawer-sub-dropdown.open > .drawer-sub-submenu {
+    max-height: 600px !important; /* Expand only when opened */
+    padding-bottom: 0.5rem;
+}
+
+/* 4. Style the Level 2 subcategories (Televisions, Home Audio, etc.) */
 .drawer-submenu .drawer-sub-dropdown > a {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 0.8rem 1rem 0.8rem 2rem !important; /* Indent slightly more */
-    font-size: 0.85rem !important;
+    padding: 0.8rem 1rem 0.8rem 1.5rem !important; 
+    font-size: 0.9rem !important;
     color: #333 !important;
     font-weight: 600 !important;
-    background: #fcfcfc !important; /* Subtle background difference */
-    border-bottom: 1px solid #eaeaea !important;
-    border-radius: 6px !important;
-    margin-bottom: 2px !important;
+    border-bottom: 1px solid #f5f5f5 !important;
+    text-decoration: none;
 }
 
-/* 3. The small chevron next to Level 2 */
+/* 5. The small chevron next to Level 2 */
 .drawer-sub-chevron {
     font-size: 0.7rem !important;
     color: #999 !important;
@@ -17325,60 +17342,49 @@ body.has-sticky-header {
 }
 
 .drawer-sub-dropdown.open > a .drawer-sub-chevron {
-    transform: rotate(180deg) !important; /* Flips upside down when open */
+    transform: rotate(180deg) !important;
     color: #f9c74f !important;
 }
 
-/* 4. The Level 3 container (Smart TVs, LED TVs, etc.) */
-.drawer-sub-submenu {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-    background: #ffffff;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.drawer-sub-dropdown.open .drawer-sub-submenu {
-    max-height: 600px; /* Enough for type links */
-    padding-bottom: 0.5rem;
-}
-
-/* 5. Style the Level 3 links */
+/* 6. Style the Level 3 Types (Smart TVs, LED TVs) */
 .drawer-sub-submenu li a {
     display: block !important;
-    padding: 0.6rem 1rem 0.6rem 3.5rem !important; /* Deep indentation to show it's a type */
-    font-size: 0.8rem !important;
+    padding: 0.6rem 1rem 0.6rem 1.5rem !important; /* Padding inside the indented block */
+    font-size: 0.85rem !important;
     color: #666 !important;
     font-weight: 400 !important;
-    border-bottom: 1px dashed #f0f0f0 !important;
-    position: relative;
-}
-
-/* Add a small line/circle to show hierarchy on Level 3 links */
-.drawer-sub-submenu li a::before {
-    content: '';
-    position: absolute;
-    left: 2.2rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 6px;
-    background: #dcdcdc;
-    border-radius: 50%;
+    text-decoration: none;
 }
 
 .drawer-sub-submenu li a:hover {
-    color: #0d1b2a !important;
+    color: #f9c74f !important;
     background: #fef9e7 !important;
 }
+/* ============================================ */
+/* FORCE ACCOUNT DROPDOWN ABOVE HERO BANNER     */
+/* ============================================ */
 
-.drawer-sub-submenu li a:hover::before {
-    background: #f9c74f;
+/* 1. Ensure the header wrapper doesn't trap the dropdown */
+.sticky-header-wrapper {
+    overflow: visible !important;
 }
 
-/* Remove the dashed border from the last item for a clean look */
-.drawer-sub-submenu li:last-child a {
-    border-bottom: none !important;
+/* 2. Force the Account Panel to the absolute highest layer */
+.account-dropdown-panel {
+    z-index: 2147483647 !important; /* Maximum possible z-index */
+    position: absolute !important;
+}
+
+/* 3. On Mobile, make it fixed to the screen so the hero banner can't cover it */
+@media (max-width: 768px) {
+    .account-dropdown-panel {
+        position: fixed !important;
+        top: 65px !important; /* Adjust if your header height is different */
+        right: 10px !important;
+        left: auto !important;
+        width: 260px !important;
+        max-width: calc(100vw - 20px) !important;
+        z-index: 2147483647 !important;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.3) !important; /* Stronger shadow for visibility */
+    }
 }

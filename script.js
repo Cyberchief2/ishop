@@ -9407,3 +9407,10 @@ async function renderRecentlyViewed() {
         console.error('Error rendering recently viewed:', err);
     }
 }
+document.addEventListener('click', function(e) {
+    const drawerLink = e.target.closest('.mobile-drawer-nav a');
+    // If it's a real link (not a toggle button), close the drawer
+    if (drawerLink && drawerLink.getAttribute('href') !== 'javascript:void(0)') {
+        closeMobileDrawer();
+    }
+});
