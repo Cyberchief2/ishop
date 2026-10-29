@@ -17227,7 +17227,14 @@ body.has-sticky-header {
 /* On mobile, the top-bar is hidden, so we need less padding */
 @media (max-width: 768px) {
     body.has-sticky-header {
-        padding-top: 64px !important; 
+        padding-top: 155px !important; /* Increased to fit logo, search, and category strip */
+    }
+}
+
+/* Small phones might need slightly less or more depending on wrapping */
+@media (max-width: 480px) {
+    body.has-sticky-header {
+        padding-top: 150px !important;
     }
 }
 /* ============================================ */
