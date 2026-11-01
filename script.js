@@ -2360,6 +2360,42 @@ async function renderProductDetail() {
 
         initializeGallery(allImages);
 
+        // --- MOBILE UX: MOVE BUTTONS UP & DESCRIPTION BEFORE TRUST BADGES ---
+        if (window.innerWidth <= 768) {
+            const productInfo = document.querySelector('.product-detail-info');
+            const productActions = document.querySelector('.product-actions');
+            const deliveryInfo = document.querySelector('.product-delivery-info');
+            const descriptionSection = document.querySelector('.product-description-section');
+
+            if (productInfo && productActions && deliveryInfo && descriptionSection) {
+                // 1. Move Add to Cart buttons right after the price
+                productInfo.insertBefore(productActions, deliveryInfo);
+                
+                // 2. Move Description & Tabs right before the Trust Badges
+                productInfo.insertBefore(descriptionSection, deliveryInfo);
+            }
+        }
+        // ---------------------------------------------------------------------
+
+        console.log('✅ Product detail rendered successfully');
+
+        // --- MOBILE UX: MOVE BUTTONS UP & DESCRIPTION BEFORE TRUST BADGES ---
+        if (window.innerWidth <= 768) {
+            const productInfo = document.querySelector('.product-detail-info');
+            const productActions = document.querySelector('.product-actions');
+            const deliveryInfo = document.querySelector('.product-delivery-info');
+            const descriptionSection = document.querySelector('.product-description-section');
+
+            if (productInfo && productActions && deliveryInfo && descriptionSection) {
+                // 1. Move Add to Cart buttons right after the price
+                productInfo.insertBefore(productActions, deliveryInfo);
+                
+                // 2. Move Description & Tabs right before the Trust Badges
+                productInfo.insertBefore(descriptionSection, deliveryInfo);
+            }
+        }
+        // ---------------------------------------------------------------------
+
         console.log('✅ Product detail rendered successfully');
     } catch (error) {
         console.error('❌ Error rendering product detail:', error);

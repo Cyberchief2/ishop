@@ -1691,12 +1691,18 @@ footer {
     margin-right: 0.3rem;
 }
 
-/* Description Section */
-.product-description-section {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid #f0f0f0;
-}
+    /* Ensure the description section has proper spacing when moved on mobile */
+    .product-description-section {
+        margin-top: 1rem !important;
+        padding-top: 1rem !important;
+        border-top: 1px solid #f0f0f0 !important;
+        width: 100% !important;
+    }
+    
+    /* Ensure the trust badges have spacing below the description */
+    .product-delivery-info {
+        margin-top: 1.5rem !important;
+    }
 
 .description-tabs {
     display: flex;
