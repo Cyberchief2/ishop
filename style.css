@@ -679,11 +679,7 @@ header {
     margin: 2rem 0;
 }
 
-..product-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 1rem;
-}
+/* (removed: typo "..product-grid" — .product-grid is defined later) */
 
 .product-card {
     background: white;
@@ -5568,42 +5564,7 @@ footer {
     object-fit: cover;
 }
 
-.hero-floating-badge {
-    position: absolute;
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 0.7rem 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #0d1b2a;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    animation: heroFloat 3.5s ease-in-out infinite;
-}
-
-.hero-floating-badge i {
-    color: #f9c74f;
-    font-size: 1.05rem;
-}
-
-.hero-badge-1 {
-    top: 12%;
-    left: -28px;
-    animation-delay: 0s;
-}
-
-.hero-badge-2 {
-    bottom: 12%;
-    right: -28px;
-    animation-delay: 1.75s;
-}
-
-@keyframes heroFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-}
+/* (removed: hero-floating-badge / hero-badge-1 / hero-badge-2 / @keyframes heroFloat — dead code) */
 
 @media (max-width: 992px) {
     .hero-image-container {
@@ -9275,10 +9236,9 @@ footer {
     }
 }
 /* ============================================ */
-/* FORCE ACCOUNT VISIBLE ON MOBILE — NUCLEAR */
+/* ACCOUNT VISIBILITY — THIS BLOCK MUST BE THE LAST ONE */
 /* ============================================ */
 @media (max-width: 768px) {
-    /* Force nav-icons row */
     .header-content .nav-icons,
     header .nav-icons,
     .nav-icons {
@@ -9364,10 +9324,9 @@ footer {
     }
 }
 /* ============================================ */
-/* FORCE ACCOUNT VISIBLE ON MOBILE — NUCLEAR */
+/* ACCOUNT VISIBILITY — THIS BLOCK MUST BE THE LAST ONE */
 /* ============================================ */
 @media (max-width: 768px) {
-    /* Force nav-icons row */
     .header-content .nav-icons,
     header .nav-icons,
     .nav-icons {
@@ -17414,4 +17373,16 @@ body.has-sticky-header {
 .image-container img, 
 .flash-image img {
     transition: opacity 0.4s ease-in-out;
+}
+/* ============================================ */
+/* IMPROVE PERCEIVED PERFORMANCE */
+/* ============================================ */
+/* Honor the OS "Reduce Motion" preference (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

@@ -2833,9 +2833,8 @@ function setupFilters() {
 
 function filterBySearch() {
     const searchInput = document.getElementById('shopSearch');
-    if (searchInput) {
-        shopFilterState.search = searchInput.value.trim();
-    }
+    if (!searchInput) return; // Search bar not on this page — no-op
+    shopFilterState.search = searchInput.value.trim();
     renderShopPage();
 }
 
@@ -3289,15 +3288,21 @@ function switchTab(tab) {
 }
 
 async function buyNow(productId) {
-    // Normalize id comparison to avoid string/number mismatches
+    // "Buy Now" should NOT silently inflate an existing cart line.
+    // Check if the cart is empty — if so, ensure this product is present once and go straight to checkout.
     const numericId = Number(productId);
-    const existing = cart.find(i => Number(i.id) === numericId);
 
-    if (existing) {
-        existing.quantity += 1;
+    if (cart.length === 0) {
+        // Empty cart: add exactly 1 and go to checkout
+        const fetched = await fetchProductById(productId);
+        if (!fetched) {
+            alert('Could not load this product. Please try again.');
+            return;
+        }
+        cart.push({ ...fetched, quantity: 1 });
         saveCart();
-    } else {
-        // Fetch the product from Strapi
+    } else if (!cart.some(i => Number(i.id) === numericId)) {
+        // Non-empty cart but product not in it: add once, keep existing items
         const fetched = await fetchProductById(productId);
         if (!fetched) {
             alert('Could not load this product. Please try again.');
@@ -3306,6 +3311,7 @@ async function buyNow(productId) {
         cart.push({ ...fetched, quantity: 1 });
         saveCart();
     }
+    // If product is already in cart, do nothing — proceed to checkout with current cart
 
     // Guard: if somehow the cart is still empty, don't redirect to an empty checkout
     if (cart.length === 0) {
