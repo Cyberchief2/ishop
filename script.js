@@ -1,8 +1,16 @@
-// Global state for vendor product form
-window.productFormState = {
+// Vendor product form state — module-scoped, not global.
+// Exposed as window.productFormState ONLY at the end for legacy references.
+const productFormState = {
     images: [],
-    currentStep: 1
+    currentStep: 1,
+    totalSteps: 3,
+    editProductId: null,
+    uploadedImages: [],
+    existingImages: [],
+    uploadedBookFile: null,
+    existingBookFile: null,
 };
+
 // ============================================
 // SITE CONFIG — edit once, used everywhere
 // ============================================
@@ -853,20 +861,57 @@ function injectHeaderAndFooter() {
     if (footerEl) footerEl.innerHTML = getFooterHTML();
 }
 
+let _drawerReturnFocus = null;
+
 function openMobileDrawer() {
     const drawer = document.getElementById('mobileDrawer');
     const overlay = document.getElementById('mobileDrawerOverlay');
-    if (drawer) drawer.classList.add('open');
-    if (overlay) overlay.classList.add('open');
+    if (!drawer || !overlay) return;
+
+    _drawerReturnFocus = document.activeElement;
+    drawer.classList.add('open');
+    overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+
+    // Focus the close button so keyboard users land inside the drawer
+    const closeBtn = drawer.querySelector('.drawer-close');
+    if (closeBtn) closeBtn.focus();
+
+    // Trap focus inside the drawer
+    drawer.addEventListener('keydown', _drawerFocusTrap);
+}
+
+function _drawerFocusTrap(e) {
+    if (e.key !== 'Tab') return;
+    const drawer = document.getElementById('mobileDrawer');
+    if (!drawer) return;
+    const focusables = drawer.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+    }
 }
 
 function closeMobileDrawer() {
     const drawer = document.getElementById('mobileDrawer');
     const overlay = document.getElementById('mobileDrawerOverlay');
-    if (drawer) drawer.classList.remove('open');
+    if (drawer) {
+        drawer.classList.remove('open');
+        drawer.removeEventListener('keydown', _drawerFocusTrap);
+    }
     if (overlay) overlay.classList.remove('open');
     document.body.style.overflow = '';
+
+    if (_drawerReturnFocus && typeof _drawerReturnFocus.focus === 'function') {
+        _drawerReturnFocus.focus();
+    }
+    _drawerReturnFocus = null;
 }
 
 function toggleDrawerDropdown(linkEl) {
@@ -1091,11 +1136,16 @@ let appliedCoupon = {
     description: '',
 };
 
+let _cartSyncTimer = null;
+
 function saveCart() {
     localStorage.setItem('iShopCart', JSON.stringify(cart));
     updateCartCount();
-    // Mirror to server for recovery tracking (silent, logged-in only)
-    syncCartToServer().catch(() => {});
+    // Debounce server sync — 1 call per 1.2s of inactivity instead of 1 per tap.
+    clearTimeout(_cartSyncTimer);
+    _cartSyncTimer = setTimeout(() => {
+        syncCartToServer().catch(() => {});
+    }, 1200);
 }
 
 // ============================================
@@ -1160,24 +1210,21 @@ function addToCart(productId) {
 
 async function fetchProductById(productId) {
     try {
-        const listResponse = await fetch(API_URL);
-        if (!listResponse.ok) {
-            throw new Error(`HTTP error! status: ${listResponse.status}`);
+        // 1st: try the cache (fast path — no network)
+        const cached = readProductCache();
+        if (cached) {
+            const hit = cached.find(p => String(p.id) === String(productId));
+            if (hit) return convertStrapiProduct(hit);
         }
-        const listData = await listResponse.json();
-        const found = listData.data.find(p => String(p.id) === String(productId));
 
+        // 2nd: fall back to the full fetch (which also re-populates cache)
+        const all = await fetchProducts();
+        const found = all.find(p => String(p.id) === String(productId));
         if (!found) {
             console.warn(`⚠️ Product id ${productId} not found`);
             return null;
         }
-
-        const response = await fetch(`https://ishop-cms-production.up.railway.app/api/products/${found.documentId}?populate[0]=Image&populate[1]=Specifications`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return convertStrapiProduct(data.data);
+        return convertStrapiProduct(found);
     } catch (error) {
         console.error('❌ Error fetching product:', error);
         return null;
@@ -1242,14 +1289,19 @@ function renderProducts(containerId, productList, limit = null) {
         const isInWishlist = wishlistData.includes(product.id);
         const isFreeDigital = product.type === 'digital' && product.price === 0;
         return `
-        <div class="product-card ${product.type === 'digital' ? 'digital-product' : ''}" onclick="goToProduct(${product.id})">
+        <div class="product-card ${product.type === 'digital' ? 'digital-product' : ''}"
+             onclick="goToProduct(${product.id})"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToProduct(${product.id});}"
+             tabindex="0"
+             role="link"
+             aria-label="View ${escapeHtml(product.name)}">
             <button class="wishlist-heart ${isInWishlist ? 'active' : ''}"
                     onclick="event.stopPropagation(); event.preventDefault(); toggleWishlistHeart(${product.id}, this)">
                 <i class="fa${isInWishlist ? 's' : 'r'} fa-heart"></i>
             </button>
             ${product.type === 'digital' ? '<span class="digital-badge">💻 Instant Download</span>' : ''}
             <div class="image-container">
-                <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f8fafc%22/><rect x=%2275%22 y=%2270%22 width=%2２50%２ height=%２40%２ rx=%２4%２ fill=%２%23e0e0e0%２/><circle cx=%２88%２ cy=%２84%２ r=%２5%２ fill=%２%23f9c74f%２/></svg>'" />
+                <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%23f8fafc%22/><rect x=%2275%22 y=%2270%22 width=%2250%22 height=%2240%22 rx=%224%22 fill=%22%23e0e0e0%22/><circle cx=%2288%22 cy=%2284%22 r=%225%22 fill=%22%23f9c74f%22/></svg>'" />
             </div>
             <div class="product-info">
                 <h3>${product.name}</h3>
@@ -1679,11 +1731,12 @@ async function renderHomepage() {
 
         sectionsToCheck.forEach(({ id, items }) => {
             const el = document.getElementById(id);
-            if (el) {
-                const section = el.closest('section') || el.parentElement;
-                if (section && items.length === 0) {
-                    section.style.display = 'none';
-                }
+            if (!el) return;
+            // Only hide if the section is empty AND we found a direct container.
+            // Don't climb arbitrary ancestors — that can hide the whole page.
+            const section = el.closest('.home-section, section') || el.parentElement;
+            if (section && items.length === 0) {
+                section.style.display = 'none';
             }
         });
 
@@ -1858,17 +1911,20 @@ async function renderShopPage() {
     const container = document.getElementById('allProductsGrid');
     if (!container) return;
 
-    renderProductSkeletons('allProductsGrid', 15);
+    // Only show skeletons on first load (empty state)
+    if (!shopFilterState.allProducts || shopFilterState.allProducts.length === 0) {
+        renderProductSkeletons('allProductsGrid', 15);
+    }
 
     try {
-        // Load all products (cached)
-        const productData = await fetchProducts();
-        shopFilterState.allProducts = productData.map(convertStrapiProduct);
+        // Load products only once, then filter in-memory
+        if (!shopFilterState.allProducts || shopFilterState.allProducts.length === 0) {
+            const productData = await fetchProducts();
+            shopFilterState.allProducts = productData.map(convertStrapiProduct);
+        }
 
-        // Apply filters
         const filtered = applyShopFilters(shopFilterState.allProducts);
 
-        // Render
         renderProducts('allProductsGrid', filtered);
 
         // Update result count
@@ -2078,7 +2134,7 @@ async function renderCategory(category, subType = '', type = '') {
         'phones-tablets': 'phonesTabletsProducts',
         'computers-accessories': 'computersAccessoriesProducts',
     };
-    if (containerMap[category]) {
+    if (containerMap[category] && !readProductCache()) {
         renderProductSkeletons(containerMap[category], 12);
     }
 
@@ -2360,7 +2416,7 @@ async function renderProductDetail() {
 
         initializeGallery(allImages);
 
-        // --- MOBILE UX: MOVE BUTTONS UP & DESCRIPTION BEFORE TRUST BADGES ---
+        // Mobile UX: reorder so buttons sit under the price and description sits before trust badges
         if (window.innerWidth <= 768) {
             const productInfo = document.querySelector('.product-detail-info');
             const productActions = document.querySelector('.product-actions');
@@ -2368,33 +2424,60 @@ async function renderProductDetail() {
             const descriptionSection = document.querySelector('.product-description-section');
 
             if (productInfo && productActions && deliveryInfo && descriptionSection) {
-                // 1. Move Add to Cart buttons right after the price
                 productInfo.insertBefore(productActions, deliveryInfo);
-                
-                // 2. Move Description & Tabs right before the Trust Badges
                 productInfo.insertBefore(descriptionSection, deliveryInfo);
             }
         }
-        // ---------------------------------------------------------------------
 
-        console.log('✅ Product detail rendered successfully');
-
-        // --- MOBILE UX: MOVE BUTTONS UP & DESCRIPTION BEFORE TRUST BADGES ---
-        if (window.innerWidth <= 768) {
-            const productInfo = document.querySelector('.product-detail-info');
-            const productActions = document.querySelector('.product-actions');
-            const deliveryInfo = document.querySelector('.product-delivery-info');
-            const descriptionSection = document.querySelector('.product-description-section');
-
-            if (productInfo && productActions && deliveryInfo && descriptionSection) {
-                // 1. Move Add to Cart buttons right after the price
-                productInfo.insertBefore(productActions, deliveryInfo);
-                
-                // 2. Move Description & Tabs right before the Trust Badges
-                productInfo.insertBefore(descriptionSection, deliveryInfo);
+        // SEO: set document title and canonical
+        document.title = `${product.name} — ₦${Number(product.price).toLocaleString()} | iShop Nigeria`;
+        (function setCanonical() {
+            let link = document.querySelector('link[rel="canonical"]');
+            if (!link) {
+                link = document.createElement('link');
+                link.rel = 'canonical';
+                document.head.appendChild(link);
             }
-        }
-        // ---------------------------------------------------------------------
+            const params = new URLSearchParams(window.location.search);
+            const cleanUrl = `${window.location.origin}${window.location.pathname}?id=${params.get('id') || ''}`;
+            link.href = cleanUrl;
+        })();
+
+        // SEO: inject Product structured data (Google Shopping / rich results)
+        (function injectProductJsonLd() {
+            const prev = document.getElementById('ishopProductJsonLd');
+            if (prev) prev.remove();
+
+            const jsonLd = {
+                '@context': 'https://schema.org',
+                '@type': 'Product',
+                name: product.name,
+                description: (product.description || '').slice(0, 500),
+                image: allImages.slice(0, 5),
+                sku: 'SN-' + String(product.id).padStart(6, '0'),
+                brand: product.vendorName ? { '@type': 'Brand', name: product.vendorName } : undefined,
+                offers: {
+                    '@type': 'Offer',
+                    priceCurrency: 'NGN',
+                    price: Number(product.price).toFixed(2),
+                    availability: 'https://schema.org/InStock',
+                    url: window.location.href,
+                },
+                aggregateRating: product.rating
+                    ? {
+                        '@type': 'AggregateRating',
+                        ratingValue: Number(product.rating).toFixed(1),
+                        reviewCount: 12,
+                    }
+                    : undefined,
+            };
+
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.id = 'ishopProductJsonLd';
+            script.textContent = JSON.stringify(jsonLd);
+            document.head.appendChild(script);
+        })();
 
         console.log('✅ Product detail rendered successfully');
     } catch (error) {
@@ -2606,12 +2689,9 @@ function updateAuthUI() {
         // Show admin panel link only for the admin's email
         const adminLink = document.getElementById('adminPanelLink');
         if (adminLink) {
-            const adminEmail = 'agwusite@gmail.com';
-            if ((user.email || '').toLowerCase() === adminEmail.toLowerCase()) {
-                adminLink.style.display = 'flex';
-            } else {
-                adminLink.style.display = 'none';
-            }
+            // Admin status now comes from the server-trusted user object.
+            // The backend must add `isAdmin: true` to the user payload only for staff accounts.
+            adminLink.style.display = user.isAdmin ? 'flex' : 'none';
         }
 
         // Show vendor links only if this user has a vendor account
@@ -2990,8 +3070,11 @@ function setupCheckoutForm() {
             return;
         }
 
+        // Prevent double-submits (network flaps, Enter key, fast double-tap)
+        if (submitBtn.disabled) return;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        form.dataset.submitting = 'true';
 
         try {
             const subtotal = getCartTotal();
@@ -3132,8 +3215,10 @@ function updateWishlistUI() {
     } else {
         fetchProducts().then(productData => {
             const products = productData.map(convertStrapiProduct);
-        console.log('🔎 All categories in DB:', products.map(p => p.category));
-        console.log('📋 Total products:', products.length);
+        if (window.ISHOP_DEBUG) {
+            console.log('🔎 All categories in DB:', products.map(p => p.category));
+            console.log('📋 Total products:', products.length);
+        }
             const wishlistProducts = products.filter(p => wishlistData.includes(p.id));
             renderProducts('wishlistProducts', wishlistProducts);
         });
@@ -8604,23 +8689,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const typeDropdown = document.getElementById('productTypeRef');
 
     if (catDropdown) {
-        const urls = [
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
-        ];
-        
-        Promise.all(urls.map(url => fetch(url).then(res => res.json())))
-            .then(responses => {
-                let raw = [];
-                responses.forEach(r => { if(r.data) raw = raw.concat(r.data); });
-                
-                const seen = new Set();
-                formCategories = raw.filter(c => {
-                    if(seen.has(c.documentId)) return false;
-                    seen.add(c.documentId);
-                    return true;
-                });
+        fetchAllCategoriesCached()
+            .then(formCategoriesResult => {
+                formCategories = formCategoriesResult;
 
                 const mainCats = formCategories.filter(c => !c.parentSlug);
                 catDropdown.innerHTML = '<option value="">Select a category</option>';
@@ -8746,30 +8817,53 @@ function attachMegaMenuPositioning() {
 // ============================================
 // MEGA MENU BUILDER & POSITIONER (FINAL)
 // ============================================
+// Shared, cached category fetch — used by mega menu, category icons, and product form.
+const CATEGORIES_CACHE_KEY = 'iShopCategoriesCache-v1';
+const CATEGORIES_TTL_MS = 10 * 60 * 1000;
+
+async function fetchAllCategoriesCached() {
+    try {
+        const raw = localStorage.getItem(CATEGORIES_CACHE_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.data) && Date.now() - parsed.savedAt < CATEGORIES_TTL_MS) {
+                return parsed.data;
+            }
+        }
+    } catch {}
+
+    const base = 'https://ishop-cms-production.up.railway.app/api/categories';
+    const urls = [1, 2, 3].map(
+        p => `${base}?pagination[page]=${p}&pagination[pageSize]=100`
+    );
+
+    const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
+    let rawCategories = [];
+    responses.forEach(res => { if (res.data) rawCategories = rawCategories.concat(res.data); });
+
+    const seen = new Set();
+    const allCategories = rawCategories.filter(c => {
+        if (seen.has(c.documentId)) return false;
+        seen.add(c.documentId);
+        return true;
+    });
+
+    try {
+        localStorage.setItem(CATEGORIES_CACHE_KEY, JSON.stringify({
+            savedAt: Date.now(),
+            data: allCategories,
+        }));
+    } catch {}
+
+    return allCategories;
+}
+
 async function buildDynamicMegaMenu() {
     const menuLinks = document.getElementById('dynamic-menu-links');
     if (!menuLinks) return;
 
     try {
-        const urls = [
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
-        ];
-
-        const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
-        
-        let rawCategories = [];
-        responses.forEach(res => {
-            if (res.data) rawCategories = rawCategories.concat(res.data);
-        });
-
-        const seen = new Set();
-        const allCategories = rawCategories.filter(c => {
-            if (seen.has(c.documentId)) return false;
-            seen.add(c.documentId);
-            return true;
-        });
+        const allCategories = await fetchAllCategoriesCached();
 
         menuLinks.innerHTML = `
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
@@ -9039,21 +9133,19 @@ function initMegaMenuScroller() {
     const scroller = document.querySelector('.mega-menu .menu-links');
     if (!menu || !scroller) return;
 
-    // Remove old chevron
     menu.querySelectorAll('.mega-menu-scroll-hint').forEach(el => el.remove());
 
-    // Create new chevron
     const chevron = document.createElement('button');
     chevron.className = 'mega-menu-scroll-hint';
     chevron.setAttribute('aria-label', 'Scroll categories right');
     chevron.innerHTML = '<i class="fas fa-chevron-right"></i>';
-    
+
     chevron.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         scroller.scrollBy({ left: 250, behavior: 'smooth' });
     });
-    
+
     menu.appendChild(chevron);
 
     function update() {
@@ -9068,7 +9160,8 @@ function initMegaMenuScroller() {
 
     scroller.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
-    setTimeout(update, 200);
+    // Wait for the menu to actually have content before measuring
+    requestAnimationFrame(() => setTimeout(update, 50));
 }
 
 // Initialize on load
@@ -9111,22 +9204,7 @@ async function buildCategoryPageIcons(categorySlug) {
     `;
 
     try {
-        const urls = [
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=1&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=2&pagination[pageSize]=100',
-            'https://ishop-cms-production.up.railway.app/api/categories?pagination[page]=3&pagination[pageSize]=100'
-        ];
-
-        const responses = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
-        let rawCategories = [];
-        responses.forEach(res => { if (res.data) rawCategories = rawCategories.concat(res.data); });
-        
-        const seen = new Set();
-        const allCategories = rawCategories.filter(c => {
-            if (seen.has(c.documentId)) return false;
-            seen.add(c.documentId);
-            return true;
-        });
+        const allCategories = await fetchAllCategoriesCached();
 
         const currentCategory = allCategories.find(c => c.slug === categorySlug);
         if (!currentCategory) return;
